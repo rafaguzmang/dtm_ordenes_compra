@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <record id ="dtm_ordenes_compra_accion" model="ir.actions.act_window">
+            <field name ="name">Ordenes de Compra</field>
+            <field name="res_model">dtm.ordenes.compra</field>
+            <field name="view_mode">tree,form</field>
+<!--            <field name="view_id" ref="dtm_ordenes_compra_tree" />-->
+        </record>
+
+
+        <record id="dtm_ordenes_compra_tree" model="ir.ui.view">
+            <field name="name">dtm_ordenes_compra_tree</field>
+            <field name="model">dtm.ordenes.compra</field>
+            <field name="arch" type="xml">
+                <tree >
+                    <field name="no_cotizacion"/>
+                    <field name="cliente"/>
+                    <field name="orden_compra"/>
+                    <field name="fecha_entrada"/>
+                    <field name="fecha_salida"/>
+                    <field name="precio_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="dtm_ordenes_compra_form" model="ir.ui.view">
+        <field name="name">dtm_ordenes_compra_form</field>
+        <field name="model">dtm.ordenes.compra</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <field name="no_cotizacion"/>
+                        <field name="cliente"/>
+                        <field name="orden_compra"/>
+                        <field name="fecha_entrada"/>
+                        <field name="fecha_salida"/>
+                        <field name="descripcion"/>
+                        <field name="precio_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        <field name="direccion"/>
+                        <field name="proveedor"/>
+                    </group>
+                     <group widget="one2many">
+                            <field name="archivos" filename="nombre_archivo" />
+                            <field name="nombre_archivo" invisible="1"/>
+                        </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    </data>
+</odoo>
