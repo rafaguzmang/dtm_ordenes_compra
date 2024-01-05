@@ -4,7 +4,6 @@
             <field name ="name">Ordenes de Compra</field>
             <field name="res_model">dtm.ordenes.compra</field>
             <field name="view_mode">tree,form</field>
-<!--            <field name="view_id" ref="dtm_ordenes_compra_tree" />-->
         </record>
 
 
@@ -13,41 +12,57 @@
             <field name="model">dtm.ordenes.compra</field>
             <field name="arch" type="xml">
                 <tree >
-                    <field name="no_cotizacion"/>
+                    <field name="no_cotizacion_id"/>
                     <field name="cliente"/>
                     <field name="orden_compra"/>
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
-                    <field name="precio_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="precio_total" widget="monetary"/>
                 </tree>
             </field>
         </record>
 
-        <record id="dtm_ordenes_compra_form" model="ir.ui.view">
+    <record id="dtm_ordenes_compra_form" model="ir.ui.view">
         <field name="name">dtm_ordenes_compra_form</field>
         <field name="model">dtm.ordenes.compra</field>
         <field name="arch" type="xml">
             <form string="">
+                <header>
+                    <button name="action_fill" type="object" string="Autocompletar" class="btn-primary" />
+                    <button name="action_actualizar_precotizaciones" type="object" string="Cargar Precotizaciones" class="btn-primary" />
+                </header>
                 <sheet>
                     <group>
-                        <field name="no_cotizacion"/>
+                        <field name="no_cotizacion_id"/>
                         <field name="cliente"/>
                         <field name="orden_compra"/>
                         <field name="fecha_entrada"/>
                         <field name="fecha_salida"/>
-                        <field name="descripcion"/>
-                        <field name="precio_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                        <field name="direccion"/>
+                        <field name="descripcion_id">
+                            <tree editable="bottom" >
+                                <field name="item"/>
+                                <field name="cantidad"/>
+                                <field name="precio_unitario"/>
+                                <field name="precio_total"/>
+                                <field name="orden_trabajo" />
+                                <button name="acction_generar" type="object" string="Generar" class="btn-primary" />
+                            </tree>
+                        </field>
+<!--                        <field name="precio_unitario"/>-->
+<!--                        <field name="cantidad" options='{"type": "number"}' />-->
+                        <field name="precio_total" widget="monetary"/>
                         <field name="proveedor"/>
                     </group>
-                     <group widget="one2many">
-                            <field name="archivos" filename="nombre_archivo" />
+                     <group>
+                            <field name="archivos" filename="nombre_archivo" widget="binary" />
                             <field name="nombre_archivo" invisible="1"/>
-                        </group>
+                    </group>
                 </sheet>
             </form>
         </field>
     </record>
+
+
 
 
     </data>
