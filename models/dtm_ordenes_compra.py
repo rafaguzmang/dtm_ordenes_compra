@@ -7,7 +7,9 @@ class OrdenesCompra(models.Model):
     _description = "Se muestran todos los archivos de las ordenes de compra"
 
     no_cotizacion_id = fields.Many2one("dtm.ordenes.compra.precotizaciones")
-    cliente = fields.Char(string="Cliente")
+    cliente = fields.Integer(string="Cliente", default = 1)
+    cliente_prov = fields.Char(string="Cliente")
+    
     orden_compra = fields.Char(string="Orden de Compra")
     fecha_entrada = fields.Date(string="Fecha Entrada",default= datetime.datetime.today())
     fecha_salida = fields.Date(string="Fecha Entrega",default= datetime.datetime.today())
@@ -28,7 +30,7 @@ class OrdenesCompra(models.Model):
         get_servicios = self.env['dtm.requerimientos'].search([("servicio","=", self.no_cotizacion_id.precotizacion)])
         # print(get_cliente.cliente_ids)
         # print(get_servicios)
-        self.cliente = get_cliente.cliente_ids
+        self.cliente_prov = get_cliente.cliente_ids
 
         lines = []
         line = (5,0,{})

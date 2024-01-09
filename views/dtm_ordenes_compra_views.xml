@@ -35,6 +35,7 @@
                     <group>
                         <field name="no_cotizacion_id"/>
                         <field name="cliente"/>
+                        <field name="cliente_prov"/>
                         <field name="orden_compra"/>
                         <field name="fecha_entrada"/>
                         <field name="fecha_salida"/>
