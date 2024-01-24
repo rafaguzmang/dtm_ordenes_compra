@@ -13,8 +13,9 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="no_cotizacion"/>
-                    <field name="cliente"/>
+                    <field name="cliente_prov"/>
                     <field name="orden_compra"/>
+                    <field name="prioridad" />
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
@@ -50,6 +51,11 @@
                                 <field name="no_cotizacion_id" class="primary" attrs="{'invisible': [('no_cotizacion', '=', 'True')]}" />
                             </group>
                         </div>
+                         <div class="col-6">
+                            <group>
+                                <field name="prioridad"   />
+                            </group>
+                        </div>
                     </div>
                      <div class="row">
                          <div class="col-6">
@@ -59,10 +65,15 @@
                                     <field name="fecha_salida"/>
                                 </group>
                          </div>
-                         <div class="col-6">
+                         <div class="col-3">
                                 <group>
                                     <field name="cliente_prov"/>
                                     <field name="orden_compra"/>
+                                </group>
+                         </div>
+                         <div class="col-3">
+                                <group>
+                                    <field name="cliente"/>
                                 </group>
                          </div>
                     </div>

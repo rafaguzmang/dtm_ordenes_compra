@@ -8,7 +8,7 @@ class OrdenesCompra(models.Model):
 
     no_cotizacion_id = fields.Many2one("dtm.ordenes.compra.precotizaciones")
     no_cotizacion = fields.Char(readonly=True, store=True)
-    cliente = fields.Integer(string="Cliente", default = 1)
+    cliente = fields.Many2one('res.partner',string="Cliente")
     cliente_prov = fields.Char(string="Cliente", readonly=True)
     orden_compra = fields.Char(string="Orden de Compra")
     fecha_entrada = fields.Date(string="Fecha Entrada",default= datetime.datetime.today())
@@ -19,14 +19,19 @@ class OrdenesCompra(models.Model):
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
     archivos = fields.Binary(string="Archivo")
     nombre_archivo = fields.Char(string="Nombre")
-    # prioridad = fields.Many2one("dtm.prioridades",string="Prioridad")
+    prioridad = fields.Selection(string="Prioridad", selection=[('uno','1'),('dos','2'),('tres','3'),('cuatro','4'),('cinco','5'),('seis','6'),('siete','7'),('ocho','8'),('nueve','9'),('diez','10')])
     currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
 
-    def action_sumar(self):
+    @api.onchange("cliente")
+    def _onchange_cliente(self):
+        # print(self.cliente)
+        self.cliente_prov = self.cliente.name
+        self.env.cr.execute("UPDATE dtm_ordenes_compra SET cliente_prov='"+self.cliente.name+"' WHERE id="+ str(self._origin.id))
+
+    def action_sumar(self): # Obtine el precio total si este sale en cero
         sum=0
         for result in self.descripcion_id:
             sum+= result.precio_total
-
         self.precio_total = sum
 
     @api.onchange("no_cotizacion_id")
@@ -72,7 +77,6 @@ class OrdenesCompra(models.Model):
             else:
               self.env.cr.execute("INSERT INTO dtm_compras_items (id, item, cantidad, precio_unitario, precio_total) VALUES " +
                                   "("+str(cot.id)+",'" +cot.descripcion+ "', "+str(cot.cantidad)+", "+str(cot.precio_unitario)+","+str(cot.total)+") ")
-
         return res
 
 class ItemsCompras(models.Model):
@@ -90,21 +94,6 @@ class ItemsCompras(models.Model):
 
     def acction_generar(self):# Genera orden de trabajo
         pass
-        # get_info = self.env['dtm.odt'].search([])
-        # # print(len(get_info))
-        # get_info = self.env['dtm.odt'].search([("id","=",str(len(get_info)))])
-        # # print(get_info.ot_number)
-        # # print(self.model_id.id)
-        # ot_number = int(get_info.ot_number) + 1
-        # name_client = self.model_id.id
-        # cantidad = self.cantidad
-        # product_name = self.item
-        # po_number = self.model_id.orden_compra
-        # date_in = self.model_id.fecha_entrada
-        # date_rel = self.model_id.fecha_salida
-        # print(ot_number,name_client,cantidad,product_name,po_number,date_in,date_rel)
-        # self.env.cr.execute("INSERT INTO dtm_odt (ot_number, name_client, cuantity, tipe_order, product_name, po_number, date_in, date_rel) " +
-        # "VALUES ('"+str(ot_number)+"',"+str(name_client) +", "+ str(cantidad)+ ", 'ot', '" +product_name +"', '"+str(po_number) +"', '"+str(date_in)+"', '"+ str(date_rel) +"')")
 
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
@@ -114,12 +103,6 @@ class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones 
 
     precotizacion = fields.Char()
     orden_compra = fields.Char()
-
-# class Prioridad(models.Model):
-#     _name = "dtm.prioridades"
-#     _description = "Tabla númerica para dar prioridad a las ordenes de compra"
-#
-#     numero = fields.Integer(string="Numero")
 
 
 
