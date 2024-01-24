@@ -68,6 +68,11 @@ class OrdenesCompra(models.Model):
                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE precotizacion = '" + get_odc.no_cotizacion+"'")
                 # print(get_odc.no_cotizacion)
 
+        get_oc = self.env['dtm.ordenes.compra'].search([])
+        for result in get_oc:
+             if result.cliente.name:
+                self.env.cr.execute("UPDATE dtm_ordenes_compra SET cliente_prov = '"+result.cliente.name +"' WHERE id ="+str(result.id))
+
         get_cot = self.env['dtm.cotizacion.requerimientos'].search([])
         for cot in get_cot:
             get_compras = self.env['dtm.compras.items'].search([('id','=',cot.id)])
@@ -77,6 +82,7 @@ class OrdenesCompra(models.Model):
             else:
               self.env.cr.execute("INSERT INTO dtm_compras_items (id, item, cantidad, precio_unitario, precio_total) VALUES " +
                                   "("+str(cot.id)+",'" +cot.descripcion+ "', "+str(cot.cantidad)+", "+str(cot.precio_unitario)+","+str(cot.total)+") ")
+
         return res
 
 class ItemsCompras(models.Model):
