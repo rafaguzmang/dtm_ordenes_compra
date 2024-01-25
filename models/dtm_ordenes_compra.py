@@ -9,7 +9,7 @@ class OrdenesCompra(models.Model):
     no_cotizacion_id = fields.Many2one("dtm.ordenes.compra.precotizaciones")
     no_cotizacion = fields.Char(readonly=True, store=True)
     cliente = fields.Many2one('res.partner',string="Cliente")
-    cliente_prov = fields.Char(string="Cliente", readonly=True)
+    cliente_prov = fields.Char(string="Cliente", readonly=True, store=True)
     orden_compra = fields.Char(string="Orden de Compra")
     fecha_entrada = fields.Date(string="Fecha Entrada",default= datetime.datetime.today())
     fecha_salida = fields.Date(string="Fecha Entrega",default= datetime.datetime.today())
@@ -26,7 +26,10 @@ class OrdenesCompra(models.Model):
     def _onchange_cliente(self):
         # print(self.cliente)
         self.cliente_prov = self.cliente.name
-        self.env.cr.execute("UPDATE dtm_ordenes_compra SET cliente_prov='"+self.cliente.name+"' WHERE id="+ str(self._origin.id))
+
+
+
+
 
     def action_sumar(self): # Obtine el precio total si este sale en cero
         sum=0
@@ -34,13 +37,18 @@ class OrdenesCompra(models.Model):
             sum+= result.precio_total
         self.precio_total = sum
 
-    @api.onchange("no_cotizacion_id")
-    def _action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
+
+    def action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
         get_cliente = self.env['dtm.client.needs'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
         get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
         self.proveedor = get_cot.proveedor
-        self.cliente_prov = get_cliente.cliente_ids.name
+        if self.cliente:
+            self.cliente_prov = self.cliente.name
+        else:
+            self.cliente_prov = get_cliente.cliente_ids.name
+
         self.currency = get_cot.curency
+        self.no_cotizacion = self.no_cotizacion_id.precotizacion
         lines = []
         sum = 0
         line =(5,0,{})
@@ -51,8 +59,8 @@ class OrdenesCompra(models.Model):
             sum += result.total
         self.precio_total = sum
         self.descripcion_id = lines
-        self.no_cotizacion = self.no_cotizacion_id.precotizacion
-        self.env.cr.execute("UPDATE dtm_ordenes_compra SET no_cotizacion = '"+ self.no_cotizacion + "' WHERE id="+str(self._origin.id))
+
+
 
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
@@ -68,10 +76,10 @@ class OrdenesCompra(models.Model):
                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE precotizacion = '" + get_odc.no_cotizacion+"'")
                 # print(get_odc.no_cotizacion)
 
-        get_oc = self.env['dtm.ordenes.compra'].search([])
-        for result in get_oc:
-             if result.cliente.name:
-                self.env.cr.execute("UPDATE dtm_ordenes_compra SET cliente_prov = '"+result.cliente.name +"' WHERE id ="+str(result.id))
+        # get_oc = self.env['dtm.ordenes.compra'].search([])
+        # for result in get_oc:
+        #      if result.cliente.name:
+        #         self.env.cr.execute("UPDATE dtm_ordenes_compra SET cliente_prov = '"+result.cliente.name +"' WHERE id ="+str(result.id))
 
         get_cot = self.env['dtm.cotizacion.requerimientos'].search([])
         for cot in get_cot:

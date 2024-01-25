@@ -46,10 +46,14 @@
                           </div>
                      </div>
                     <div class="row">
-                        <div class="col-6">
-                            <group>
-                                <field name="no_cotizacion_id" class="primary" attrs="{'invisible': [('no_cotizacion', '=', 'True')]}" />
-                            </group>
+                        <div class="col-2">
+                                <group>
+                                    <field name="no_cotizacion_id" class="primary"  />
+
+                                </group>
+                        </div>
+                        <div class="col-4">
+                                <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
                         </div>
                          <div class="col-6">
                             <group>
