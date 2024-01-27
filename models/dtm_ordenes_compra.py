@@ -130,15 +130,18 @@ class ItemsCompras(models.Model):
                         name_client = order.cliente_prov
                         no_cotizacion = order.no_cotizacion
 
-        get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('descripcion','=',self.item)])
+        get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
         get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
+
+        print(get_rec.descripcion)
+        print(self.item)
 
         if self.orden_trabajo:
             raise ValidationError("Ya hay una orden de trabajo generada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
             self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description) "+
-                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'ot', '"+str(get_rec.nombre)+"', '"+po_number+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+name_client+"', '"+str(self.item)+"' )")
+                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'ot', '"+str(self.item)+"', '"+po_number+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+name_client+"', '"+str(get_rec.descripcion)+"' )")
         else:
              raise ValidationError("No existe número de compra")
 

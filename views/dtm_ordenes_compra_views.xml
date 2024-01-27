@@ -89,7 +89,7 @@
                                 <field name="precio_unitario"/>
                                 <field name="precio_total" />
                                 <field name="orden_trabajo" />
-                                <button name="acction_generar" type="object" string="Generar" class="btn-primary" attrs="{'invisible': [('orden_trabajo', '=',False)]}" />
+                                <button name="acction_generar" type="object" string="Generar" class="btn-primary" attrs="{'invisible': [('orden_trabajo', '=',True)]}" />
                             </tree>
                         </field>
 
