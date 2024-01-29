@@ -20,6 +20,7 @@
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
 <!--                    <field name="prioridad" widget="many2many_tags" options="{'color_field': 'color'}" />-->
+                    <field name="facturado" />
                 </tree>
             </field>
         </record>
@@ -78,6 +79,7 @@
                          <div class="col-3">
                                 <group>
                                     <field name="cliente"/>
+                                    <field name="facturado" />
                                 </group>
                          </div>
                     </div>

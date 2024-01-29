@@ -22,6 +22,9 @@ class OrdenesCompra(models.Model):
     prioridad = fields.Selection(string="Prioridad", selection=[('uno',1),('dos',2),('tres',3),('cuatro',4),('cinco',5),('seis',6),('siete',7),('ocho',8),('nueve',9),('diez',10)])
     currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
 
+    # facturado_toogle = fields.Boolean( defaul=False)
+    facturado = fields.Selection(string="Facturado",defaul="no", selection=[('si','SI'),('no','NO')])
+
     @api.onchange("nombre_archivo")
     def action_archivos(self):
         for result in self:
