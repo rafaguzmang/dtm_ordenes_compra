@@ -28,8 +28,9 @@ class OrdenesCompra(models.Model):
 
 
     def action_facturado(self):
-        if self.no_factura and self.orden_compra and self.no_cotizacion and self.archivos:
-            print(self.no_cotizacion,self.no_cotizacion,self.orden_compra,self.fecha_entrada,datetime.datetime.today(),self.descripcion_id,self.precio_total,self.proveedor,self.archivos,self.nombre_archivo,self.currency,self.no_factura)
+        # if self.no_factura and self.orden_compra and self.no_cotizacion and self.archivos:
+        if self.no_factura:
+            # print(self.no_cotizacion,self.no_cotizacion,self.orden_compra,self.fecha_entrada,datetime.datetime.today(),self.descripcion_id,self.precio_total,self.proveedor,self.archivos,self.nombre_archivo,self.currency,self.no_factura)
             get_fact = self.env['dtm.ordenes.compra.facturado'].search([("id","=",self.id)])
             if not get_fact:
                 self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura) " +
