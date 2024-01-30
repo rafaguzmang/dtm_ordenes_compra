@@ -19,6 +19,7 @@
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
+                    <field name="currency" />
 <!--                    <field name="prioridad" widget="many2many_tags" options="{'color_field': 'color'}" />-->
                     <field name="facturado" />
                 </tree>
@@ -30,6 +31,9 @@
         <field name="model">dtm.ordenes.compra</field>
         <field name="arch" type="xml">
             <form string="">
+                 <header>
+                    <button name="action_facturado" type="object" string="Facturado" class="btn btn-primary"/>
+                </header>
                 <sheet>
                      <div class="row">
                           <div class="col-6">
@@ -59,6 +63,7 @@
                          <div class="col-6">
                             <group>
                                 <field name="prioridad"   />
+                                <field name="no_factura"/>
                             </group>
                         </div>
                     </div>

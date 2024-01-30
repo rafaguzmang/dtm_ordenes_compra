@@ -2,5 +2,6 @@ id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
 access_dtm_ordenes_compra,access.dtm.ordenes.compra,model_dtm_ordenes_compra,base.group_user,1,1,1,1
 access_dtm_compras_items,access.dtm.compras.items,model_dtm_compras_items,base.group_user,1,1,1,1
 access_dtm_ordenes_compra_precotizaciones,access.dtm.ordenes.compra.precotizaciones,model_dtm_ordenes_compra_precotizaciones,base.group_user,1,1,1,1
+access_dtm_ordenes_compra_facturado,access.dtm.ordenes.compra.facturado,model_dtm_ordenes_compra_facturado,base.group_user,1,1,1,1
 
 

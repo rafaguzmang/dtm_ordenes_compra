@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id = "dtm_ordenes_compra_facturado_accion" model="ir.actions.act_window">
+            <field name="name">Facturado</field>
+            <field name="res_model">dtm.ordenes.compra.facturado</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="dtm_ordenes_compra_facturado_tree" model="ir.ui.view">
+            <field name="name">dtm_ordenes_compra_facturado_tree</field>
+            <field name="model">dtm.ordenes.compra.facturado</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="factura"/>
+                    <field name="cliente_prov"/>
+                    <field name="orden_compra"/>
+                    <field name="no_cotizacion"/>
+                    <field name="fecha_factura"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="dtm_ordenes_compra_facturado_form" model="ir.ui.view">
+            <field name="name">dtm_ordenes_compra_facturado_form</field>
+            <field name="model">dtm.ordenes.compra.facturado</field>
+            <field name="arch" type="xml">
+                <form>
+                   <sheet>
+                         <div class="row">
+                             <div class="col-3">
+                                 <h1>
+                                    <field name="factura"/>
+                                 </h1>
+                             </div>
+                             <div class="col-7">
+                                 <h2>
+                                    <field name="proveedor"/>
+                                 </h2>
+                             </div>
+                             <div class="col-2">
+                                 <h2>
+                                    <field name="fecha_factura"/>
+                                 </h2>
+                             </div>
+
+                         </div>
+                         <div class="row">
+                               <group>
+                                    <field name="cliente_prov"/>
+                                    <field name="orden_compra"/>
+                                    <field name="no_cotizacion"/>
+                               </group>
+                        </div>
+                        <div class="row">
+                            <field name="descripcion_id">
+                                <tree editable="bottom" >
+                                    <field name="item" />
+                                    <field name="cantidad" />
+                                    <field name="precio_unitario"/>
+                                    <field name="precio_total" />
+                                    <field name="orden_trabajo" />
+                                </tree>
+                            </field>
+                        </div>
+                       <div class="row">
+                            <field name="archivos" filename="nombre_archivo" widget="binary" />
+                            <field name="nombre_archivo" invisible="1"/>
+                       </div>
+                   </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

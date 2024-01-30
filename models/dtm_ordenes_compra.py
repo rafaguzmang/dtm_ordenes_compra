@@ -20,10 +20,27 @@ class OrdenesCompra(models.Model):
     archivos = fields.Binary(string="Archivo")
     nombre_archivo = fields.Char(string="Nombre")
     prioridad = fields.Selection(string="Prioridad", selection=[('uno',1),('dos',2),('tres',3),('cuatro',4),('cinco',5),('seis',6),('siete',7),('ocho',8),('nueve',9),('diez',10)])
-    currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
+    currency = fields.Selection(string="Moneda",defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
 
     # facturado_toogle = fields.Boolean( defaul=False)
     facturado = fields.Selection(string="Facturado",defaul="no", selection=[('si','SI'),('no','NO')])
+    no_factura = fields.Char(string="No Factura")
+
+
+    def action_facturado(self):
+        if self.no_factura and self.orden_compra and self.no_cotizacion and self.archivos:
+            print(self.no_cotizacion,self.no_cotizacion,self.orden_compra,self.fecha_entrada,datetime.datetime.today(),self.descripcion_id,self.precio_total,self.proveedor,self.archivos,self.nombre_archivo,self.currency,self.no_factura)
+            get_fact = self.env['dtm.ordenes.compra.facturado'].search([("id","=",self.id)])
+            if not get_fact:
+                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura) " +
+                                                                 "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+self.orden_compra+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"')")
+            else:
+                # self.env.cr.execute("UPDATE dtm_ordenes_compra_facturado SET cliente_prov='"+self.cliente_prov+"', no_cotizacion='"+self.no_cotizacion+"' WHERE id="+ str(self.id))
+
+                raise ValidationError("Esta factura ya existe")
+        else:
+            raise ValidationError("No existe número de factura")
+
 
     @api.onchange("nombre_archivo")
     def action_archivos(self):
