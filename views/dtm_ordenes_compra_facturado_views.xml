@@ -26,6 +26,9 @@
             <field name="model">dtm.ordenes.compra.facturado</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button name="action_descripcion_id" type="object" string="Prueba" class="btn btn-primary"/>
+                    </header>
                    <sheet>
                          <div class="row">
                              <div class="col-3">
@@ -52,20 +55,37 @@
                                     <field name="no_cotizacion"/>
                                </group>
                         </div>
-                        <div class="row">
-                            <field name="descripcion_id">
-                                <tree editable="bottom" >
-                                    <field name="item" />
-                                    <field name="cantidad" />
-                                    <field name="precio_unitario"/>
-                                    <field name="precio_total" />
-                                    <field name="orden_trabajo" />
-                                </tree>
-                            </field>
-                        </div>
+                        <notebook>
+                            <page string="Requerimientos">
+                                <div class="row">
+                                    <field name="descripcion_id">
+                                        <tree editable="bottom" >
+                                            <field name="item" />
+                                            <field name="cantidad" />
+                                            <field name="precio_unitario"/>
+                                            <field name="precio_total" />
+                                            <field name="orden_trabajo" />
+                                        </tree>
+                                    </field>
+                                </div>
+                            </page>
+                            <page string="Ordenes de Compra">
+                               <div class="row">
+                                    <field name="archivos_id" widget="many2many_binary" />
+                               </div>
+                            </page>
+                        </notebook>
                        <div class="row">
-                            <field name="archivos" filename="nombre_archivo" widget="binary" />
-                            <field name="nombre_archivo" invisible="1"/>
+                            <div class="col-10">
+
+                           </div>
+                           <div class="col-2">
+                               <h4>
+                                    <field name="precio_total" />
+                                    <field name="currency" />
+
+                               </h4>
+                           </div>
                        </div>
                    </sheet>
                 </form>
