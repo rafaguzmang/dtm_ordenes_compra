@@ -8,6 +8,7 @@ class OrdenesCompra(models.Model):
 
     no_cotizacion_id = fields.Many2one("dtm.ordenes.compra.precotizaciones")
     no_cotizacion = fields.Char(readonly=True, store=True)
+    cotizacion_mas = fields.Integer()
     cliente = fields.Many2one('res.partner',string="Cliente")
     cliente_prov = fields.Char(string="Cliente", readonly=True, store=True)
     orden_compra = fields.Char(string="Orden de Compra")
@@ -17,24 +18,45 @@ class OrdenesCompra(models.Model):
     precio_total = fields.Float(string="Precio total")
     proveedor = fields.Selection(string='Proveedor',default='dtm',
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
-    archivos = fields.Binary(string="Archivo")
-    nombre_archivo = fields.Char(string="Nombre")
+    # archivos = fields.Binary(string="Archivo")
+    archivos_id = fields.Many2many("ir.attachment",string="Archivos")
     prioridad = fields.Selection(string="Prioridad", selection=[('uno',1),('dos',2),('tres',3),('cuatro',4),('cinco',5),('seis',6),('siete',7),('ocho',8),('nueve',9),('diez',10)])
     currency = fields.Selection(string="Moneda",defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
 
     # facturado_toogle = fields.Boolean( defaul=False)
-    facturado = fields.Selection(string="Facturado",defaul="no", selection=[('si','SI'),('no','NO')])
     no_factura = fields.Char(string="No Factura")
+
+
+
 
 
     def action_facturado(self):
         # if self.no_factura and self.orden_compra and self.no_cotizacion and self.archivos:
         if self.no_factura:
             # print(self.no_cotizacion,self.no_cotizacion,self.orden_compra,self.fecha_entrada,datetime.datetime.today(),self.descripcion_id,self.precio_total,self.proveedor,self.archivos,self.nombre_archivo,self.currency,self.no_factura)
+
+
             get_fact = self.env['dtm.ordenes.compra.facturado'].search([("id","=",self.id)])
             if not get_fact:
-                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura) " +
-                                                                 "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+self.orden_compra+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"')")
+                for result in self.descripcion_id:
+                    self.env.cr.execute("UPDATE dtm_compras_items SET no_factura="+self.no_factura+" WHERE id="+str(result.id))
+                    get_fact_item = self.env['dtm.compras.items'].search([("no_factura","=",self.no_factura)])
+                    get_final = self.env['dtm.compra.facturado.item'].search([("no_factura","=",self.no_factura)])
+                    if not get_final:
+                        for item in get_fact_item:
+                            # print(item.item,item.cantidad,item.precio_unitario,item.precio_total,item.orden_trabajo,item.no_factura,item.orden_compra)
+                            self.env.cr.execute("INSERT INTO dtm_compra_facturado_item (item, cantidad, precio_unitario, precio_total ,orden_trabajo, no_factura, orden_compra) "+
+                                                                               "VALUES ('"+item.item+"', "+str(item.cantidad)+", "+str(item.precio_unitario)+", "+str(item.precio_total)+", '"+str(item.orden_trabajo)+"', '"+str(item.no_factura)+"', '"+str(item.orden_compra)+"')")
+
+                if not self.archivos_id:
+                    archivos_id = 0
+                else:
+                    archivos_id = self.archivos_id[0].res_id
+
+                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id) " +
+                                                                 "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"', "+str(archivos_id)+")")
+                self.env.cr.execute("DELETE FROM dtm_ordenes_compra WHERE id="+str(self.id))
+
             else:
                 # self.env.cr.execute("UPDATE dtm_ordenes_compra_facturado SET cliente_prov='"+self.cliente_prov+"', no_cotizacion='"+self.no_cotizacion+"' WHERE id="+ str(self.id))
 
@@ -64,6 +86,8 @@ class OrdenesCompra(models.Model):
     def action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
         get_cliente = self.env['dtm.client.needs'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
         get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
+        # print(self.no_cotizacion_id.precotizacion)
+        # print(get_cot)
         self.proveedor = get_cot.proveedor
         if self.cliente:
             self.cliente_prov = self.cliente.name
@@ -82,6 +106,7 @@ class OrdenesCompra(models.Model):
             sum += result.total
         self.precio_total = sum
         self.descripcion_id = lines
+        self.cotizacion_mas = len(get_cot)
 
 
 
@@ -91,17 +116,15 @@ class OrdenesCompra(models.Model):
         get_pre = self.env['dtm.cotizaciones'].search([])
         for pre in get_pre:
             get_cot = self.env['dtm.ordenes.compra.precotizaciones'].search([('precotizacion','=',pre.no_cotizacion)])
+            get_facturado = self.env['dtm.ordenes.compra.facturado'].search([('no_cotizacion','=',pre.no_cotizacion)])
             get_odc = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",pre.no_cotizacion)])
-            if not get_cot:
+            # print(get_odc[0])
+            if get_odc:
+                get_odc = get_odc[0]
+            if not get_cot and not get_facturado:
                 self.env.cr.execute("INSERT INTO dtm_ordenes_compra_precotizaciones (precotizacion) VALUES ('"+pre.no_cotizacion+"') ")
             if get_odc:
                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE precotizacion = '" + get_odc.no_cotizacion+"'")
-                # print(get_odc.no_cotizacion)
-
-        # get_oc = self.env['dtm.ordenes.compra'].search([])
-        # for result in get_oc:
-        #      if result.cliente.name:
-        #         self.env.cr.execute("UPDATE dtm_ordenes_compra SET cliente_prov = '"+result.cliente.name +"' WHERE id ="+str(result.id))
 
         get_cot = self.env['dtm.cotizacion.requerimientos'].search([])
         for cot in get_cot:
@@ -112,8 +135,6 @@ class OrdenesCompra(models.Model):
             else:
               self.env.cr.execute("INSERT INTO dtm_compras_items (id, item, cantidad, precio_unitario, precio_total) VALUES " +
                                   "("+str(cot.id)+",'" +cot.descripcion+ "', "+str(cot.cantidad)+", "+str(cot.precio_unitario)+","+str(cot.total)+") ")
-
-
         return res
 
 class ItemsCompras(models.Model):
@@ -126,6 +147,10 @@ class ItemsCompras(models.Model):
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
     orden_trabajo = fields.Char(string="Orden de Trabajo")
+    no_factura = fields.Char(string="No Factura")
+    orden_compra = fields.Char(string="PO")
+    archivos = fields.Binary(string="Archivo")
+    nombre_archivo = fields.Char(string="Nombre")
 
 
     def acction_generar(self):# Genera orden de trabajo
@@ -153,9 +178,6 @@ class ItemsCompras(models.Model):
 
         get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
         get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
-
-        print(get_rec.descripcion)
-        print(self.item)
 
         if self.orden_trabajo:
             raise ValidationError("Ya hay una orden de trabajo generada")
