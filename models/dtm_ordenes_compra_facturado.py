@@ -9,7 +9,7 @@ class Facturado(models.Model):
     cliente_prov = fields.Char(string="Cliente", readonly=True)
     orden_compra = fields.Char(string="Orden de Compra",readonly=True)
     fecha_factura = fields.Date(string="Fecha de Facturación",readonly=True)
-    descripcion_id = fields.One2many("dtm.compras.items",'model_id',readonly=True)
+    descripcion_id = fields.One2many("dtm.compras.items",'model_id',readonly=True,)
     precio_total = fields.Float(string="Precio total",readonly=True)
     proveedor = fields.Selection(string='Proveedor',readonly=True,
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
@@ -20,11 +20,26 @@ class Facturado(models.Model):
     factura = fields.Char(string="Factura",readonly=True)
 
     def compute_archivo_correspondiente(self):
-        for result in self:
-            get_com = self.env['dtm.ordenes.compra'].search([("id","=",self.id)])
-            if get_com.archivos:
-                result.archivos = get_com.archivos
-                result.nombre_archivo = get_com.nombre_archivo
+        get_cliente = self.env['dtm.client.needs'].search([("no_cotizacion", "=", self.no_cotizacion_id.precotizacion)])
+        get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion_id.precotizacion)])
+        self.proveedor = get_cot.proveedor
+        if self.cliente:
+            self.cliente_prov = self.cliente.name
+        else:
+            self.cliente_prov = get_cliente.cliente_ids.name
+
+        self.currency = get_cot.curency
+        self.no_cotizacion = self.no_cotizacion_id.precotizacion
+        lines = []
+        sum = 0
+        line = (5, 0, {})
+        lines.append(line)
+        for result in get_cot.servicios_id:
+            line = (4, result.id, {})
+            lines.append(line)
+            sum += result.total
+        self.precio_total = sum
+        self.descripcion_id = lines
 
 
 
