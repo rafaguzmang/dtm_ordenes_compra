@@ -25,7 +25,20 @@ class OrdenesCompra(models.Model):
 
     # facturado_toogle = fields.Boolean( defaul=False)
     no_factura = fields.Char(string="No Factura")
+    notas = fields.Text()
+    parcial = fields.Boolean(string="Parcial")
 
+    @api.onchange("parcial")
+    def _onchange_parcial(self):
+        print(self.descripcion_id._origin.id)
+        print(self.parcial)
+        for par in self.descripcion_id:
+            print(par._origin.id)
+            if self.parcial:
+                parcial = "true"
+            else:
+                parcial = "false"
+            self.env.cr.execute("UPDATE dtm_compras_items SET parcial='"+parcial+"' WHERE id="+str(self.descripcion_id._origin.id))
 
 
 
@@ -38,7 +51,7 @@ class OrdenesCompra(models.Model):
 
             get_fact = self.env['dtm.ordenes.compra.facturado'].search([("id","=",self.id)])
             if not get_fact:
-                for result in self.descripcion_id:
+                for result in self.descripcion_id:#Inserta los items en la tabla de facturado
                     self.env.cr.execute("UPDATE dtm_compras_items SET no_factura="+self.no_factura+" WHERE id="+str(result.id))
                     get_fact_item = self.env['dtm.compras.items'].search([("no_factura","=",self.no_factura)])
                     get_final = self.env['dtm.compra.facturado.item'].search([("no_factura","=",self.no_factura)])
@@ -52,9 +65,9 @@ class OrdenesCompra(models.Model):
                     archivos_id = 0
                 else:
                     archivos_id = self.archivos_id[0].res_id
-
-                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id) " +
-                                                                 "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"', "+str(archivos_id)+")")
+                #Inserta los datos del número de servicio
+                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id, notas) " +
+                                                                 "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"', "+str(archivos_id)+", '"+str(self.notas)+"')")
                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra WHERE id="+str(self.id))
 
             else:
@@ -151,6 +164,11 @@ class ItemsCompras(models.Model):
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
     nombre_archivo = fields.Char(string="Nombre")
+    status = fields.Char(string="Status")
+    parcial = fields.Boolean(default=False)
+
+
+
 
 
     def acction_generar(self):# Genera orden de trabajo

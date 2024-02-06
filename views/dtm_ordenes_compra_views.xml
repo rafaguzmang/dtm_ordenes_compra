@@ -20,7 +20,6 @@
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
                     <field name="currency" />
-<!--                    <field name="prioridad" widget="many2many_tags" options="{'color_field': 'color'}" />-->
 
                 </tree>
             </field>
@@ -44,28 +43,35 @@
                          <div class="col-3">
 
                           </div>
-                          <div class="col-3">
+                          <div class="col-2">
                               <h1>
                                 <field name="no_cotizacion" class="" />
                               </h1>
                           </div>
+
                      </div>
                     <div class="row">
-                        <div class="col-2">
+                        <div class="col-3">
                                 <group>
                                     <field name="no_cotizacion_id" class="primary"  />
 
                                 </group>
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                                 <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
                         </div>
-                         <div class="col-6">
+                         <div class="col-3">
                             <group>
-                                <field name="prioridad"   />
                                 <field name="no_factura"/>
+                                <field name="prioridad"   />
                             </group>
                         </div>
+                         <div class="col-3">
+                            <group>
+                                  <field name="parcial" widget="boolean_toggle"/>
+                            </group>
+                          </div>
+
                     </div>
                      <div class="row">
                          <div class="col-6">
@@ -98,6 +104,8 @@
                                     <field name="orden_compra" />
                                     <field name="orden_trabajo" />
                                     <button name="acction_generar" type="object" string="Generar" class="btn-primary" attrs="{'invisible': [('orden_trabajo', '=',True)]}" />
+                                    <field name="status" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
+                                    <field name="parcial" invisible="1"/>
                                 </tree>
                             </field>
                         </page>
@@ -106,6 +114,9 @@
                                 <field name="archivos_id"  widget="many2many_binary" />
     <!--                            <field name="nombre_archivo" invisible="1"/>-->
                             </div>
+                        </page>
+                        <page string="Notas">
+                            <field name="notas" />
                         </page>
                     </notebook>
 

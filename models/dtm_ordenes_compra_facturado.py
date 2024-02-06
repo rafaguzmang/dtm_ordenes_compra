@@ -16,6 +16,7 @@ class Facturado(models.Model):
     archivos_id = fields.Many2many("ir.attachment",string="Archivos")
     currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
     factura = fields.Char(string="Factura",readonly=True)
+    notas = fields.Text(string="notas", default="solo notas")
 
     res_id = fields.Integer()
 
