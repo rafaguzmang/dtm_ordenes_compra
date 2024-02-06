@@ -16,6 +16,7 @@
                     <field name="cliente_prov"/>
                     <field name="orden_compra"/>
                     <field name="no_cotizacion"/>
+                    <field name="proveedor"/>
                     <field name="fecha_factura"/>
                 </tree>
             </field>
@@ -26,9 +27,6 @@
             <field name="model">dtm.ordenes.compra.facturado</field>
             <field name="arch" type="xml">
                 <form>
-                    <header>
-                        <button name="action_descripcion_id" type="object" string="Prueba" class="btn btn-primary"/>
-                    </header>
                    <sheet>
                          <div class="row">
                              <div class="col-3">
@@ -84,7 +82,12 @@
                            <div class="col-2">
                                <h4>
                                     <field name="precio_total" />
+<<<<<<< HEAD
                                     <field name="currency" />
+=======
+<!--                                    <field name="currency" />-->
+
+>>>>>>> 192601b19c62affd8786528762a312ec66226050
                                </h4>
                            </div>
                        </div>
@@ -92,5 +95,7 @@
                 </form>
             </field>
         </record>
+
+
     </data>
 </odoo>

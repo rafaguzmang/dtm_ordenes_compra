@@ -21,7 +21,7 @@ class OrdenesCompra(models.Model):
     # archivos = fields.Binary(string="Archivo")
     archivos_id = fields.Many2many("ir.attachment",string="Archivos")
     prioridad = fields.Selection(string="Prioridad", selection=[('uno',1),('dos',2),('tres',3),('cuatro',4),('cinco',5),('seis',6),('siete',7),('ocho',8),('nueve',9),('diez',10)])
-    currency = fields.Selection(string="Moneda",defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
+    currency = fields.Selection(string="Moneda",defaul="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
 
     # facturado_toogle = fields.Boolean( defaul=False)
     no_factura = fields.Char(string="No Factura")
@@ -65,9 +65,15 @@ class OrdenesCompra(models.Model):
                     archivos_id = 0
                 else:
                     archivos_id = self.archivos_id[0].res_id
+<<<<<<< HEAD
                 #Inserta los datos del número de servicio
                 self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id, notas) " +
                                                                  "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"', "+str(archivos_id)+", '"+str(self.notas)+"')")
+=======
+
+                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id) " +
+                                                                 "VALUES ("+str(self.id)+",'"+str(self.no_cotizacion)+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+str(self.currency)+"', '"+self.no_factura+"', "+str(archivos_id)+")")
+>>>>>>> 192601b19c62affd8786528762a312ec66226050
                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra WHERE id="+str(self.id))
 
             else:
