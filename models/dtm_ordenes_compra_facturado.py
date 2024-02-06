@@ -9,78 +9,44 @@ class Facturado(models.Model):
     cliente_prov = fields.Char(string="Cliente", readonly=True)
     orden_compra = fields.Char(string="Orden de Compra",readonly=True)
     fecha_factura = fields.Date(string="Fecha de Facturación",readonly=True)
-<<<<<<< HEAD
-    descripcion_id = fields.One2many("dtm.compras.items",'model_id',readonly=True,)
-=======
-    descripcion_id = fields.Many2many("dtm.compra.facturado.item", compute="_compute_descripcion_id",readonly=True)
->>>>>>> refs/remotes/origin/main
+    descripcion_id = fields.Many2many("dtm.compra.facturado.item",compute="_compute_descripcion_id", readonly=True)
     precio_total = fields.Float(string="Precio total",readonly=True)
     proveedor = fields.Selection(string='Proveedor',readonly=True,
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
-    archivos_id = fields.Many2many("ir.attachment",string="Archivos")
+    archivos_id = fields.Many2many("ir.attachment",string="Archivos", compute="_compute_delete")
     currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
     factura = fields.Char(string="Factura",readonly=True)
-
-<<<<<<< HEAD
-    def compute_archivo_correspondiente(self):
-        get_cliente = self.env['dtm.client.needs'].search([("no_cotizacion", "=", self.no_cotizacion_id.precotizacion)])
-        get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion_id.precotizacion)])
-        self.proveedor = get_cot.proveedor
-        if self.cliente:
-            self.cliente_prov = self.cliente.name
-        else:
-            self.cliente_prov = get_cliente.cliente_ids.name
-
-        self.currency = get_cot.curency
-        self.no_cotizacion = self.no_cotizacion_id.precotizacion
-        lines = []
-        sum = 0
-        line = (5, 0, {})
-        lines.append(line)
-        for result in get_cot.servicios_id:
-            line = (4, result.id, {})
-            lines.append(line)
-            sum += result.total
-        self.precio_total = sum
-        self.descripcion_id = lines
-=======
     res_id = fields.Integer()
 
-    # def compute_archivo_correspondiente(self):
-    def action_descripcion_id(self):
-         # for result in self:
-            self.env.cr.execute("SELECT * FROM ir_attachment WHERE res_id="+str(self.res_id))
-            get_attc = list(line[0] for line in self.env.cr.fetchall())
-            # get_attc = self.env['ir.attachment'].search([("res_model","=","res.partner")])
-            # print(get_attc,self.res_id)
-            lines = []
-            line = (5,0,{})
+    def _compute_delete(self):
+        self.env.cr.execute(
+            "SELECT * FROM ir_attachment WHERE res_model= 'dtm.ordenes.compra' AND res_id=" + str(self.res_id))
+        get_attc = list(line[0] for line in self.env.cr.fetchall())
+        # get_attc = self.env['ir.attachment'].search([("res_id","=",self.res_id),("res_model","=","dtm.ordenes.compra")])
+        print(get_attc, self.res_id)
+        lines = []
+        line = (5, 0, {})
+        lines.append(line)
+        for attc in get_attc:
+            line = (4, attc, {})
             lines.append(line)
-            for attc in get_attc:
-                line = (4,attc,{})
-                lines.append(line)
-            self.archivos_id = lines
+        self.archivos_id = lines
+
 
 
     def _compute_descripcion_id(self):
         for result in self:
             # print("descripcion_id",result.descripcion_id)
-            get_cot = self.env['dtm.compra.facturado.item'].search([("no_factura","=",result.factura)])
+            get_cot = self.env['dtm.compra.facturado.item'].search([("no_factura", "=", result.factura)])
             # print("get_cot",get_cot)
             lines = []
-            line =(5,0,{})
+            line = (5, 0, {})
             lines.append(line)
             for cot in get_cot:
                 # print(cot.id)
-                line =(4,cot.id,{})
+                line = (4, cot.id, {})
                 lines.append(line)
             result.descripcion_id = lines
->>>>>>> refs/remotes/origin/main
-
-
-
-
-
 
 class ItemFactura(models.Model):
     _name = "dtm.compra.facturado.item"
