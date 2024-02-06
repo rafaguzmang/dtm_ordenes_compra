@@ -30,15 +30,15 @@ class OrdenesCompra(models.Model):
 
     @api.onchange("parcial")
     def _onchange_parcial(self):
-        print(self.descripcion_id._origin.id)
-        print(self.parcial)
+        # print(self.descripcion_id._origin.id)
+        # print(self.parcial)
         for par in self.descripcion_id:
             print(par._origin.id)
             if self.parcial:
                 parcial = "true"
             else:
                 parcial = "false"
-            self.env.cr.execute("UPDATE dtm_compras_items SET parcial='"+parcial+"' WHERE id="+str(self.descripcion_id._origin.id))
+            self.env.cr.execute("UPDATE dtm_compras_items SET parcial='"+parcial+"' WHERE id="+str(par._origin.id))
 
 
 
@@ -65,15 +65,10 @@ class OrdenesCompra(models.Model):
                     archivos_id = 0
                 else:
                     archivos_id = self.archivos_id[0].res_id
-<<<<<<< HEAD
                 #Inserta los datos del número de servicio
                 self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id, notas) " +
                                                                  "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"', "+str(archivos_id)+", '"+str(self.notas)+"')")
-=======
 
-                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id) " +
-                                                                 "VALUES ("+str(self.id)+",'"+str(self.no_cotizacion)+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+str(self.currency)+"', '"+self.no_factura+"', "+str(archivos_id)+")")
->>>>>>> 192601b19c62affd8786528762a312ec66226050
                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra WHERE id="+str(self.id))
 
             else:

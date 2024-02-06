@@ -16,16 +16,11 @@ class Facturado(models.Model):
     archivos_id = fields.Many2many("ir.attachment",string="Archivos", compute="_compute_delete")
     currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
     factura = fields.Char(string="Factura",readonly=True)
-<<<<<<< HEAD
     notas = fields.Text(string="notas", default="solo notas")
-
-=======
->>>>>>> 192601b19c62affd8786528762a312ec66226050
     res_id = fields.Integer()
 
     def _compute_delete(self):
-        self.env.cr.execute(
-            "SELECT * FROM ir_attachment WHERE res_model= 'dtm.ordenes.compra' AND res_id=" + str(self.res_id))
+        self.env.cr.execute("SELECT * FROM ir_attachment WHERE res_model= 'dtm.ordenes.compra' AND res_id=" + str(self.res_id))
         get_attc = list(line[0] for line in self.env.cr.fetchall())
         # get_attc = self.env['ir.attachment'].search([("res_id","=",self.res_id),("res_model","=","dtm.ordenes.compra")])
         print(get_attc, self.res_id)

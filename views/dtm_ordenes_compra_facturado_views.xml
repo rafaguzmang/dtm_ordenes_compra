@@ -82,12 +82,7 @@
                            <div class="col-2">
                                <h4>
                                     <field name="precio_total" />
-<<<<<<< HEAD
                                     <field name="currency" />
-=======
-<!--                                    <field name="currency" />-->
-
->>>>>>> 192601b19c62affd8786528762a312ec66226050
                                </h4>
                            </div>
                        </div>
