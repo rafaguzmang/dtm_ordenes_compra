@@ -28,6 +28,16 @@ class OrdenesCompra(models.Model):
     notas = fields.Text()
     parcial = fields.Boolean(string="Parcial")
 
+
+    @api.onchange("orden_compra")
+    def _onchange_orden_compra(self):
+        get_odc = self.env['dtm.ordenes.compra'].search([("orden_compra","=",self.orden_compra)])
+        print("get_odc",get_odc,self.orden_compra)
+
+        if get_odc:
+             raise ValidationError("Esta orden de compra ya existe")
+
+
     @api.onchange("parcial")
     def _onchange_parcial(self):
         # print(self.descripcion_id._origin.id)
