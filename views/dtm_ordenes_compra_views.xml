@@ -48,13 +48,11 @@
                                 <field name="no_cotizacion" class="" />
                               </h1>
                           </div>
-
                      </div>
                     <div class="row">
                         <div class="col-3">
                                 <group>
                                     <field name="no_cotizacion_id" class="primary"  />
-
                                 </group>
                         </div>
                         <div class="col-3">
@@ -71,7 +69,6 @@
                                   <field name="parcial" widget="boolean_toggle"/>
                             </group>
                           </div>
-
                     </div>
                      <div class="row">
                          <div class="col-6">
@@ -87,11 +84,11 @@
                                     <field name="orden_compra"/>
                                 </group>
                          </div>
-                         <div class="col-3">
-                                <group>
-                                    <field name="cliente"/>
-                                </group>
-                         </div>
+<!--                         <div class="col-3">-->
+<!--                                <group>-->
+<!--                                    <field name="cliente"/>-->
+<!--                                </group>-->
+<!--                         </div>-->
                     </div>
                     <notebook>
                         <page string="Requerimientos">

@@ -9,7 +9,7 @@ class OrdenesCompra(models.Model):
     no_cotizacion_id = fields.Many2one("dtm.ordenes.compra.precotizaciones")
     no_cotizacion = fields.Char(readonly=True, store=True)
     cotizacion_mas = fields.Integer()
-    cliente = fields.Many2one('res.partner',string="Cliente")
+    # cliente = fields.Many2one('res.partner',string="Cliente")
     cliente_prov = fields.Char(string="Cliente", readonly=True, store=True)
     orden_compra = fields.Char(string="Orden de Compra")
     fecha_entrada = fields.Date(string="Fecha Entrada",default= datetime.datetime.today(),readonly=True,store=True)
@@ -27,6 +27,8 @@ class OrdenesCompra(models.Model):
     no_factura = fields.Char(string="No Factura")
     notas = fields.Text()
     parcial = fields.Boolean(string="Parcial")
+
+    # email_img = fields.Image(string="Imagen")
 
 
     @api.onchange("orden_compra")
@@ -95,10 +97,7 @@ class OrdenesCompra(models.Model):
             if result.nombre_archivo:
                 result.fecha_entrada = datetime.datetime.today()
 
-    @api.onchange("cliente")
-    def _onchange_cliente(self):
-        # print(self.cliente)
-        self.cliente_prov = self.cliente.name
+
 
     def action_sumar(self): # Obtine el precio total si este sale en cero
         sum=0
@@ -113,10 +112,7 @@ class OrdenesCompra(models.Model):
         # print(self.no_cotizacion_id.precotizacion)
         # print(get_cot)
         self.proveedor = get_cot.proveedor
-        if self.cliente:
-            self.cliente_prov = self.cliente.name
-        else:
-            self.cliente_prov = get_cliente.cliente_ids.name
+
 
         self.currency = get_cot.curency
         self.no_cotizacion = self.no_cotizacion_id.precotizacion
