@@ -14,7 +14,7 @@ class Facturado(models.Model):
     proveedor = fields.Selection(string='Proveedor',readonly=True,
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
     archivos_id = fields.Many2many("ir.attachment",string="Archivos", compute="_compute_delete")
-    currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('usd','USD')], readonly = True)
+    currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
     factura = fields.Char(string="Factura",readonly=True)
     notas = fields.Text(string="notas", default="solo notas")
     res_id = fields.Integer()
