@@ -61,6 +61,7 @@ class OrdenesCompra(models.Model):
             # print(self.no_cotizacion,self.no_cotizacion,self.orden_compra,self.fecha_entrada,datetime.datetime.today(),self.descripcion_id,self.precio_total,self.proveedor,self.archivos,self.nombre_archivo,self.currency,self.no_factura)
 
 
+
             get_fact = self.env['dtm.ordenes.compra.facturado'].search([("id","=",self.id)])
             if not get_fact:
                 for result in self.descripcion_id:#Inserta los items en la tabla de facturado
