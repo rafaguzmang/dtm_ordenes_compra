@@ -8,7 +8,6 @@
         'security/ir.model.access.csv',
         #Views
         'views/dtm_ordenes_compra_views.xml',
-        'views/menu_item.xml',
         'views/dtm_ordenes_compra_facturado_views.xml'
     ]
 }

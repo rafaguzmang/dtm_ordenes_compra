@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
      <menuitem name="Ordenes de Compra" id="menu_root_ordenes_compra">
-        <menuitem id="menu_dtm_ordenes_compra"  action="dtm_ordenes_compra.dtm_ordenes_compra_accion" />
-        <menuitem id="menu_dtm_ordenes_compra_facturado"  action="dtm_ordenes_compra.dtm_ordenes_compra_facturado_accion" />
+<!--        <menuitem id="menu_dtm_ordenes_compra"  action="dtm_ordenes_compra.dtm_ordenes_compra_accion" />-->
+<!--        <menuitem id="menu_dtm_ordenes_compra_facturado"  action="dtm_ordenes_compra.dtm_ordenes_compra_facturado_accion" />-->
      </menuitem>
 </odoo>
