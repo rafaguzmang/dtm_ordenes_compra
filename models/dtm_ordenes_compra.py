@@ -34,9 +34,9 @@ class OrdenesCompra(models.Model):
     @api.onchange("orden_compra")
     def _onchange_orden_compra(self):
         get_odc = self.env['dtm.ordenes.compra'].search([("orden_compra","=",self.orden_compra)])
-        print("get_odc",get_odc,self.orden_compra)
+        # print("get_odc",get_odc,self.orden_compra)
 
-        if get_odc:
+        if get_odc and self.orden_compra:
              raise ValidationError("Esta orden de compra ya existe")
 
 
@@ -45,7 +45,7 @@ class OrdenesCompra(models.Model):
         # print(self.descripcion_id._origin.id)
         # print(self.parcial)
         for par in self.descripcion_id:
-            print(par._origin.id)
+            # print(par._origin.id)
             if self.parcial:
                 parcial = "true"
             else:
@@ -132,8 +132,8 @@ class OrdenesCompra(models.Model):
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
-
         get_pre = self.env['dtm.cotizaciones'].search([])
+        cont = 1
         for pre in get_pre:
             get_cot = self.env['dtm.ordenes.compra.precotizaciones'].search([('precotizacion','=',pre.no_cotizacion)])
             get_facturado = self.env['dtm.ordenes.compra.facturado'].search([('no_cotizacion','=',pre.no_cotizacion)])
@@ -142,9 +142,16 @@ class OrdenesCompra(models.Model):
             if get_odc:
                 get_odc = get_odc[0]
             if not get_cot and not get_facturado:
+
                 self.env.cr.execute("INSERT INTO dtm_ordenes_compra_precotizaciones (precotizacion) VALUES ('"+pre.no_cotizacion+"') ")
             if get_odc:
                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE precotizacion = '" + get_odc.no_cotizacion+"'")
+
+        get_ocp = self.env['dtm.ordenes.compra.precotizaciones'].search([])
+        for get in get_ocp:
+            print(get.id)
+            if not get.precotizacion.isnumeric or len(get.precotizacion) > 5:
+                 self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE id = '" + str(get.id)+"'")
 
         get_cot = self.env['dtm.cotizacion.requerimientos'].search([])
         for cot in get_cot:
@@ -155,6 +162,11 @@ class OrdenesCompra(models.Model):
             else:
               self.env.cr.execute("INSERT INTO dtm_compras_items (id, item, cantidad, precio_unitario, precio_total) VALUES " +
                                   "("+str(cot.id)+",'" +cot.descripcion+ "', "+str(cot.cantidad)+", "+str(cot.precio_unitario)+","+str(cot.total)+") ")
+
+
+          # while get_ocp:
+                #     get_ocp = self.env['dtm.ordenes.compra.precotizaciones'].search([('id','=',cont)])
+                #     cont += 1
         return res
 
 class ItemsCompras(models.Model):
