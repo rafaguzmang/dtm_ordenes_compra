@@ -19,7 +19,7 @@
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
-                    <field name="currency" />
+<!--                    <field name="currency" />-->
 
                 </tree>
             </field>

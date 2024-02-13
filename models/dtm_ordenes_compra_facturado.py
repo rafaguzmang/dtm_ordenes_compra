@@ -32,8 +32,6 @@ class Facturado(models.Model):
             lines.append(line)
         self.archivos_id = lines
 
-
-
     def _compute_descripcion_id(self):
         for result in self:
             # print("descripcion_id",result.descripcion_id)
@@ -51,7 +49,6 @@ class Facturado(models.Model):
 class ItemFactura(models.Model):
     _name = "dtm.compra.facturado.item"
     _description = "Guarda los servicios de las cotizaciones ya facturadas"
-
     item = fields.Char(string="Artículo")
     cantidad = fields.Char(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
