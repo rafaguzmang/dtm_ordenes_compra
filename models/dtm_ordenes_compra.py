@@ -114,6 +114,7 @@ class OrdenesCompra(models.Model):
         # print(get_cot)
         self.proveedor = get_cot.proveedor
 
+        self.cliente_prov = get_cliente.cliente_ids.name
 
         self.currency = get_cot.curency
         self.no_cotizacion = self.no_cotizacion_id.precotizacion
@@ -134,7 +135,7 @@ class OrdenesCompra(models.Model):
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
         get_pre = self.env['dtm.cotizaciones'].search([])
-        cont = 1
+        # cont = 1
         for pre in get_pre:
             get_cot = self.env['dtm.ordenes.compra.precotizaciones'].search([('precotizacion','=',pre.no_cotizacion)])
             get_facturado = self.env['dtm.ordenes.compra.facturado'].search([('no_cotizacion','=',pre.no_cotizacion)])
