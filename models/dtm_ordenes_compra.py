@@ -151,7 +151,7 @@ class OrdenesCompra(models.Model):
 
         get_ocp = self.env['dtm.ordenes.compra.precotizaciones'].search([])
         for get in get_ocp:
-            print(get.id)
+            # print(get.id)
             if not get.precotizacion.isnumeric or len(get.precotizacion) > 5:
                  self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE id = '" + str(get.id)+"'")
 
