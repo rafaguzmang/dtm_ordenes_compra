@@ -1,5 +1,6 @@
 from odoo import api,fields,models
 import datetime
+import re
 from odoo.exceptions import ValidationError
 
 class OrdenesCompra(models.Model):
@@ -197,8 +198,9 @@ class ItemsCompras(models.Model):
         get_oc = self.env['dtm.ordenes.compra'].search([])
         list = []
         for ot in get_odt:
-            no = int(ot.ot_number)
-            list.append(no)
+            no = ot.ot_number
+            if not re.search('[a-zA-Z]', no):
+                list.append(int(no))
         list.sort(reverse = True)
         ot_number = list[0] + 1
         po_number = ""
