@@ -167,9 +167,8 @@ class OrdenesCompra(models.Model):
                                   "("+str(cot.id)+",'" +cot.descripcion+ "', "+str(cot.cantidad)+", "+str(cot.precio_unitario)+","+str(cot.total)+") ")
 
 
-          # while get_ocp:
-                #     get_ocp = self.env['dtm.ordenes.compra.precotizaciones'].search([('id','=',cont)])
-                #     cont += 1
+
+
         return res
 
 class ItemsCompras(models.Model):
@@ -202,6 +201,8 @@ class ItemsCompras(models.Model):
             if not re.search('[a-zA-Z]', no):
                 list.append(int(no))
         list.sort(reverse = True)
+        if not list:
+            list.append(0)
         ot_number = list[0] + 1
         po_number = ""
         date_in = ""
@@ -225,7 +226,7 @@ class ItemsCompras(models.Model):
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
             self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description) "+
-                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'ot', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+str(get_rec.descripcion)+"' )")
+                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+str(get_rec.descripcion)+"' )")
         else:
              raise ValidationError("No existe número de compra")
 
