@@ -4,6 +4,7 @@
     'version': '1.0',
     'author': "Rafael Guzmán",
     "description": "Visualización de las ordenes de compra",
+    "depends":["dtm_cotizaciones"],
     "data":[
         'security/ir.model.access.csv',
         #Views
