@@ -31,7 +31,7 @@
         <field name="arch" type="xml">
             <form string="">
                  <header>
-                    <button name="action_facturado" type="object" string="Facturado" class="btn btn-primary"/>
+                    <button name="action_facturado" type="object" string="Facturado" class="btn btn-primary" attrs="{'invisible': [('no_factura', '=',False)]}"/>
                 </header>
                 <sheet>
                      <div class="row">
@@ -98,7 +98,7 @@
                                             <field name="cantidad" />
                                             <field name="precio_unitario"/>
                                             <field name="precio_total" />
-                                            <field name="orden_compra" />
+                                            <field name="orden_compra" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
                                             <field name="orden_trabajo" />
                                             <button name="acction_generar" type="object" string="Generar" class="btn-primary" attrs="{'invisible': [('orden_trabajo', '=',True)]}" />
                                             <field name="status" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
@@ -121,9 +121,9 @@
                                 <div class="col-9">
 
                                 </div>
-<!--                                <div class="col-1">-->
-<!--                                        <button name="action_sumar" type="object" string="Sumar" class="btn btn-primary" attrs="{'invisible': [('precio_total', '>', '0')]}" />-->
-<!--                                </div>-->
+                                <div class="col-1">
+                                        <button name="action_sumar" type="object" string="Sumar" class="btn btn-primary"  />
+                                </div>
                                 <div class="col-2">
                                     <div class="row">
                                         <div class="col-6">

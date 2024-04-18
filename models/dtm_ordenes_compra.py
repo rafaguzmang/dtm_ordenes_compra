@@ -6,6 +6,7 @@ from odoo.exceptions import ValidationError
 class OrdenesCompra(models.Model):
     _name = "dtm.ordenes.compra"
     _description = "Se muestran todos los archivos de las ordenes de compra"
+    _order = "id desc"
 
     no_cotizacion_id = fields.Many2one("dtm.ordenes.compra.precotizaciones")
     no_cotizacion = fields.Char(readonly=True)
@@ -33,6 +34,12 @@ class OrdenesCompra(models.Model):
 
     # email_img = fields.Image(string="Imagen")
 
+    def action_sumar(self):
+        get_total = self.env['dtm.compras.items'].search([('model_id',"=",self.id)])
+        sum = 0
+        for total in get_total:
+            sum += total.precio_total
+        self.precio_total = sum
 
     @api.onchange("orden_compra")
     def _onchange_orden_compra(self):
@@ -41,7 +48,7 @@ class OrdenesCompra(models.Model):
         print(self.no_cotizacion)
         get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
         val = {
-            "subject": "po"
+            "po_number": "po"
         }
         get_cotizaciones.write(val)
         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion","=",self.no_cotizacion)]).unlink()
@@ -106,48 +113,36 @@ class OrdenesCompra(models.Model):
 
     def action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
         get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
-        get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
-        for req in get_req_ext:
-            get_req = self.env['dtm.compras.items'].search([("id","=",req.id)])
-            print(req.id,req.model_id.id)
-            if get_req:
-                vals = {
-                    "id":req.id,
-                    "item":req.descripcion,
-                    "cantidad":req.cantidad,
-                    "precio_unitario":req.precio_unitario,
-                    "precio_total":req.total,
-                    "model_id":req.model_id.id
-                }
-                get_req.write(vals)
-            else:
-                # get_req.create(vals)
+        get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
+
+        if not get_compras:
+            self.proveedor = get_cot.proveedor
+            self.cliente_prov = get_cot.cliente_id.name
+            self.currency = get_cot.curency
+            self.no_cotizacion = self.no_cotizacion_id.precotizacion
+
+            get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
+            print(get_req_ext.descripcion)
+            sum = 0
+            for req in get_req_ext:
+                contador = self.env['dtm.compras.items'].search_count([])
+                id = contador + 1
+                for cont in range(1, contador):
+                    if not self.env['dtm.compras.items'].search([("id", "=", cont)]):
+                        id = cont
+                        break
+                sum += req.total
                 self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
-                                    +" VALUES ("+str(req.id)+",'"+req.descripcion+"',"+str(req.cantidad)+","+str(req.precio_unitario)+","+str(req.total)+","+str(req.model_id.id)+")")
+                        + " VALUES (" + str(id) + ",'" + req.descripcion + "'," + str(req.cantidad) + "," +
+                        str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
+            self.precio_total = sum
+        self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
 
-        self.proveedor = get_cot.proveedor
 
-        self.cliente_prov = get_cot.cliente_id.name
-
-        self.currency = get_cot.curency
-        self.no_cotizacion = self.no_cotizacion_id.precotizacion
-        lines = []
-        sum = 0
-        line =(5,0,{})
-        lines.append(line)
-        get_req = self.env['dtm.compras.items'].search([("model_id","=",get_cot.id)])
-        for result in get_req:
-            print(result.precio_total)
-            line =(4,result.id,{})
-            lines.append(line)
-            sum += result.precio_total
-        self.precio_total = sum
-        self.descripcion_id = lines
-        # self.cotizacion_mas = len(get_cot)
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
-        get_cotizaciones =  self.env['dtm.cotizaciones'].search([("subject", "!=", "po")])
+        get_cotizaciones =  self.env['dtm.cotizaciones'].search([("po_number", "!=", "po")])
         # print(get_cotizaciones)
         for cotizaciones in get_cotizaciones:
             if not self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion","=",cotizaciones.no_cotizacion)]):
@@ -156,49 +151,8 @@ class OrdenesCompra(models.Model):
                 }
                 self.env['dtm.ordenes.compra.precotizaciones'].create(cot)
 
-        get_cotizaciones = self.env['dtm.ordenes.compra.precotizaciones'].search([("orden_compra", "!=", "listo")])
-        # print(" cotizaciones ",get_cotizaciones)
-
-
         return res
 
-    # def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
-    #     res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
-    #     get_pre = self.env['dtm.cotizaciones'].search([])
-    #     # cont = 1
-    #     for pre in get_pre:
-    #         get_cot = self.env['dtm.ordenes.compra.precotizaciones'].search([('precotizacion','=',pre.no_cotizacion)])
-    #         get_facturado = self.env['dtm.ordenes.compra.facturado'].search([('no_cotizacion','=',pre.no_cotizacion)])
-    #         get_odc = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",pre.no_cotizacion)])
-    #         # print(get_odc[0])
-    #         if get_odc:
-    #             get_odc = get_odc[0]
-    #         if not get_cot and not get_facturado:
-    #
-    #             self.env.cr.execute("INSERT INTO dtm_ordenes_compra_precotizaciones (precotizacion) VALUES ('"+pre.no_cotizacion+"') ")
-    #         if get_odc:
-    #             self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE precotizacion = '" + get_odc.no_cotizacion+"'")
-    #
-    #     get_ocp = self.env['dtm.ordenes.compra.precotizaciones'].search([])
-    #     for get in get_ocp:
-    #         # print(get.id)
-    #         if not get.precotizacion.isnumeric or len(get.precotizacion) > 5:
-    #              self.env.cr.execute("DELETE FROM dtm_ordenes_compra_precotizaciones WHERE id = '" + str(get.id)+"'")
-    #
-    #     get_cot = self.env['dtm.cotizacion.requerimientos'].search([])
-    #     for cot in get_cot:
-    #         get_compras = self.env['dtm.compras.items'].search([('id','=',cot.id)])
-    #         if get_compras:
-    #           self.env.cr.execute("UPDATE dtm_compras_items SET item = '"+cot.descripcion +"', cantidad= "+ str(cot.cantidad) +", precio_unitario="+str(cot.precio_unitario) +" , "+
-    #                             "precio_total="+str(cot.total) +" WHERE id ="+str(cot.id))
-    #         else:
-    #           self.env.cr.execute("INSERT INTO dtm_compras_items (id, item, cantidad, precio_unitario, precio_total) VALUES " +
-    #                               "("+str(cot.id)+",'" +cot.descripcion+ "', "+str(cot.cantidad)+", "+str(cot.precio_unitario)+","+str(cot.total)+") ")
-    #
-    #
-    #
-    #
-    #     return res
 
 class ItemsCompras(models.Model):
     _name = "dtm.compras.items"
@@ -207,7 +161,7 @@ class ItemsCompras(models.Model):
     model_id = fields.Many2one('dtm.ordenes.compra')
 
     item = fields.Char(string="Artículo")
-    cantidad = fields.Char(string="Cantidad", options='{"type": "number"}')
+    cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
     orden_trabajo = fields.Char(string="Orden de Trabajo")
@@ -218,9 +172,14 @@ class ItemsCompras(models.Model):
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
 
+    @api.onchange("cantidad")
+    def _onchange_cantidad(self):
+        print("funciona")
+        self.precio_total =self.precio_unitario * float(self.cantidad)
 
-
-
+    @api.onchange("precio_unitario")
+    def _onchange_precio_unitario(self):
+        self.precio_total = float(self.precio_unitario) * float(self.cantidad)
 
     def acction_generar(self):# Genera orden de trabajo
         get_odt = self.env['dtm.odt'].search([])
