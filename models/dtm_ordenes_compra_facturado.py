@@ -4,7 +4,6 @@ class Facturado(models.Model):
     _name="dtm.ordenes.compra.facturado"
     _description="Tabla donde se almacenarán las ordenes de compra facturadas"
 
-
     no_cotizacion = fields.Char(readonly=True, store=True)
     cliente_prov = fields.Char(string="Cliente", readonly=True)
     orden_compra = fields.Char(string="Orden de Compra",readonly=True)

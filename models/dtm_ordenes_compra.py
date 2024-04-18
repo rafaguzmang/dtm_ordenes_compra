@@ -122,7 +122,7 @@ class OrdenesCompra(models.Model):
             self.no_cotizacion = self.no_cotizacion_id.precotizacion
 
             get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
-            print(get_req_ext.descripcion)
+            # print(get_req_ext.descripcion)
             sum = 0
             for req in get_req_ext:
                 contador = self.env['dtm.compras.items'].search_count([])
@@ -160,6 +160,8 @@ class ItemsCompras(models.Model):
 
     model_id = fields.Many2one('dtm.ordenes.compra')
 
+
+
     item = fields.Char(string="Artículo")
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
@@ -171,6 +173,15 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
+
+    def action_duplicar(self):
+        print(self.model_id.id)
+        get_inf = self.env['dtm.compras.items'].search([("model_id","=",self.model_id.id),("item","!=","")])
+        for iter in get_inf:
+            self.item = iter.item
+            self.cantidad = iter.cantidad
+            self.precio_unitario = iter.precio_unitario
+            self.precio_total = iter.precio_total
 
     @api.onchange("cantidad")
     def _onchange_cantidad(self):
