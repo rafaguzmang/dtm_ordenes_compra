@@ -73,35 +73,27 @@ class OrdenesCompra(models.Model):
         # if self.no_factura and self.orden_compra and self.no_cotizacion and self.archivos:
         if self.no_factura:
             # print(self.no_cotizacion,self.no_cotizacion,self.orden_compra,self.fecha_entrada,datetime.datetime.today(),self.descripcion_id,self.precio_total,self.proveedor,self.archivos,self.nombre_archivo,self.currency,self.no_factura)
+            vals = {
+                'no_cotizacion': self.no_cotizacion,
+                'cliente_prov': self.cliente_prov,
+                'orden_compra': self.orden_compra,
+                'fecha_factura': self.fecha_factura,
+                # 'descripcion_id': self.descripcion_id,
+                'precio_total': self.precio_total,
+                'proveedor': self.proveedor,
+                # 'archivos_id': self.archivos_id,
+                'currency': self.currency,
+                'factura': self.factura,
+                'notas': self.notas,
+                'res_id': self.res_id
+            }
 
+            self.env['dtm.ordenes.compra.facturado'].create(vals)
+            archivos_id = 0
+            if  self.archivos_id:
+                archivos_id = self.archivos_id[0].res_id
+            #Inserta los datos del número de servicio
 
-
-            get_fact = self.env['dtm.ordenes.compra.facturado'].search([("id","=",self.id)])
-            if not get_fact:
-                for result in self.descripcion_id:#Inserta los items en la tabla de facturado
-                    self.env.cr.execute("UPDATE dtm_compras_items SET no_factura="+self.no_factura+" WHERE id="+str(result.id))
-                    get_fact_item = self.env['dtm.compras.items'].search([("no_factura","=",self.no_factura)])
-                    get_final = self.env['dtm.compra.facturado.item'].search([("no_factura","=",self.no_factura)])
-                    if not get_final:
-                        for item in get_fact_item:
-                            # print(item.item,item.cantidad,item.precio_unitario,item.precio_total,item.orden_trabajo,item.no_factura,item.orden_compra)
-                            self.env.cr.execute("INSERT INTO dtm_compra_facturado_item (item, cantidad, precio_unitario, precio_total ,orden_trabajo, no_factura, orden_compra) "+
-                                                                               "VALUES ('"+item.item+"', "+str(item.cantidad)+", "+str(item.precio_unitario)+", "+str(item.precio_total)+", '"+str(item.orden_trabajo)+"', '"+str(item.no_factura)+"', '"+str(item.orden_compra)+"')")
-
-                if not self.archivos_id:
-                    archivos_id = 0
-                else:
-                    archivos_id = self.archivos_id[0].res_id
-                #Inserta los datos del número de servicio
-                self.env.cr.execute("INSERT INTO dtm_ordenes_compra_facturado(id,no_cotizacion, cliente_prov, orden_compra, fecha_factura, precio_total, proveedor,currency,factura, res_id, notas) " +
-                                                                 "VALUES ("+str(self.id)+",'"+self.no_cotizacion+"', '"+self.cliente_prov+"', '"+str(self.orden_compra)+"', '"+str(datetime.datetime.today())+"','"+str(self.precio_total)+"','"+self.proveedor+"', '"+self.currency+"', '"+self.no_factura+"', "+str(archivos_id)+", '"+str(self.notas)+"')")
-
-                self.env.cr.execute("DELETE FROM dtm_ordenes_compra WHERE id="+str(self.id))
-
-            else:
-                # self.env.cr.execute("UPDATE dtm_ordenes_compra_facturado SET cliente_prov='"+self.cliente_prov+"', no_cotizacion='"+self.no_cotizacion+"' WHERE id="+ str(self.id))
-
-                raise ValidationError("Esta factura ya existe")
         else:
             raise ValidationError("No existe número de factura")
 
