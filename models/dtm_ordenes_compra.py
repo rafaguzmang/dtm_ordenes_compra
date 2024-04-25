@@ -160,8 +160,6 @@ class ItemsCompras(models.Model):
 
     model_id = fields.Many2one('dtm.ordenes.compra')
 
-
-
     item = fields.Char(string="Artículo")
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
@@ -174,8 +172,12 @@ class ItemsCompras(models.Model):
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
 
+    # @api.onchange("item")
+    # def action_item(self):
+    #     self.env['dtm.compras.items'].create()
+
     def action_duplicar(self):
-        print(self.model_id.id)
+        # print(self.model_id.id)
         get_inf = self.env['dtm.compras.items'].search([("model_id","=",self.model_id.id),("item","!=","")])
         for iter in get_inf:
             self.item = iter.item
@@ -185,7 +187,7 @@ class ItemsCompras(models.Model):
 
     @api.onchange("cantidad")
     def _onchange_cantidad(self):
-        print("funciona")
+        # print("funciona")
         self.precio_total =self.precio_unitario * float(self.cantidad)
 
     @api.onchange("precio_unitario")
