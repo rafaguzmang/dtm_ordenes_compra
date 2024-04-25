@@ -3,6 +3,7 @@ from odoo import api,fields,models
 class Facturado(models.Model):
     _name="dtm.ordenes.compra.facturado"
     _description="Tabla donde se almacenarán las ordenes de compra facturadas"
+    _order = "id desc"
 
     no_cotizacion = fields.Char(readonly=True, store=True)
     cliente_prov = fields.Char(string="Cliente", readonly=True)
