@@ -69,7 +69,17 @@
                             </page>
                             <page string="Ordenes de Compra">
                                <div class="row">
-                                    <field name="archivos_id" widget="many2many_binary" />
+                                    <field name="archivos_id"  >
+                                        <tree>
+                                            <field name="nombre" invisible="0"></field>
+                                        </tree>
+                                        <form>
+                                            <group widget='one2many'>
+                                                <field name="archivo" filename="nombre" widget="pdf_viewer"></field>
+                                                <field name="nombre" invisible="1"></field>
+                                            </group>
+                                        </form>
+                                    </field>
                                </div>
                             </page>
                             <page string="Notas">

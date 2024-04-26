@@ -1,3 +1,5 @@
+import base64, io
+
 from odoo import api,fields,models
 import datetime
 import re
@@ -69,30 +71,52 @@ class OrdenesCompra(models.Model):
                 parcial = "false"
             self.env.cr.execute("UPDATE dtm_compras_items SET parcial='"+parcial+"' WHERE id="+str(par._origin.id))
 
-    def action_facturado(self):
-        # if self.no_factura and self.orden_compra and self.no_cotizacion and self.archivos:
+    def action_facturado(self): # Pasa los trabajos con orden o ordenes de compra al modelo de facturados
         if self.no_factura:
-            # print(self.no_cotizacion,self.no_cotizacion,self.orden_compra,self.fecha_entrada,datetime.datetime.today(),self.descripcion_id,self.precio_total,self.proveedor,self.archivos,self.nombre_archivo,self.currency,self.no_factura)
             vals = {
                 'no_cotizacion': self.no_cotizacion,
                 'cliente_prov': self.cliente_prov,
                 'orden_compra': self.orden_compra,
-                'fecha_factura': self.fecha_factura,
-                # 'descripcion_id': self.descripcion_id,
+                'fecha_factura': datetime.datetime.today(),
                 'precio_total': self.precio_total,
                 'proveedor': self.proveedor,
-                # 'archivos_id': self.archivos_id,
                 'currency': self.currency,
-                'factura': self.factura,
-                'notas': self.notas,
-                'res_id': self.res_id
+                'factura': self.no_factura,
+                'notas': self.notas
             }
 
             self.env['dtm.ordenes.compra.facturado'].create(vals)
-            archivos_id = 0
-            if  self.archivos_id:
-                archivos_id = self.archivos_id[0].res_id
-            #Inserta los datos del número de servicio
+            get_id=self.env['dtm.ordenes.compra.facturado'].search([('factura','=',self.no_factura)])
+
+            for item in self.descripcion_id: #Inserta los items asociados a las ordenes de trabajo
+                vals = {
+                    'item': item.item,
+                    'cantidad': item.cantidad,
+                    'precio_unitario': item.precio_unitario,
+                    'precio_total': item.precio_total,
+                    'orden_trabajo': item.orden_trabajo,
+                    'no_factura': self.no_factura,
+                    'orden_compra': item.orden_compra
+                }
+                self.env['dtm.compra.facturado.item'].create(vals)
+            archivos_id = ""
+            for archivo in self.archivos_id: # Inserta los archivos anexos jalandolos de ir_attachment y pasandolos al modelo de dtm.compras.facturado.archivos
+                attachment = self.env['ir.attachment'].browse(archivo.id)
+                vals = {
+                    'archivo':attachment.datas,
+                    'nombre': archivo.name,
+                    'model_id':get_id.id,
+
+                }
+                self.env['dtm.compras.facturado.archivos'].create(vals)
+
+            #Borra la orden de compra de este modelo principal
+            get_items = self.env['dtm.compras.items'].search([("model_id","=",self.id)])
+            get_items.unlink()
+
+            get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
+            get_unlink.unlink()
+
 
         else:
             raise ValidationError("No existe número de factura")
