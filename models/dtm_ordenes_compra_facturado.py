@@ -5,25 +5,32 @@ class Facturado(models.Model):
     _description="Tabla donde se almacenarán las ordenes de compra facturadas"
     _order = "id desc"
 
-    no_cotizacion = fields.Char(readonly=False, store=True)
+    no_cotizacion = fields.Char(readonly=True, store=True)
     cliente_prov = fields.Char(string="Cliente", readonly=True)
     orden_compra = fields.Char(string="Orden de Compra",readonly=True)
     fecha_factura = fields.Date(string="Fecha de Facturación",readonly=True)
-    descripcion_id = fields.Many2many("dtm.compra.facturado.item",compute="_compute_descripcion_id", readonly=True)
+    descripcion_id = fields.Many2many("dtm.compra.facturado.item",compute="_compute_descripcion_id", readonly=False)
     precio_total = fields.Float(string="Precio total",readonly=True)
     proveedor = fields.Selection(string='Proveedor',readonly=True,
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
     archivos_id = fields.One2many("dtm.compras.facturado.archivos","model_id",string="Archivos")
     currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
-    factura = fields.Char(string="Factura/s",readonly=True)
+    factura = fields.Char(string="Factura/s",readonly=False)
     notas = fields.Text(string="notas", default="solo notas")
     res_id = fields.Integer()
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+>>>>>>> 126a5ce233797917f2cf53cb4b1b7fee3d13c920
     def _compute_descripcion_id(self):
         for result in self:
             # print("descripcion_id",result.descripcion_id)
             get_cot = self.env['dtm.compra.facturado.item'].search([("no_factura", "=", result.factura)])
-            # print("get_cot",get_cot)
             lines = []
             line = (5, 0, {})
             lines.append(line)
