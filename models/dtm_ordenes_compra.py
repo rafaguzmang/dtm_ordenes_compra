@@ -47,7 +47,7 @@ class OrdenesCompra(models.Model):
     def _onchange_orden_compra(self):
         get_odc = self.env['dtm.ordenes.compra'].search([("orden_compra","=",self.orden_compra)])
         # print("get_odc",get_odc,self.orden_compra)
-        print(self.no_cotizacion)
+        # print(self.no_cotizacion)
         get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
         val = {
             "po_number": "po"
@@ -55,7 +55,7 @@ class OrdenesCompra(models.Model):
         get_cotizaciones.write(val)
         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion","=",self.no_cotizacion)]).unlink()
 
-        if get_odc and self.orden_compra:
+        if get_odc and self.orden_compra and self.orden_compra != "Pendiente" and self.orden_compra != "N/A":
              raise ValidationError("Esta orden de compra ya existe")
 
 
@@ -104,7 +104,7 @@ class OrdenesCompra(models.Model):
                 attachment = self.env['ir.attachment'].browse(archivo.id)
                 vals = {
                     'archivo':attachment.datas,
-                    'nombre': archivo.name,
+                    'nombre': attachment.name,
                     'model_id':get_id.id,
 
                 }
@@ -149,7 +149,7 @@ class OrdenesCompra(models.Model):
                         break
                 sum += req.total
                 self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
-                        + " VALUES (" + str(id) + ",'" + req.descripcion + "'," + str(req.cantidad) + "," +
+                        + " VALUES (" + str(id) + ",'" + str(req.descripcion) + "'," + str(req.cantidad) + "," +
                         str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
             self.precio_total = sum
         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
@@ -211,21 +211,14 @@ class ItemsCompras(models.Model):
         self.precio_total = float(self.precio_unitario) * float(self.cantidad)
 
     def acction_generar(self):# Genera orden de trabajo
-        get_odt = self.env['dtm.odt'].search([])
+        get_odt = self.env['dtm.odt'].search_count([])
         get_oc = self.env['dtm.ordenes.compra'].search([])
-        list = []
-        for ot in get_odt:
-            no = ot.ot_number
-            if not re.search('[a-zA-Z]', no):
-                list.append(int(no))
-        list.sort(reverse = True)
-        if not list:
-            list.append(0)
-        ot_number = list[0] + 1
+        ot_number = get_odt + 1
         po_number = ""
         date_in = ""
         date_rel = ""
         name_client = ""
+
         for po in get_oc:
             for order in po:
                 for item in order.descripcion_id:
