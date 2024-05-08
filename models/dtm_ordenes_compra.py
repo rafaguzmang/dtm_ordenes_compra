@@ -46,11 +46,6 @@ class OrdenesCompra(models.Model):
     @api.onchange("orden_compra")
     def _onchange_orden_compra(self):
         get_odc = self.env['dtm.ordenes.compra'].search([("orden_compra","=",self.orden_compra)])
-<<<<<<< HEAD
-=======
-        # print("get_odc",get_odc,self.orden_compra)
-        # print(self.no_cotizacion)
->>>>>>> 126a5ce233797917f2cf53cb4b1b7fee3d13c920
         get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
         val = {
             "po_number": "po"
@@ -183,7 +178,7 @@ class ItemsCompras(models.Model):
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
-    orden_trabajo = fields.Char(string="Orden de Trabajo")
+    orden_trabajo = fields.Integer(string="Orden de Trabajo")
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
@@ -214,9 +209,9 @@ class ItemsCompras(models.Model):
         self.precio_total = float(self.precio_unitario) * float(self.cantidad)
 
     def acction_generar(self):# Genera orden de trabajo
-        get_odt = self.env['dtm.odt'].search_count([])
+        get_odt = self.env['dtm.odt'].search([],order='ot_number desc', limit=1)
         get_oc = self.env['dtm.ordenes.compra'].search([])
-        ot_number = get_odt + 1
+        ot_number = get_odt.ot_number + 1
         po_number = ""
         date_in = ""
         date_rel = ""

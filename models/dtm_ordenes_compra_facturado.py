@@ -19,14 +19,7 @@ class Facturado(models.Model):
     notas = fields.Text(string="notas", default="solo notas")
     res_id = fields.Integer()
 
-<<<<<<< HEAD
-=======
 
-
-
-
-
->>>>>>> 126a5ce233797917f2cf53cb4b1b7fee3d13c920
     def _compute_descripcion_id(self):
         for result in self:
             # print("descripcion_id",result.descripcion_id)
