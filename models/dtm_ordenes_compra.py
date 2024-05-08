@@ -46,8 +46,6 @@ class OrdenesCompra(models.Model):
     @api.onchange("orden_compra")
     def _onchange_orden_compra(self):
         get_odc = self.env['dtm.ordenes.compra'].search([("orden_compra","=",self.orden_compra)])
-        # print("get_odc",get_odc,self.orden_compra)
-        print(self.no_cotizacion)
         get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
         val = {
             "po_number": "po"
