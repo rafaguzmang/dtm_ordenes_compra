@@ -230,21 +230,18 @@ class ItemsCompras(models.Model):
         get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
         get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
         get_desc = self.env['dtm.cotizaciones'].search([('no_cotizacion','=', no_cotizacion)])
-        print(get_desc.servicios_id)
         descripcion = ""
         for item in get_desc.servicios_id:
             if item.descripcion == self.item:
-                print(item.descripcion,self.item)
                 for desc in item.items_id:
                     descripcion +=  desc.name + ", "
         descripcion = re.sub(", $",".",descripcion)
-        print(descripcion)
         if self.orden_trabajo:
             raise ValidationError("Ya hay una orden de trabajo generada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
-            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description) "+
-                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"' )")
+            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
+                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1 )")
         else:
              raise ValidationError("No existe número de compra")
 
