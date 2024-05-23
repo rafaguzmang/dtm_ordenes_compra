@@ -185,6 +185,8 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
+    firma = fields.Char()
+    firma_diseno = fields.Char(string="Diseñador")
 
     # @api.onchange("item")
     # def action_item(self):
@@ -227,7 +229,7 @@ class ItemsCompras(models.Model):
                         name_client = order.cliente_prov
                         no_cotizacion = order.no_cotizacion
 
-        get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
+        # get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
         get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
         get_desc = self.env['dtm.cotizaciones'].search([('no_cotizacion','=', no_cotizacion)])
         descripcion = ""
@@ -244,6 +246,15 @@ class ItemsCompras(models.Model):
                                 "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1 )")
         else:
              raise ValidationError("No existe número de compra")
+
+    def acction_firma(self):
+        get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
+        get_ot.write({"firma_ventas": self.env.user.partner_id.name})
+        if self.firma:
+            raise ValidationError("OT firmada")
+        if self.firma_diseno:
+            self.firma = "firma"
+            raise ValidationError("No revisada por diseño")
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
     _name = "dtm.ordenes.compra.precotizaciones"
