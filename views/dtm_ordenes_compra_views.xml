@@ -93,7 +93,7 @@
                             <notebook>
                                 <page string="Requerimientos">
                                     <field name="descripcion_id">
-                                        <tree editable="bottom" >
+                                        <tree editable="bottom"  >
                                             <button name="action_duplicar" type="object" attrs="{'invisible': [('item', '!=',False)]}" icon="fa-clone" />
                                             <field name="item" />
                                             <field name="cantidad" />
@@ -104,6 +104,9 @@
                                             <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('orden_trabajo', '=',True)]}" icon="fa-bolt" />
                                             <field name="status" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
                                             <field name="parcial" invisible="1"/>
+                                            <field name="firma" invisible="1"/>
+                                            <field name="firma_diseno" attrs="{'invisible': [('firma_diseno', '=', False)]}"/>
+                                            <button name="acction_firma" type="object"  class="btn-primary" icon="fa-pencil"  attrs="{'invisible': [('firma_diseno', '=', False)]}"/>
                                         </tree>
                                     </field>
                                 </page>
