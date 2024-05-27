@@ -189,11 +189,7 @@ class ItemsCompras(models.Model):
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
     firma = fields.Char()
-    firma_diseno = fields.Char(string="Diseñador")
-
-    # @api.onchange("item")
-    # def action_item(self):
-    #     self.env['dtm.compras.items'].create()
+    firma_diseno = fields.Char(string="Diseñador", readonly = True)
 
     def action_duplicar(self):
         # print(self.model_id.id)
@@ -254,7 +250,7 @@ class ItemsCompras(models.Model):
                 "description":descripcion
             })
 
-            raise Warning("Orden de trabajo actualizada")
+            raise ValidationError("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
             self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
@@ -263,13 +259,18 @@ class ItemsCompras(models.Model):
              raise MissingError("No existe número de compra")
 
     def acction_firma(self):
-        get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
-        get_ot.write({"firma_ventas": self.env.user.partner_id.name})
-        if self.firma:
-            raise ValidationError("OT firmada")
+
+
         if self.firma_diseno:
+            firma = self.env.user.partner_id.name
+            get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
+            get_ot.write({"firma_ventas": firma})
+
+            get_proceso = self.env['dtm.proceso'].search([("ot_number","=",self.orden_trabajo)])
+            get_proceso.write({"firma_ventas": "Ventas"})
             self.firma = "firma"
-            raise ValidationError("No revisada por diseño")
+        else:
+            raise ValidationError("No revisada por el área de diseño")
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
     _name = "dtm.ordenes.compra.precotizaciones"
