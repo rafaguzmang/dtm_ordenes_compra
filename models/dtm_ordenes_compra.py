@@ -3,7 +3,7 @@ import base64, io
 from odoo import api,fields,models
 import datetime
 import re
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, AccessError, MissingError,Warning
 
 class OrdenesCompra(models.Model):
     _name = "dtm.ordenes.compra"
@@ -129,15 +129,16 @@ class OrdenesCompra(models.Model):
         get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
         get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
 
-        if not get_compras:
-            self.proveedor = get_cot.proveedor
-            self.cliente_prov = get_cot.cliente_id.name
-            self.currency = get_cot.curency
-            self.no_cotizacion = self.no_cotizacion_id.precotizacion
+        self.proveedor = get_cot.proveedor
+        self.cliente_prov = get_cot.cliente_id.name
+        self.currency = get_cot.curency
 
-            get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
+
+        get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
             # print(get_req_ext.descripcion)
-            sum = 0
+        sum = 0
+        if not get_compras:
+            self.no_cotizacion = self.no_cotizacion_id.precotizacion
             for req in get_req_ext:
                 contador = self.env['dtm.compras.items'].search_count([])
                 id = contador + 1
@@ -149,8 +150,10 @@ class OrdenesCompra(models.Model):
                 self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
                         + " VALUES (" + str(id) + ",'" + str(req.descripcion) + "'," + str(req.cantidad) + "," +
                         str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
-            self.precio_total = sum
-        self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
+                self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
+        else:
+            print(get_req_ext)
+        self.precio_total = sum
 
 
 
@@ -178,7 +181,7 @@ class ItemsCompras(models.Model):
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
-    orden_trabajo = fields.Integer(string="Orden de Trabajo")
+    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = True)
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
@@ -238,14 +241,26 @@ class ItemsCompras(models.Model):
                 for desc in item.items_id:
                     descripcion +=  desc.name + ", "
         descripcion = re.sub(", $",".",descripcion)
+        if not descripcion:
+            descripcion = ""
         if self.orden_trabajo:
-            raise ValidationError("Ya hay una orden de trabajo generada")
+            get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo),("tipe_order","=","OT")])
+            get_ot.write({
+                "cuantity":self.cantidad,
+                "product_name":self.item,
+                "po_number":po_number,
+                "date_rel":date_rel,
+                "name_client":name_client,
+                "description":descripcion
+            })
+
+            raise Warning("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
             self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
                                 "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1 )")
         else:
-             raise ValidationError("No existe número de compra")
+             raise MissingError("No existe número de compra")
 
     def acction_firma(self):
         get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
