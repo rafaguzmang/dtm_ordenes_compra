@@ -135,25 +135,45 @@ class OrdenesCompra(models.Model):
 
 
         get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
-            # print(get_req_ext.descripcion)
-        sum = 0
-        if not get_compras:
-            self.no_cotizacion = self.no_cotizacion_id.precotizacion
-            for req in get_req_ext:
-                contador = self.env['dtm.compras.items'].search_count([])
-                id = contador + 1
-                for cont in range(1, contador):
-                    if not self.env['dtm.compras.items'].search([("id", "=", cont)]):
-                        id = cont
-                        break
-                sum += req.total
-                self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
-                        + " VALUES (" + str(id) + ",'" + str(req.descripcion) + "'," + str(req.cantidad) + "," +
-                        str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
-                self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
-        else:
-            print(get_req_ext)
-        self.precio_total = sum
+        lines = []
+        get_compras.write({"descripcion_id":[(5,0,{})]})
+        for req in get_req_ext:
+            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("cantidad","=",req.cantidad),
+                                                              ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
+            vals = {
+                    "item":req.descripcion,
+                    "cantidad":req.cantidad,
+                    "precio_unitario":req.precio_unitario,
+                    "precio_total":req.total,
+                }
+            if get_items:
+                get_items.write(vals)
+                lines.append(get_items.id)
+            else:
+                get_items.create(vals)
+                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("cantidad","=",req.cantidad),
+                                                              ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
+                lines.append(get_items.id)
+            get_compras.write({"descripcion_id":[(6,0,lines)]})
+        #     # print(get_req_ext.descripcion)
+        # sum = 0
+        # if not get_compras:
+        #     self.no_cotizacion = self.no_cotizacion_id.precotizacion
+        #     for req in get_req_ext:
+        #         contador = self.env['dtm.compras.items'].search_count([])
+        #         id = contador + 1
+        #         for cont in range(1, contador):
+        #             if not self.env['dtm.compras.items'].search([("id", "=", cont)]):
+        #                 id = cont
+        #                 break
+        #         sum += req.total
+        #         self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
+        #                 + " VALUES (" + str(id) + ",'" + str(req.descripcion) + "'," + str(req.cantidad) + "," +
+        #                 str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
+        #         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
+        # else:
+        #     print(get_req_ext)
+        # self.precio_total = sum
 
 
 
