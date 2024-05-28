@@ -126,9 +126,14 @@ class OrdenesCompra(models.Model):
                 result.fecha_entrada = datetime.datetime.today()
 
     def action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
-        get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
-        get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
+        if not self.no_cotizacion:
+            get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
+            print("not")
+        else:
+            get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])
 
+        get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
+        print(self.proveedor,get_cot)
         self.proveedor = get_cot.proveedor
         self.cliente_prov = get_cot.cliente_id.name
         self.currency = get_cot.curency
