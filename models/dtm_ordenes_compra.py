@@ -53,7 +53,7 @@ class OrdenesCompra(models.Model):
         get_cotizaciones.write(val)
         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion","=",self.no_cotizacion)]).unlink()
 
-        if get_odc and self.orden_compra and self.orden_compra != "Pendiente" and self.orden_compra != "N/A":
+        if get_odc and self.orden_compra and self.orden_compra != "N/A":
              raise ValidationError("Esta orden de compra ya existe")
 
 
@@ -128,20 +128,18 @@ class OrdenesCompra(models.Model):
     def action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
         if not self.no_cotizacion:
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
-            print("not")
         else:
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])
 
         get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
-        print(self.proveedor,get_cot)
         self.proveedor = get_cot.proveedor
         self.cliente_prov = get_cot.cliente_id.name
         self.currency = get_cot.curency
 
-
         get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
         lines = []
         get_compras.write({"descripcion_id":[(5,0,{})]})
+        sum = 0
         for req in get_req_ext:
             get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("cantidad","=",req.cantidad),
                                                               ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
@@ -160,27 +158,8 @@ class OrdenesCompra(models.Model):
                                                               ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
                 lines.append(get_items.id)
             get_compras.write({"descripcion_id":[(6,0,lines)]})
-        #     # print(get_req_ext.descripcion)
-        # sum = 0
-        # if not get_compras:
-        #     self.no_cotizacion = self.no_cotizacion_id.precotizacion
-        #     for req in get_req_ext:
-        #         contador = self.env['dtm.compras.items'].search_count([])
-        #         id = contador + 1
-        #         for cont in range(1, contador):
-        #             if not self.env['dtm.compras.items'].search([("id", "=", cont)]):
-        #                 id = cont
-        #                 break
-        #         sum += req.total
-        #         self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
-        #                 + " VALUES (" + str(id) + ",'" + str(req.descripcion) + "'," + str(req.cantidad) + "," +
-        #                 str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
-        #         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
-        # else:
-        #     print(get_req_ext)
-        # self.precio_total = sum
-
-
+            sum += req.total
+        self.precio_total = sum
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
@@ -194,7 +173,6 @@ class OrdenesCompra(models.Model):
                 self.env['dtm.ordenes.compra.precotizaciones'].create(cot)
 
         return res
-
 
 class ItemsCompras(models.Model):
     _name = "dtm.compras.items"
@@ -243,45 +221,49 @@ class ItemsCompras(models.Model):
         date_rel = ""
         name_client = ""
 
-        for po in get_oc:
-            for order in po:
-                for item in order.descripcion_id:
-                    if item.id == self.id:
-                        po_number = order.orden_compra
-                        date_in = order.fecha_entrada
-                        date_rel = order.fecha_salida
-                        name_client = order.cliente_prov
-                        no_cotizacion = order.no_cotizacion
+        if self.precio_total:
+            for po in get_oc:
+                for order in po:
+                    for item in order.descripcion_id:
+                        if item.id == self.id:
+                            po_number = order.orden_compra
+                            date_in = order.fecha_entrada
+                            date_rel = order.fecha_salida
+                            name_client = order.cliente_prov
+                            no_cotizacion = order.no_cotizacion
 
-        # get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
-        get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
-        get_desc = self.env['dtm.cotizaciones'].search([('no_cotizacion','=', no_cotizacion)])
-        descripcion = ""
-        for item in get_desc.servicios_id:
-            if item.descripcion == self.item:
-                for desc in item.items_id:
-                    descripcion +=  desc.name + ", "
-        descripcion = re.sub(", $",".",descripcion)
-        if not descripcion:
+            # get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
+            get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
+            get_desc = self.env['dtm.cotizaciones'].search([('no_cotizacion','=', no_cotizacion)])
             descripcion = ""
-        if self.orden_trabajo:
-            get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo),("tipe_order","=","OT")])
-            get_ot.write({
-                "cuantity":self.cantidad,
-                "product_name":self.item,
-                "po_number":po_number,
-                "date_rel":date_rel,
-                "name_client":name_client,
-                "description":descripcion
-            })
+            for item in get_desc.servicios_id:
+                if item.descripcion == self.item:
+                    for desc in item.items_id:
+                        descripcion +=  desc.name + ", "
+            descripcion = re.sub(", $",".",descripcion)
+            if not descripcion:
+                descripcion = ""
+            if self.orden_trabajo:
+                get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo),("tipe_order","=","OT")])
+                get_ot.write({
+                    "cuantity":self.cantidad,
+                    "product_name":self.item,
+                    "po_number":po_number,
+                    "date_rel":date_rel,
+                    "name_client":name_client,
+                    "description":descripcion
+                })
 
-            # raise ValidationError("Orden de trabajo actualizada")
-        elif get_odc.orden_compra:
-            self.orden_trabajo = ot_number
-            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
-                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1 )")
+                # raise ValidationError("Orden de trabajo actualizada")
+            elif get_odc.orden_compra:
+                self.orden_trabajo = ot_number
+                self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
+                                    "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1 )")
+            else:
+                 raise MissingError("No existe número de compra")
+
         else:
-             raise MissingError("No existe número de compra")
+            raise MissingError("Precio Total no debe de ser cero")
 
     def acction_firma(self):
 
