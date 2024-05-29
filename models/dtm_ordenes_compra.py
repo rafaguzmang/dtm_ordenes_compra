@@ -143,8 +143,7 @@ class OrdenesCompra(models.Model):
         lines = []
         get_compras.write({"descripcion_id":[(5,0,{})]})
         for req in get_req_ext:
-            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("cantidad","=",req.cantidad),
-                                                              ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
+            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
             vals = {
                     "item":req.descripcion,
                     "cantidad":req.cantidad,
@@ -156,8 +155,7 @@ class OrdenesCompra(models.Model):
                 lines.append(get_items.id)
             else:
                 get_items.create(vals)
-                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("cantidad","=",req.cantidad),
-                                                              ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
+                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
                 lines.append(get_items.id)
             get_compras.write({"descripcion_id":[(6,0,lines)]})
         #     # print(get_req_ext.descripcion)
@@ -206,7 +204,7 @@ class ItemsCompras(models.Model):
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
-    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = True)
+    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = False)
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
@@ -275,7 +273,7 @@ class ItemsCompras(models.Model):
                 "description":descripcion
             })
 
-            raise ValidationError("Orden de trabajo actualizada")
+            # raise ValidationError("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
             self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
