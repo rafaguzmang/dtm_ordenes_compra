@@ -275,7 +275,7 @@ class ItemsCompras(models.Model):
                 "description":descripcion
             })
 
-            raise ValidationError("Orden de trabajo actualizada")
+            # raise ValidationError("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
             self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
