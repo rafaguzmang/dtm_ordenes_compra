@@ -127,13 +127,14 @@ class OrdenesCompra(models.Model):
 
     def action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
         if not self.no_cotizacion:
+            self.no_cotizacion = self.no_cotizacion_id.precotizacion
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
             print("not")
         else:
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])
 
         get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
-        print(self.proveedor,get_cot)
+        print(self.no_cotizacion,self.no_cotizacion_id.precotizacion,get_cot)
         self.proveedor = get_cot.proveedor
         self.cliente_prov = get_cot.cliente_id.name
         self.currency = get_cot.curency
@@ -141,6 +142,7 @@ class OrdenesCompra(models.Model):
 
         get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
         lines = []
+        print(get_req_ext)
         get_compras.write({"descripcion_id":[(5,0,{})]})
         for req in get_req_ext:
             get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
@@ -157,7 +159,7 @@ class OrdenesCompra(models.Model):
                 get_items.create(vals)
                 get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
                 lines.append(get_items.id)
-            get_compras.write({"descripcion_id":[(6,0,lines)]})
+        get_compras.write({"descripcion_id":[(6,0,lines)]})
         #     # print(get_req_ext.descripcion)
         # sum = 0
         # if not get_compras:
