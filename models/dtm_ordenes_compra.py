@@ -129,25 +129,24 @@ class OrdenesCompra(models.Model):
         if not self.no_cotizacion:
             self.no_cotizacion = self.no_cotizacion_id.precotizacion
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
-            print("not")
         else:
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])
 
         get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
-        print(self.no_cotizacion,self.no_cotizacion_id.precotizacion,get_cot)
         self.proveedor = get_cot.proveedor
         self.cliente_prov = get_cot.cliente_id.name
         self.currency = get_cot.curency
 
-
         get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
-        lines = []
-        print(get_req_ext)
         get_compras.write({"descripcion_id":[(5,0,{})]})
+        lines = []
+        sum = 0
         for req in get_req_ext:
-            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
+            sum += req.total
+            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("id_item","=",req.id)],limit = 1)
             vals = {
                     "item":req.descripcion,
+                    "id_item":req.id,
                     "cantidad":req.cantidad,
                     "precio_unitario":req.precio_unitario,
                     "precio_total":req.total,
@@ -157,28 +156,11 @@ class OrdenesCompra(models.Model):
                 lines.append(get_items.id)
             else:
                 get_items.create(vals)
-                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
+                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("id_item","=",req.id)],limit = 1)
                 lines.append(get_items.id)
         get_compras.write({"descripcion_id":[(6,0,lines)]})
-        #     # print(get_req_ext.descripcion)
-        # sum = 0
-        # if not get_compras:
-        #     self.no_cotizacion = self.no_cotizacion_id.precotizacion
-        #     for req in get_req_ext:
-        #         contador = self.env['dtm.compras.items'].search_count([])
-        #         id = contador + 1
-        #         for cont in range(1, contador):
-        #             if not self.env['dtm.compras.items'].search([("id", "=", cont)]):
-        #                 id = cont
-        #                 break
-        #         sum += req.total
-        #         self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
-        #                 + " VALUES (" + str(id) + ",'" + str(req.descripcion) + "'," + str(req.cantidad) + "," +
-        #                 str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
-        #         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
-        # else:
-        #     print(get_req_ext)
-        # self.precio_total = sum
+        self.precio_total = sum
+
 
 
 
@@ -203,6 +185,7 @@ class ItemsCompras(models.Model):
     model_id = fields.Many2one('dtm.ordenes.compra')
 
     item = fields.Char(string="Artículo")
+    id_item = fields.Integer()
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
@@ -215,6 +198,7 @@ class ItemsCompras(models.Model):
     parcial = fields.Boolean(default=False)
     firma = fields.Char()
     firma_diseno = fields.Char(string="Diseñador", readonly = True)
+
 
     def action_duplicar(self):
         # print(self.model_id.id)
@@ -242,7 +226,6 @@ class ItemsCompras(models.Model):
         date_in = ""
         date_rel = ""
         name_client = ""
-        print(ot_number)
         for po in get_oc:
             for order in po:
                 for item in order.descripcion_id:
@@ -286,7 +269,6 @@ class ItemsCompras(models.Model):
              raise MissingError("No existe número de compra")
 
     def acction_firma(self):
-
 
         if self.firma_diseno:
             firma = self.env.user.partner_id.name
