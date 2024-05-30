@@ -242,7 +242,7 @@ class ItemsCompras(models.Model):
         date_in = ""
         date_rel = ""
         name_client = ""
-
+        print(ot_number)
         for po in get_oc:
             for order in po:
                 for item in order.descripcion_id:
@@ -265,15 +265,17 @@ class ItemsCompras(models.Model):
         if not descripcion:
             descripcion = ""
         if self.orden_trabajo:
-            get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo),("tipe_order","=","OT")])
-            get_ot.write({
-                "cuantity":self.cantidad,
-                "product_name":self.item,
-                "po_number":po_number,
-                "date_rel":date_rel,
-                "name_client":name_client,
-                "description":descripcion
-            })
+            get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
+            vals = {
+                    "cuantity":self.cantidad,
+                    "product_name":self.item,
+                    "po_number":po_number,
+                    "date_rel":date_rel,
+                    "name_client":name_client,
+                    "description":descripcion
+            }
+            if get_ot:
+                get_ot.write(vals)
 
             # raise ValidationError("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
