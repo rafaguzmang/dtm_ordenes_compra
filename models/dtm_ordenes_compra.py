@@ -127,22 +127,27 @@ class OrdenesCompra(models.Model):
 
     def action_fill(self):# Autocompleta los datos de la orden de compra de la tabla de cotizaciones
         if not self.no_cotizacion:
+            self.no_cotizacion = self.no_cotizacion_id.precotizacion
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
         else:
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])
 
         get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
+<<<<<<< HEAD
+=======
+        print(self.no_cotizacion,self.no_cotizacion_id.precotizacion,get_cot)
+>>>>>>> f43166c46a4493ccd908529573dcacad27a790dc
         self.proveedor = get_cot.proveedor
         self.cliente_prov = get_cot.cliente_id.name
         self.currency = get_cot.curency
 
         get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
         lines = []
+        print(get_req_ext)
         get_compras.write({"descripcion_id":[(5,0,{})]})
         sum = 0
         for req in get_req_ext:
-            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("cantidad","=",req.cantidad),
-                                                              ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
+            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
             vals = {
                     "item":req.descripcion,
                     "cantidad":req.cantidad,
@@ -154,12 +159,36 @@ class OrdenesCompra(models.Model):
                 lines.append(get_items.id)
             else:
                 get_items.create(vals)
-                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("cantidad","=",req.cantidad),
-                                                              ("precio_unitario","=",req.precio_unitario),("precio_total","=",req.total)],limit = 1)
+                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion)],limit = 1)
                 lines.append(get_items.id)
+<<<<<<< HEAD
             get_compras.write({"descripcion_id":[(6,0,lines)]})
             sum += req.total
         self.precio_total = sum
+=======
+        get_compras.write({"descripcion_id":[(6,0,lines)]})
+        #     # print(get_req_ext.descripcion)
+        # sum = 0
+        # if not get_compras:
+        #     self.no_cotizacion = self.no_cotizacion_id.precotizacion
+        #     for req in get_req_ext:
+        #         contador = self.env['dtm.compras.items'].search_count([])
+        #         id = contador + 1
+        #         for cont in range(1, contador):
+        #             if not self.env['dtm.compras.items'].search([("id", "=", cont)]):
+        #                 id = cont
+        #                 break
+        #         sum += req.total
+        #         self.env.cr.execute("INSERT INTO dtm_compras_items (id,item,cantidad,precio_unitario,precio_total,model_id)"
+        #                 + " VALUES (" + str(id) + ",'" + str(req.descripcion) + "'," + str(req.cantidad) + "," +
+        #                 str(req.precio_unitario) + "," + str(req.total) + "," + str(self.id) + ")")
+        #         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion", "=", self.no_cotizacion)]).unlink()
+        # else:
+        #     print(get_req_ext)
+        # self.precio_total = sum
+
+
+>>>>>>> f43166c46a4493ccd908529573dcacad27a790dc
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
@@ -184,7 +213,7 @@ class ItemsCompras(models.Model):
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
-    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = True)
+    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = False)
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
@@ -262,6 +291,14 @@ class ItemsCompras(models.Model):
             else:
                  raise MissingError("No existe número de compra")
 
+<<<<<<< HEAD
+=======
+            # raise ValidationError("Orden de trabajo actualizada")
+        elif get_odc.orden_compra:
+            self.orden_trabajo = ot_number
+            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
+                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1 )")
+>>>>>>> f43166c46a4493ccd908529573dcacad27a790dc
         else:
             raise MissingError("Precio Total no debe de ser cero")
 
