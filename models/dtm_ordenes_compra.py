@@ -276,7 +276,10 @@ class ItemsCompras(models.Model):
             get_ot.write({"firma_ventas": firma})
 
             get_proceso = self.env['dtm.proceso'].search([("ot_number","=",self.orden_trabajo)])
-            get_proceso.write({"firma_ventas": "Ventas"})
+            get_proceso.write({
+                "firma_ventas": firma,
+                "firma_ventas_kanba":"Ventas"
+            })
             self.firma = "firma"
         else:
             raise ValidationError("No revisada por el área de diseño")
