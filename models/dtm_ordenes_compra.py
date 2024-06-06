@@ -274,7 +274,6 @@ class ItemsCompras(models.Model):
             firma = self.env.user.partner_id.name
             get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
             get_ot.write({"firma_ventas": firma})
-
             get_proceso = self.env['dtm.proceso'].search([("ot_number","=",self.orden_trabajo)])
             get_proceso.write({
                 "firma_ventas": firma,

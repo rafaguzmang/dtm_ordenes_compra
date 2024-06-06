@@ -28,21 +28,24 @@
             <field name="model">dtm.ventas.ot</field>
             <field name="arch" type="xml">
                 <form string="formulario">
+                    <style>
+                        .o_statusbar_buttons{
+                            width: 100%;
+                            justify-content: space-around;
+                        }
+
+                    </style>
                     <header>
-                        <button type="object" name="action_firma" string="Firma"  icon="fa-pencil" class="btn btn-primary"/>
+                        <button type="object" name="action_firma" string="Firma"  icon="fa-pencil" class="btn btn-primary "/>
+                        <button type="object" name="action_detener" string="Detener"  icon="fa-hourglass" class="btn btn-danger " attrs="{'invisible': [('pausa', '=', True)]}"/>
+                        <button type="object" name="action_continuar" string="Continuar"  icon="fa-play" class="btn btn-success " attrs="{'invisible': [('pausa', '=', False)]}"/>
                     </header>
-
                     <sheet>
-
                             <h1 > ORDEN DE TRABAJO </h1>
-
-
                             <h2> Diseño y Transformaciones Metálicas S. de R.L. de C.V.</h2>
-
                         <group>
-
-                                <field name="status" />
-
+                            <field name="status" />
+                            <field name="pausa" invisible="1" />
                         </group>
                         <group>
                             <group>
@@ -54,7 +57,6 @@
                                 <field name="ot_number"/>
                             </group>
                         </group>
-
                         <group>
                             <group>
                                 <field name="firma" />
@@ -69,14 +71,12 @@
                                 <field name="planos" widget="boolean_toggle" />
                             </group>
                         </group>
-
                         <notebook>
                             <page  string="RESUMEN">
                                 <group>
                                     <field name="description"/>
                                 </group>
                             </page>
-
                              <!-- MATERIALES OR -->
                             <page string="MATERIALES" >
                                     <field name="materials_ids" >
@@ -85,7 +85,6 @@
                                             <field name="materials_cuantity" options='{"type": "number"} ' attrs="{'invisible': [('materials_list', '=', False)]}"/>
                                             <field name="materials_inventory"/>
                                             <field name="materials_required" options='{"type": "number"}'/><!--                                            <button type="object" name="action_corte"  attrs="{'invisible': [('tipe_order', '=', '')]}" icon="fa-print" class="btn btn-primary"/>-->
-
                                         </tree>
                                     </field>
                             </page>
@@ -155,6 +154,9 @@
                             </page>
                             <page string="NOTAS">
                                 <field name="notes"/>
+                            </page>
+                             <page string="Pausado">
+                                <field name="pausa_motivo"/>
                             </page>
                         </notebook>
                     </sheet>

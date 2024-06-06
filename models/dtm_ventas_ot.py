@@ -4,6 +4,7 @@ from datetime import datetime
 class OrdenTrabajo(models.Model):
     _name = "dtm.ventas.ot"
     _description = "Orden de trabajo para el área de ventas"
+    _order = "ot_number desc"
 
     status = fields.Char(readonly=True)
     ot_number = fields.Integer(string="NÚMERO",readonly=True)
@@ -12,30 +13,32 @@ class OrdenTrabajo(models.Model):
     product_name = fields.Char(string="NOMBRE DEL PRODUCTO",readonly=True)
     date_in = fields.Date(string="FECHA DE ENTRADA", default= datetime.today(),readonly=True)
     po_number = fields.Char(string="PO",readonly=True)
-    date_rel = fields.Date(string="FECHA DE ENTREGA", default= datetime.today())
+    date_rel = fields.Date(string="FECHA DE ENTREGA", default= datetime.today(),readonly=True)
     version_ot = fields.Integer(string="VERSIÓN OT",default=1)
-    color = fields.Char(string="COLOR",default="N/A")
+    color = fields.Char(string="COLOR",default="N/A",readonly=True)
     cuantity = fields.Integer(string="CANTIDAD",readonly=True)
     materials_ids = fields.Many2many("dtm.materials.line",string="Lista")
     firma = fields.Char(string="Firma Compras", readonly = True)
-    disenador = fields.Char(string="Diseñador")
+    disenador = fields.Char(string="Diseñador",readonly=True)
     planos = fields.Boolean(string="Planos",default=False,readonly=True)
     nesteos = fields.Boolean(string="Nesteos",default=False,readonly=True)
 
-    rechazo_id = fields.Many2many("dtm.odt.rechazo",readonly=False)
+    rechazo_id = fields.Many2many("dtm.odt.rechazo",readonly=True)
 
-    anexos_id = fields.Many2many("dtm.proceso.anexos")
+    anexos_id = fields.Many2many("dtm.proceso.anexos",readonly=True)
     cortadora_id = fields.Many2many("dtm.proceso.cortadora",readonly=True)
     primera_pieza_id = fields.Many2many("dtm.proceso.primer",readonly=True)
     tubos_id = fields.Many2many("dtm.proceso.tubos",readonly=True)
 
     notes = fields.Text(string="Notas")
 
+    pausa = fields.Boolean()
+    pausa_motivo = fields.Text()
 
 
     #---------------------Resumen de descripción------------
 
-    description = fields.Text(string="DESCRIPCIÓN")
+    description = fields.Text(string="DESCRIPCIÓN",readonly=True)
 
     def action_firma(self):
         self.firma = self.env.user.partner_id.name
@@ -47,12 +50,22 @@ class OrdenTrabajo(models.Model):
             "firma_ventas_kanba":"Ventas"
         })
 
+    def action_detener(self):
+        get_pro = self.env['dtm.proceso'].search([("ot_number","=",self.ot_number),("tipe_order","=",self.tipe_order)])
+        get_pro.write({
+            "pausado":"Pausado por Ventas",
+            "status_pausado": get_pro.status,
+            "pausa_motivo": self.pausa_motivo
+        })
+        self.pausa = True
 
-    # def action_imprimir_formato(self): # Imprime según el formato que se esté llenando
-    #     return self.env.ref("dtm_odt.formato_orden_de_trabajo").report_action(self)
-    #
-    # def action_imprimir_materiales(self): # Imprime según el formato que se esté llenando
-    #     return self.env.ref("dtm_odt.formato_lista_materiales").report_action(self)
+    def action_continuar(self):
+        get_pro = self.env['dtm.proceso'].search([("ot_number","=",self.ot_number),("tipe_order","=",self.tipe_order)])
+        get_pro.write({
+                "pausado":"",
+                "status_pausado": ""
+            })
+        self.pausa = False
 
     def get_view(self, view_id=None, view_type='form', **options):
         res = super(OrdenTrabajo,self).get_view(view_id, view_type,**options)
@@ -94,4 +107,6 @@ class OrdenTrabajo(models.Model):
                 get_self.create(vals)
 
         return res
+
+
 
