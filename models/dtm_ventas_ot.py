@@ -18,7 +18,7 @@ class OrdenTrabajo(models.Model):
     color = fields.Char(string="COLOR",default="N/A",readonly=True)
     cuantity = fields.Integer(string="CANTIDAD",readonly=True)
     materials_ids = fields.Many2many("dtm.materials.line",string="Lista")
-    firma = fields.Char(string="Firma Compras", readonly = True)
+    firma = fields.Char(string="Firma Ventas", readonly = True)
     disenador = fields.Char(string="Diseñador",readonly=True)
     planos = fields.Boolean(string="Planos",default=False,readonly=True)
     nesteos = fields.Boolean(string="Nesteos",default=False,readonly=True)
