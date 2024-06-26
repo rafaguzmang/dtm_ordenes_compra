@@ -7,6 +7,7 @@ from odoo.exceptions import ValidationError, AccessError, MissingError,Warning
 
 class OrdenesCompra(models.Model):
     _name = "dtm.ordenes.compra"
+    _inherit = ['mail.thread']
     _description = "Se muestran todos los archivos de las ordenes de compra"
     _order = "id desc"
 
@@ -220,8 +221,12 @@ class ItemsCompras(models.Model):
 
     def acction_generar(self):# Genera orden de trabajo
         get_odt = self.env['dtm.odt'].search([],order='ot_number desc', limit=1)
+        get_odtf = self.env['dtm.facturado.odt'].search([],order='ot_number desc', limit=1)
+        otnumber = get_odt.ot_number
+        if get_odt.ot_number < get_odtf.ot_number:
+            otnumber = get_odtf.ot_number
         get_oc = self.env['dtm.ordenes.compra'].search([])
-        ot_number = get_odt.ot_number + 1
+        ot_number = otnumber + 1
         po_number = ""
         date_in = ""
         date_rel = ""

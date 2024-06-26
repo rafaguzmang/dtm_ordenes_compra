@@ -4,7 +4,7 @@
     'version': '1.0',
     'author': "Rafael Guzmán",
     "description": "Visualización de las ordenes de compra",
-    "depends":["dtm_cotizaciones","dtm_procesos","dtm_odt"],
+    "depends":["base","dtm_cotizaciones","dtm_procesos","dtm_odt","mail"],
     "data":[
         'security/ir.model.access.csv',
         #Views

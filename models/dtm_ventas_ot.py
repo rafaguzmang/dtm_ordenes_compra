@@ -3,6 +3,7 @@ from datetime import datetime
 
 class OrdenTrabajo(models.Model):
     _name = "dtm.ventas.ot"
+    _inherit = ['mail.thread']
     _description = "Orden de trabajo para el área de ventas"
     _order = "ot_number desc"
 
