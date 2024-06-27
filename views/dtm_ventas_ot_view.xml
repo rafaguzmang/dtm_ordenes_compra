@@ -49,6 +49,7 @@
                         </group>
                         <group>
                             <group>
+                                <field name="tipe_order"/>
                                 <field name="name_client" />
                                 <field name="po_number"/>
                             </group>
