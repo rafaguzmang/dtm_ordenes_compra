@@ -35,8 +35,9 @@ class OrdenesCompra(models.Model):
     notas = fields.Text()
     parcial = fields.Boolean(string="Parcial")
 
-    # email_img = fields.Image(string="Imagen")
+    ot_asignadas = fields.Char(string="OTs")
 
+    # email_img = fields.Image(string="Imagen")
     def action_sumar(self):
         get_total = self.env['dtm.compras.items'].search([('model_id',"=",self.id)])
         sum = 0
@@ -56,7 +57,6 @@ class OrdenesCompra(models.Model):
 
         if get_odc and self.orden_compra and self.orden_compra != "Pendiente" and self.orden_compra != "N/A":
              raise ValidationError("Esta orden de compra ya existe")
-
 
     @api.onchange("parcial")
     def _onchange_parcial(self):
@@ -112,11 +112,8 @@ class OrdenesCompra(models.Model):
             #Borra la orden de compra de este modelo principal
             get_items = self.env['dtm.compras.items'].search([("model_id","=",self.id)])
             get_items.unlink()
-
             get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
             get_unlink.unlink()
-
-
         else:
             raise ValidationError("No existe número de factura")
 
@@ -168,9 +165,6 @@ class OrdenesCompra(models.Model):
         }
         get_cotizaciones.write(val)
 
-
-
-
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
         get_cotizaciones =  self.env['dtm.cotizaciones'].search([("po_number", "!=", "po")])
@@ -182,6 +176,11 @@ class OrdenesCompra(models.Model):
                 }
                 self.env['dtm.ordenes.compra.precotizaciones'].create(cot)
 
+        get_desc = self.env['dtm.ordenes.compra'].search([])
+        for desc in get_desc:
+            desc.ot_asignadas = ""
+            for ot in desc.descripcion_id:
+                desc.ot_asignadas += str(ot.orden_trabajo) + " "
         return res
 
 
@@ -196,7 +195,7 @@ class ItemsCompras(models.Model):
     cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
-    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = False)
+    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = True)
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
@@ -204,8 +203,8 @@ class ItemsCompras(models.Model):
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
     firma = fields.Char()
-    firma_diseno = fields.Char(string="Diseñador", readonly = True)
-
+    firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
+                                         ("banda","Bryan Banda")])
 
     def action_duplicar(self):
         # print(self.model_id.id)
@@ -241,11 +240,17 @@ class ItemsCompras(models.Model):
             for order in po:
                 for item in order.descripcion_id:
                     if item.id == self.id:
+                        pos = ""
+                        if po.ot_asignadas:
+                            pos =po.ot_asignadas
                         po_number = order.orden_compra
                         date_in = order.fecha_entrada
                         date_rel = order.fecha_salida
                         name_client = order.cliente_prov
                         no_cotizacion = order.no_cotizacion
+                        po.write({
+                            "ot_asignadas": pos + str(ot_number) + " "
+                        })
 
         # get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
         get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
@@ -261,12 +266,12 @@ class ItemsCompras(models.Model):
         if self.orden_trabajo:
             get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
             vals = {
-                    "cuantity":self.cantidad,
-                    "product_name":self.item,
-                    "po_number":po_number,
-                    "date_rel":date_rel,
-                    "name_client":name_client,
-                    "description":descripcion
+                "cuantity":self.cantidad,
+                "product_name":self.item,
+                "po_number":po_number,
+                "date_rel":date_rel,
+                "name_client":name_client,
+                "description":descripcion
             }
             if get_ot:
                 get_ot.write(vals)
@@ -274,8 +279,8 @@ class ItemsCompras(models.Model):
             # raise ValidationError("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
-            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot) "+
-                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1 )")
+            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot,disenador) "+
+                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1,'"+self.firma_diseno+"' )")
         else:
              raise MissingError("No existe número de compra")
 

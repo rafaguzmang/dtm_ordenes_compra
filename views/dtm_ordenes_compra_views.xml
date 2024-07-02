@@ -13,12 +13,14 @@
             <field name="arch" type="xml">
                 <tree >
                     <field name="no_cotizacion"/>
+                    <field name="proveedor"/>
                     <field name="cliente_prov"/>
                     <field name="orden_compra"/>
-                    <field name="prioridad" />
+                    <field name="ot_asignadas" />
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
+                    <field name="currency" />
                 </tree>
             </field>
         </record>
@@ -102,9 +104,7 @@
                                             <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('orden_trabajo', '=',True)]}" icon="fa-bolt" />
                                             <field name="status" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
                                             <field name="parcial" invisible="1"/>
-                                            <field name="firma" invisible="1"/>
-                                            <field name="firma_diseno" attrs="{'invisible': [('firma_diseno', '=', False)]}"/>
-                                            <button name="acction_firma" type="object"  class="btn-primary" icon="fa-pencil"  attrs="{'invisible': [('firma_diseno', '=', False)]}"/>
+                                            <field name="firma_diseno" />
                                         </tree>
                                     </field>
                                 </page>
