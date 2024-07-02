@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <record id="dtm_ventas_ot_action" model="ir.actions.act_window">
-            <field name="name">ORDEN DE TRABAJO</field>
+            <field name="name">Orden de Trabajo</field>
             <field name="res_model">dtm.ventas.ot</field>
             <field name="view_mode">tree,form</field>
         </record>
