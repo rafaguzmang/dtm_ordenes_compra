@@ -49,7 +49,7 @@ class OrdenesCompra(models.Model):
         get_odc = self.env['dtm.ordenes.compra'].search([("orden_compra","=",self.orden_compra)])
         get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
         val = {
-            "po_number": "po"
+            "po_number": self.orden_compra
         }
         get_cotizaciones.write(val)
         self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion","=",self.no_cotizacion)]).unlink()
@@ -161,6 +161,12 @@ class OrdenesCompra(models.Model):
                 lines.append(get_items.id)
         get_compras.write({"descripcion_id":[(6,0,lines)]})
         self.precio_total = sum
+
+        get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
+        val = {
+            "po_number": self.orden_compra
+        }
+        get_cotizaciones.write(val)
 
 
 
