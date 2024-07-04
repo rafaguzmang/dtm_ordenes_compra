@@ -19,7 +19,6 @@ class OrdenTrabajo(models.Model):
     color = fields.Char(string="COLOR",default="N/A",readonly=True)
     cuantity = fields.Integer(string="CANTIDAD",readonly=True)
     materials_ids = fields.Many2many("dtm.materials.line",string="Lista")
-    firma = fields.Char(string="Firma Ventas", readonly = True)
     disenador = fields.Char(string="Diseñador",readonly=True)
     planos = fields.Boolean(string="Planos",default=False,readonly=True)
     nesteos = fields.Boolean(string="Nesteos",default=False,readonly=True)
@@ -40,17 +39,6 @@ class OrdenTrabajo(models.Model):
     #---------------------Resumen de descripción------------
 
     description = fields.Text(string="DESCRIPCIÓN",readonly=True)
-
-    def action_firma(self):
-        self.firma = self.env.user.partner_id.name
-        get_ot = self.env['dtm.odt'].search([("ot_number","=",self.ot_number)])
-        get_ot.write({"firma_ventas": self.firma})
-        get_procesos = self.env['dtm.proceso'].search([("ot_number","=",self.ot_number)])
-        get_procesos.write({
-            "firma_ventas": self.firma,
-            "firma_ventas_kanba":"Ventas"
-        })
-
     def action_detener(self):
         get_pro = self.env['dtm.proceso'].search([("ot_number","=",self.ot_number),("tipe_order","=",self.tipe_order)])
         get_pro.write({

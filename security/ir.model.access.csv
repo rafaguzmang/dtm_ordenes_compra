@@ -11,4 +11,6 @@ access_dtm_ordenes_minutas,access.dtm.ordenes.minutas,model_dtm_ordenes_minutas,
 access_dtm_ordenes_asistentes,access.dtm.ordenes.asistentes,model_dtm_ordenes_asistentes,base.group_user,1,1,1,1
 access_dtm_ordenes_nombres,access.dtm.ordenes.nombres,model_dtm_ordenes_nombres,base.group_user,1,1,1,1
 
+access_dtm_ordenes_diseno,access.dtm.ordenes.diseno,model_dtm_ordenes_diseno,base.group_user,1,1,1,1
+
 
