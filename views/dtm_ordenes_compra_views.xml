@@ -17,6 +17,7 @@
                     <field name="cliente_prov"/>
                     <field name="orden_compra"/>
                     <field name="ot_asignadas" />
+                    <field name="status" />
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
@@ -105,6 +106,7 @@
                                             <field name="status" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
                                             <field name="parcial" invisible="1"/>
                                             <field name="firma_diseno" />
+                                            <field name="firma" />
                                         </tree>
                                     </field>
                                 </page>

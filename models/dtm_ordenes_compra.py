@@ -37,6 +37,8 @@ class OrdenesCompra(models.Model):
 
     ot_asignadas = fields.Char(string="OTs")
 
+    status = fields.Char(string="Estatus", readonly=True)
+
     # email_img = fields.Image(string="Imagen")
     def action_sumar(self):
         get_total = self.env['dtm.compras.items'].search([('model_id',"=",self.id)])
@@ -202,9 +204,9 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
-    firma = fields.Char()
+    firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
-                                         ("banda","Bryan Banda")])
+                                         ("banda","Bryan Banda")],required=True)
 
     def action_duplicar(self):
         # print(self.model_id.id)
@@ -236,6 +238,12 @@ class ItemsCompras(models.Model):
         date_in = ""
         date_rel = ""
         name_client = ""
+        no_cotizacion = ""
+        disenador = ""
+        if self.firma_diseno == "orozco":
+            disenador = "Andrés Orozco"
+        if self.firma_diseno == "banda":
+            disenador = "Bryan Banda"
         for po in get_oc:
             for order in po:
                 for item in order.descripcion_id:
@@ -271,7 +279,8 @@ class ItemsCompras(models.Model):
                 "po_number":po_number,
                 "date_rel":date_rel,
                 "name_client":name_client,
-                "description":descripcion
+                "description":descripcion,
+                "no_cotizacion":no_cotizacion
             }
             if get_ot:
                 get_ot.write(vals)
@@ -279,25 +288,12 @@ class ItemsCompras(models.Model):
             # raise ValidationError("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
-            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot,disenador) "+
-                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1,'"+self.firma_diseno+"' )")
+            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot,disenador,no_cotizacion) "+
+                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1,'"+disenador+"','"+no_cotizacion+"' )")
         else:
              raise MissingError("No existe número de compra")
 
-    def acction_firma(self):
 
-        if self.firma_diseno:
-            firma = self.env.user.partner_id.name
-            get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
-            get_ot.write({"firma_ventas": firma})
-            get_proceso = self.env['dtm.proceso'].search([("ot_number","=",self.orden_trabajo)])
-            get_proceso.write({
-                "firma_ventas": firma,
-                "firma_ventas_kanba":"Ventas"
-            })
-            self.firma = "firma"
-        else:
-            raise ValidationError("No revisada por el área de diseño")
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
     _name = "dtm.ordenes.compra.precotizaciones"

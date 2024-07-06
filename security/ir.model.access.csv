@@ -5,12 +5,10 @@ access_dtm_ordenes_compra_precotizaciones,access.dtm.ordenes.compra.precotizacio
 access_dtm_ordenes_compra_facturado,access.dtm.ordenes.compra.facturado,model_dtm_ordenes_compra_facturado,base.group_user,1,1,1,1
 access_dtm_compra_facturado_item,access.dtm.compra.facturado.item,model_dtm_compra_facturado_item,base.group_user,1,1,1,1
 access_dtm_compras_facturado_archivos,access.dtm.compras.facturado.archivos,model_dtm_compras_facturado_archivos,base.group_user,1,1,1,1
-access_dtm_ventas_ot,access.dtm.ventas.ot,model_dtm_ventas_ot,base.group_user,1,1,1,1
 
 access_dtm_ordenes_minutas,access.dtm.ordenes.minutas,model_dtm_ordenes_minutas,base.group_user,1,1,1,1
 access_dtm_ordenes_asistentes,access.dtm.ordenes.asistentes,model_dtm_ordenes_asistentes,base.group_user,1,1,1,1
 access_dtm_ordenes_nombres,access.dtm.ordenes.nombres,model_dtm_ordenes_nombres,base.group_user,1,1,1,1
 
-access_dtm_ordenes_diseno,access.dtm.ordenes.diseno,model_dtm_ordenes_diseno,base.group_user,1,1,1,1
 
 
