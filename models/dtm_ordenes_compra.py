@@ -280,11 +280,11 @@ class ItemsCompras(models.Model):
                 "date_rel":date_rel,
                 "name_client":name_client,
                 "description":descripcion,
-                "no_cotizacion":no_cotizacion
+                "no_cotizacion":no_cotizacion,
+                "disenador":disenador
             }
             if get_ot:
                 get_ot.write(vals)
-
             # raise ValidationError("Orden de trabajo actualizada")
         elif get_odc.orden_compra:
             self.orden_trabajo = ot_number
