@@ -177,14 +177,20 @@ class OrdenesCompra(models.Model):
                     "precotizacion":cotizaciones.no_cotizacion
                 }
                 self.env['dtm.ordenes.compra.precotizaciones'].create(cot)
-
         get_desc = self.env['dtm.ordenes.compra'].search([])
         for desc in get_desc:
             desc.ot_asignadas = ""
             for ot in desc.descripcion_id:
                 desc.ot_asignadas += str(ot.orden_trabajo) + " "
+        for desc in get_desc:
+            desc.status = ""
+            for ot in desc.descripcion_id:
+                get_odt = self.env['dtm.odt'].search([("ot_number","=",ot.orden_trabajo)])
+                firma = "❌"
+                if get_odt.firma:
+                    firma = "✔"
+                desc.status += str(firma) + " "
         return res
-
 
 class ItemsCompras(models.Model):
     _name = "dtm.compras.items"
