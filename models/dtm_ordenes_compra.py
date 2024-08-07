@@ -38,6 +38,8 @@ class OrdenesCompra(models.Model):
     ot_asignadas = fields.Char(string="OTs")
 
     status = fields.Char(string="Estatus", readonly=True)
+    exportacion = fields.Selection(string="Exportación", selection=[('definitiva','Definitiva'),('virtual','Virtual')])
+    terminado = fields.Boolean()
 
     # email_img = fields.Image(string="Imagen")
     def action_sumar(self):
@@ -190,6 +192,20 @@ class OrdenesCompra(models.Model):
                 if get_odt.firma:
                     firma = "✔"
                 desc.status += str(firma) + " "
+        get_desc = self.env['dtm.ordenes.compra'].search([])#Revisa si todas las ordenes de esta cotización ya están realizadas y de ser así las marca en color verde
+        for ordenes_compra in get_desc:
+            for ordenes_trabajo in ordenes_compra:
+                line_set = set()
+                for orden in ordenes_trabajo.descripcion_id:
+                    get_ot_status = self.env['dtm.proceso'].search([("ot_number","=",orden.orden_trabajo),("tipe_order","=","OT")])
+                    line_set.add(get_ot_status.status)
+                line = list(line_set)
+                if len(line) == 1 and line[0] == "terminado":
+                    ordenes_trabajo.write({"terminado": True})
+
+
+
+
         return res
 
 class ItemsCompras(models.Model):
