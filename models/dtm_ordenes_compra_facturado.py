@@ -14,7 +14,7 @@ class Facturado(models.Model):
     proveedor = fields.Selection(string='Proveedor',readonly=True,
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
     archivos_id = fields.One2many("dtm.compras.facturado.archivos","model_id",string="Archivos")
-    currency = fields.Selection(defaul="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
+    currency = fields.Selection(default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
     factura = fields.Char(string="Factura/s",readonly=False)
     notas = fields.Text(string="notas", default="solo notas")
     res_id = fields.Integer()
@@ -36,7 +36,7 @@ class ItemFactura(models.Model):
     _name = "dtm.compra.facturado.item"
     _description = "Guarda los servicios de las cotizaciones ya facturadas"
     item = fields.Char(string="Artículo")
-    cantidad = fields.Char(string="Cantidad", options='{"type": "number"}')
+    cantidad = fields.Char(string="Cantidad")
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
     orden_trabajo = fields.Char(string="Orden de Trabajo")

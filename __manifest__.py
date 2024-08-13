@@ -11,6 +11,7 @@
         'views/dtm_ordenes_compra_views.xml',
         'views/dtm_ordenes_compra_facturado_views.xml',
         'views/dtm_ordenes_minutas_views.xml',
-    ]
+    ],
+    'license': 'LGPL-3',
 }
 
