@@ -27,8 +27,7 @@ class OrdenesCompra(models.Model):
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
     # archivos = fields.Binary(string="Archivo")
     archivos_id = fields.Many2many("ir.attachment",string="Archivos")
-    prioridad = fields.Selection(string="Prioridad", selection=[('uno',1),('dos',2),('tres',3),('cuatro',4),('cinco',5),('seis',6),('siete',7),('ocho',8),('nueve',9),('diez',10)])
-    currency = fields.Selection(string="Moneda",defaul="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
+    currency = fields.Selection(string="Moneda",default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
 
     # facturado_toogle = fields.Boolean( defaul=False)
     no_factura = fields.Char(string="No Factura")
@@ -202,8 +201,41 @@ class OrdenesCompra(models.Model):
                 line = list(line_set)
                 if len(line) == 1 and line[0] == "terminado":
                     ordenes_trabajo.write({"terminado": True})
+        get_for_import = self.env['dtm.ordenes.compra'].search([("terminado","=",True),"|",("exportacion","=","definitiva"),("exportacion","=","virtual")])
+        for compra in get_for_import:
+            vals = {
+                "no_cotizacion":compra.no_cotizacion,
+                "proveedor":compra.proveedor,
+                "cliente":compra.cliente_prov,
+                "order_compra":compra.orden_compra,
+                "fecha_entrada":compra.fecha_entrada,
+                "fecha_salida":compra.fecha_salida,
+                "precio_total":compra.precio_total,
+                "currency":compra.currency,
+                "odt_ids":compra.descripcion_id
+            }
+            get_compra_import = self.env['dtm.exportaciones'].search([("no_cotizacion","=",compra.no_cotizacion)])#Busca que la compra exista y de no ser así la crea
+            get_compra_import.write(vals) if get_compra_import else get_compra_import.create(vals)
+            get_compra_import = self.env['dtm.exportaciones'].search([("no_cotizacion","=",compra.no_cotizacion)])#Busca que la compra exista y de no ser así la crea
 
+            trabajos = compra.descripcion_id.mapped("orden_trabajo")
 
+            get_compra_import.write({'planos_id': [(5, 0, {})]})
+            lines = []
+            for trabajo in trabajos:
+                get_planos = self.env['dtm.proceso'].search([("ot_number","=",trabajo),("tipe_order","=","OT")])
+                if get_planos:
+                    for planos in get_planos.anexos_id:
+                        datos = {
+                            "nombre":planos.nombre,
+                            "archivo":planos.documentos,
+                            "orden":trabajo
+                        }
+                        get_copra_ots = self.env['dtm.exportaciones.planos'].search([("nombre","=",planos.nombre),("orden","=",trabajo)])
+                        get_copra_ots.write(datos) if get_copra_ots else get_copra_ots.create(datos)
+                        get_copra_ots = self.env['dtm.exportaciones.planos'].search([("nombre","=",planos.nombre),("orden","=",trabajo)])
+                        lines.append(get_copra_ots[0].id)
+            get_compra_import.write({'planos_id': [(6, 0, lines)]})
 
 
         return res
@@ -216,7 +248,7 @@ class ItemsCompras(models.Model):
 
     item = fields.Char(string="Artículo")
     id_item = fields.Integer()
-    cantidad = fields.Integer(string="Cantidad", options='{"type": "number"}')
+    cantidad = fields.Integer(string="Cantidad")
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
     orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = True)

@@ -68,7 +68,6 @@
                          <div class="col-3">
                             <group>
                                 <field name="no_factura"/>
-                                <field name="prioridad"   />
                             </group>
                         </div>
                          <div class="col-3">
