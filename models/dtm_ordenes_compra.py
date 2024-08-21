@@ -40,6 +40,8 @@ class OrdenesCompra(models.Model):
     exportacion = fields.Selection(string="Exportación", selection=[('definitiva','Definitiva'),('virtual','Virtual')])
     terminado = fields.Boolean()
 
+    comentarios = fields.Char(string="Comentarios")
+
     # email_img = fields.Image(string="Imagen")
     def action_sumar(self):
         get_total = self.env['dtm.compras.items'].search([('model_id',"=",self.id)])

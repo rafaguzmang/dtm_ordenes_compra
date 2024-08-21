@@ -21,6 +21,7 @@
                     <field name="orden_compra"/>
                     <field name="ot_asignadas" />
                     <field name="status" />
+                    <field name="comentarios" />
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
