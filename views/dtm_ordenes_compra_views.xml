@@ -69,6 +69,8 @@
                          <div class="col-3">
                             <group>
                                 <field name="no_factura"/>
+                                <field name="comentarios" />
+
                             </group>
                         </div>
                          <div class="col-3">
