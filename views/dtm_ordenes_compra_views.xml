@@ -17,7 +17,7 @@
                     <field name="ot_asignadas"/>
 
                     <filter string="DTM" name="dtm" domain="[('proveedor','=','dtm')]"/>
-                    <filter string="MTD" name="mtd" domain="[('proveedor','!=','mtd')]"/>
+                    <filter string="MTD" name="mtd" domain="[('proveedor','=','mtd')]"/>
                     <separator/>
                     <filter string="Terminadas" name="terminado" domain="[('terminado','=',True)]"/>
                     <filter string="No Terminadas" name="no-terminado" domain="[('terminado','!=',True)]"/>
