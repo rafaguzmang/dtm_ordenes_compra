@@ -6,6 +6,27 @@
             <field name="view_mode">tree,form</field>
         </record>
 
+        <record id = "dtm_ordenes_compra_search" model="ir.ui.view">
+            <field name="name">dtm_ordenes_compra_search</field>
+            <field name="model">dtm.ordenes.compra</field>
+            <field name ="arch" type="xml">
+               <search>
+                    <field name="no_cotizacion"/>
+                    <field name="cliente_prov"/>
+                    <field name="orden_compra"/>
+                    <field name="ot_asignadas"/>
+
+                    <filter string="DTM" name="dtm" domain="[('proveedor','=','dtm')]"/>
+                    <filter string="MTD" name="mtd" domain="[('proveedor','!=','mtd')]"/>
+                    <filter string="Terminadas" name="terminado" domain="[('terminado','=',True)]"/>
+                    <filter string="No Terminadas" name="no-terminado" domain="[('terminado','!=',True)]"/>
+                    <filter string="Exportación" name="exportacion" domain="[('exportacion','!=',False)]"/>
+                    <filter string="Exp. Definitiva" name="definitiva" domain="[('exportacion','!=','definitiva')]"/>
+                    <filter string="Exp. Virtual" name="virtual" domain="[('exportacion','!=','virtual')]"/>
+                    <filter string="No Exportación" name="no-exportacion" domain="[('exportacion','=',False)]"/>
+               </search>
+            </field>
+        </record>
 
         <record id="dtm_ordenes_compra_tree" model="ir.ui.view">
             <field name="name">dtm_ordenes_compra_tree</field>
@@ -32,7 +53,7 @@
             </field>
         </record>
 
-    <record id="dtm_ordenes_compra_form" model="ir.ui.view">
+        <record id="dtm_ordenes_compra_form" model="ir.ui.view">
         <field name="name">dtm_ordenes_compra_form</field>
         <field name="model">dtm.ordenes.compra</field>
         <field name="arch" type="xml">

@@ -203,7 +203,7 @@ class OrdenesCompra(models.Model):
                 line = list(line_set)
                 if len(line) == 1 and line[0] == "terminado":
                     ordenes_trabajo.write({"terminado": True})
-        get_for_import = self.env['dtm.ordenes.compra'].search([("terminado","=",True),"|",("exportacion","=","definitiva"),("exportacion","=","virtual")])
+        get_for_import = self.env['dtm.ordenes.compra'].search(["|",("exportacion","=","definitiva"),("exportacion","=","virtual")])
         for compra in get_for_import:
             vals = {
                 "no_cotizacion":compra.no_cotizacion,
@@ -214,7 +214,7 @@ class OrdenesCompra(models.Model):
                 "fecha_salida":compra.fecha_salida,
                 "precio_total":compra.precio_total,
                 "currency":compra.currency,
-                "odt_ids":compra.descripcion_id
+                "odt_ids":compra.descripcion_id,
             }
             get_compra_import = self.env['dtm.exportaciones'].search([("no_cotizacion","=",compra.no_cotizacion)])#Busca que la compra exista y de no ser así la crea
             get_compra_import.write(vals) if get_compra_import else get_compra_import.create(vals)
@@ -262,7 +262,7 @@ class ItemsCompras(models.Model):
     parcial = fields.Boolean(default=False)
     firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
-                                         ("banda","Bryan Banda")],required=True)
+                                         ("garcia","Luís García")],required=True)
 
     def action_duplicar(self):
         # print(self.model_id.id)
@@ -296,10 +296,11 @@ class ItemsCompras(models.Model):
         name_client = ""
         no_cotizacion = ""
         disenador = ""
+        po_creacion = ""
         if self.firma_diseno == "orozco":
             disenador = "Andrés Orozco"
-        if self.firma_diseno == "banda":
-            disenador = "Bryan Banda"
+        if self.firma_diseno == "garcia":
+            disenador = "Luís Gracía"
         for po in get_oc:
             for order in po:
                 for item in order.descripcion_id:
@@ -312,6 +313,7 @@ class ItemsCompras(models.Model):
                         date_rel = order.fecha_salida
                         name_client = order.cliente_prov
                         no_cotizacion = order.no_cotizacion
+                        po_creacion = order.create_date
                         po.write({
                             "ot_asignadas": pos + str(ot_number) + " "
                         })
@@ -337,7 +339,8 @@ class ItemsCompras(models.Model):
                 "name_client":name_client,
                 "description":descripcion,
                 "no_cotizacion":no_cotizacion,
-                "disenador":disenador
+                "disenador":disenador,
+                "po_fecha_creacion":po_creacion
             }
             if get_ot:
                 get_ot.write(vals)
