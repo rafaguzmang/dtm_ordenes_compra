@@ -18,12 +18,15 @@
 
                     <filter string="DTM" name="dtm" domain="[('proveedor','=','dtm')]"/>
                     <filter string="MTD" name="mtd" domain="[('proveedor','!=','mtd')]"/>
+                    <separator/>
                     <filter string="Terminadas" name="terminado" domain="[('terminado','=',True)]"/>
                     <filter string="No Terminadas" name="no-terminado" domain="[('terminado','!=',True)]"/>
+                    <separator/>
                     <filter string="Exportación" name="exportacion" domain="[('exportacion','!=',False)]"/>
+                    <filter string="No Exportación" name="no-exportacion" domain="[('exportacion','=',False)]"/>
+                    <separator/>
                     <filter string="Exp. Definitiva" name="definitiva" domain="[('exportacion','!=','definitiva')]"/>
                     <filter string="Exp. Virtual" name="virtual" domain="[('exportacion','!=','virtual')]"/>
-                    <filter string="No Exportación" name="no-exportacion" domain="[('exportacion','=',False)]"/>
                </search>
             </field>
         </record>
