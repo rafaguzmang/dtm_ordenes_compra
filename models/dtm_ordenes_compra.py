@@ -19,14 +19,16 @@ class OrdenesCompra(models.Model):
     orden_compra = fields.Char(string="Orden de Compra")
     fecha_entrada = fields.Date(string="Fecha Entrada",default= datetime.datetime.today(),readonly=True,store=True)
     fecha_salida = fields.Date(string="Fecha Entrega",default= datetime.datetime.today())
+    fecha_po = fields.Date(string="Fecha de la PO",default= datetime.datetime.today())
+    fecha_captura_po = fields.Date(string="Fecha Captura PO", readonly= True)
 
     descripcion_id = fields.One2many("dtm.compras.items",'model_id')#Modelo donde se almacenan los requerimientos
 
     precio_total = fields.Float(string="Precio total")
     proveedor = fields.Selection(string='Proveedor',default='dtm',
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
-    # archivos = fields.Binary(string="Archivo")
-    archivos_id = fields.Many2many("ir.attachment",string="Archivos")
+    archivos_id = fields.Many2many("ir.attachment","archivos_id",string="Archivos")
+    anexos_id = fields.Many2many("ir.attachment")
     currency = fields.Selection(string="Moneda",default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
 
     # facturado_toogle = fields.Boolean( defaul=False)
@@ -260,9 +262,11 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
+    tipo_servicio = fields.Selection(string="Compra/Servicio", selection=[("servicio","Servicio"),
+                                         ("compra","Compra")],default="servicio")
     firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
-                                         ("garcia","Luís García")],required=True)
+                                         ("garcia","Luís García"),("na","N/A")],required=True,default="na")
 
     def action_duplicar(self):
         # print(self.model_id.id)
