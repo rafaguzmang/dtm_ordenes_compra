@@ -81,62 +81,59 @@
                           </div>
                      </div>
                     <div class="row">
-                        <div class="col-3">
-                                <group>
+                        <div class="col-5">
+                                <group style="display:flex">
                                     <field name="no_cotizacion_id" class="primary"  />
-                                    <field name="exportacion" />
-                                </group>
+                                    <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
+                                </group >
+                                    <field style="width: 100%" name="cliente_prov"/>
                         </div>
-                        <div class="col-3">
-                                <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
-                        </div>
-                         <div class="col-3">
-                            <group>
-                                <field name="no_factura"/>
-                                <field name="comentarios" />
 
+
+                        <div class="col-3">
+                            <group>
+                                <field name="exportacion" />
+                                <field name="fecha_salida"/>
                             </group>
                         </div>
-                         <div class="col-3">
-                            <group>
-                                  <field name="parcial" widget="boolean_toggle"/>
-                            </group>
-                          </div>
+<!--                         <div class="col-3">-->
+<!--                            <group>-->
+<!--                                  <field name="parcial" widget="boolean_toggle"/>-->
+<!--                            </group>-->
+<!--                          </div>-->
                     </div>
                      <div class="row">
-                            <div class="col-6">
-                                    <group>
-
+                            <div class="col-5">
+                                    <group >
                                         <field name="fecha_entrada"/>
-                                        <field name="fecha_salida"/>
+                                        <field name="fecha_captura_po"/>
                                     </group>
-                             </div>
-                             <div class="col-3">
+                            </div>
+                            <div class="col-4">
                                     <group>
-                                        <field name="cliente_prov"/>
                                         <field name="orden_compra"/>
+                                        <field name="fecha_po"/>
                                     </group>
-                             </div>
-        <!--                         <div class="col-3">-->
-        <!--                                <group>-->
-        <!--                                    <field name="cliente"/>-->
-        <!--                                </group>-->
-        <!--                         </div>-->
+                            </div>
+                            <div class="col-3">
+                                <group>
+                                    <field name="no_factura"/>
+                                    <field name="comentarios" />
+                                </group>
+                            </div>
                             </div>
                             <notebook>
                                 <page string="Requerimientos">
                                     <field name="descripcion_id">
                                         <tree editable="bottom"  >
-                                            <button name="action_duplicar" type="object" attrs="{'invisible': [('item', '!=',False)]}" icon="fa-clone" />
+<!--                                            <button name="action_duplicar" icon="fa-clone" />-->
                                             <field name="item" />
                                             <field name="cantidad" />
+                                            <field name="tipo_servicio" />
                                             <field name="precio_unitario"/>
                                             <field name="precio_total" />
-                                            <field name="orden_compra" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
                                             <field name="orden_trabajo" />
-                                            <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('orden_trabajo', '=',True)]}" icon="fa-bolt" />
-                                            <field name="status" attrs="{'column_invisible': [('parent.parcial', '=',False)]}" />
-                                            <field name="parcial" invisible="1"/>
+                                            <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '=','compra')]}" icon="fa-bolt" />
                                             <field name="firma_diseno" />
                                             <field name="firma" />
                                         </tree>
@@ -150,6 +147,8 @@
                                 </page>
                                 <page string="Notas">
                                     <field name="notas" />
+                                </page> <page string="Anexos">
+                                    <field name="anexos_id" widget="many2many_binary" />
                                 </page>
                             </notebook>
 

@@ -22,6 +22,22 @@
             </field>
         </record>
 
+         <record id = "dtm_ordenes_compra_facturado_search" model="ir.ui.view">
+            <field name="name">dtm_ordenes_compra_facturado_search</field>
+            <field name="model">dtm.ordenes.compra.facturado</field>
+            <field name ="arch" type="xml">
+               <search>
+                    <field name="factura"/>
+                    <field name="no_cotizacion"/>
+                    <field name="cliente_prov"/>
+                    <field name="orden_compra"/>
+
+                    <filter string="DTM" name="dtm" domain="[('proveedor','=','dtm')]"/>
+                    <filter string="MTD" name="mtd" domain="[('proveedor','=','mtd')]"/>
+               </search>
+            </field>
+        </record>
+
         <record id="dtm_ordenes_compra_facturado_form" model="ir.ui.view">
             <field name="name">dtm_ordenes_compra_facturado_form</field>
             <field name="model">dtm.ordenes.compra.facturado</field>
