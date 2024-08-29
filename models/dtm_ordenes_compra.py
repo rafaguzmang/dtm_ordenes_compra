@@ -19,7 +19,7 @@ class OrdenesCompra(models.Model):
     orden_compra = fields.Char(string="Orden de Compra")
     fecha_entrada = fields.Date(string="Fecha Entrada",default= datetime.datetime.today(),readonly=True,store=True)
     fecha_salida = fields.Date(string="Fecha Entrega",default= datetime.datetime.today())
-    fecha_po = fields.Date(string="Fecha de la PO",default= datetime.datetime.today())
+    fecha_po = fields.Date(string="Fecha de la PO")
     fecha_captura_po = fields.Date(string="Fecha Captura PO", readonly= True)
 
     descripcion_id = fields.One2many("dtm.compras.items",'model_id')#Modelo donde se almacenan los requerimientos
@@ -43,6 +43,10 @@ class OrdenesCompra(models.Model):
     terminado = fields.Boolean()
 
     comentarios = fields.Char(string="Comentarios")
+
+    @api.onchange("fecha_po")
+    def _onchange_fecha_po(self):
+        self.fecha_captura_po = datetime.datetime.now()
 
     # email_img = fields.Image(string="Imagen")
     def action_sumar(self):
@@ -262,11 +266,15 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Status")
     parcial = fields.Boolean(default=False)
+    prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
+
     tipo_servicio = fields.Selection(string="Compra/Servicio", selection=[("servicio","Servicio"),
                                          ("compra","Compra")],default="servicio")
     firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
                                          ("garcia","Luís García"),("na","N/A")],required=True,default="na")
+
+
 
     def action_duplicar(self):
         # print(self.model_id.id)
@@ -287,74 +295,40 @@ class ItemsCompras(models.Model):
         self.precio_total = float(self.precio_unitario) * float(self.cantidad)
 
     def acction_generar(self):# Genera orden de trabajo
-        get_odt = self.env['dtm.odt'].search([],order='ot_number desc', limit=1)
-        get_odtf = self.env['dtm.facturado.odt'].search([],order='ot_number desc', limit=1)
-        otnumber = get_odt.ot_number
-        if get_odt.ot_number < get_odtf.ot_number:
-            otnumber = get_odtf.ot_number
-        get_oc = self.env['dtm.ordenes.compra'].search([])
-        ot_number = otnumber + 1
-        po_number = ""
-        date_in = ""
-        date_rel = ""
-        name_client = ""
-        no_cotizacion = ""
-        disenador = ""
-        po_creacion = ""
-        if self.firma_diseno == "orozco":
-            disenador = "Andrés Orozco"
-        if self.firma_diseno == "garcia":
-            disenador = "Luís Gracía"
-        for po in get_oc:
-            for order in po:
-                for item in order.descripcion_id:
-                    if item.id == self.id:
-                        pos = ""
-                        if po.ot_asignadas:
-                            pos =po.ot_asignadas
-                        po_number = order.orden_compra
-                        date_in = order.fecha_entrada
-                        date_rel = order.fecha_salida
-                        name_client = order.cliente_prov
-                        no_cotizacion = order.no_cotizacion
-                        po_creacion = order.create_date
-                        po.write({
-                            "ot_asignadas": pos + str(ot_number) + " "
-                        })
-
-        # get_rec = self.env['dtm.requerimientos'].search(['&',('servicio','=',no_cotizacion),('nombre','=',self.item)])
-        get_odc = self.env['dtm.ordenes.compra'].search([('no_cotizacion','=', no_cotizacion)])
-        get_desc = self.env['dtm.cotizaciones'].search([('no_cotizacion','=', no_cotizacion)])
-        descripcion = ""
-        for item in get_desc.servicios_id:
-            if item.descripcion == self.item:
-                for desc in item.items_id:
-                    descripcion +=  desc.name + ", "
-        descripcion = re.sub(", $",".",descripcion)
-        if not descripcion:
-            descripcion = ""
-        if self.orden_trabajo:
-            get_ot = self.env['dtm.odt'].search([("ot_number","=",self.orden_trabajo)])
-            vals = {
-                "cuantity":self.cantidad,
-                "product_name":self.item,
-                "po_number":po_number,
-                "date_rel":date_rel,
-                "name_client":name_client,
-                "description":descripcion,
-                "no_cotizacion":no_cotizacion,
-                "disenador":disenador,
-                "po_fecha_creacion":po_creacion
-            }
-            if get_ot:
-                get_ot.write(vals)
-            # raise ValidationError("Orden de trabajo actualizada")
-        elif get_odc.orden_compra:
+        ot_number = self.orden_trabajo
+        tipo_orden = "OT" if self.prediseno == "no" else "SK" #Se obtine el último valor de la orden correspondiente
+        if not self.orden_trabajo:
+            get_odt = self.env['dtm.odt'].search([("tipe_order","=",tipo_orden)],order='ot_number desc', limit=1).mapped('ot_number')
+            get_odtf = self.env['dtm.facturado.odt'].search([("tipe_order","=",tipo_orden)],order='ot_number desc', limit=1).mapped('ot_number')
+            get_odt = get_odt[0] if get_odt else 0
+            get_odtf = get_odtf[0] if get_odtf else 0
+            ot_number = get_odt + 1 if get_odt > get_odtf else get_odtf + 1
             self.orden_trabajo = ot_number
-            self.env.cr.execute("INSERT INTO dtm_odt (cuantity, ot_number, tipe_order, product_name, po_number, date_in, date_rel, name_client, description,version_ot,disenador,no_cotizacion) "+
-                                "VALUES ("+str(self.cantidad)+", '"+str(ot_number)+"', 'OT', '"+str(self.item)+"', '"+str(po_number)+"', '"+str(date_in)+"', '"+str(date_rel)+"', '"+str(name_client)+"', '"+descripcion+"',"+"1,'"+disenador+"','"+no_cotizacion+"' )")
-        else:
-             raise MissingError("No existe número de compra")
+        get_oc = self.env['dtm.ordenes.compra'].search([])
+        po_n = 0
+        for oc in get_oc: #Se obtienen los datos del la orden de compra al cual esta ligado este servicio
+            if self._origin.id in oc.descripcion_id.mapped('id'):
+                po_n = oc.id
+        get_po = self.env['dtm.ordenes.compra'].browse(po_n)
+        disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "Luís Gracía"
+        vals = {
+            "cuantity":self.cantidad,
+            "product_name":self.item,
+            "po_number":get_po.orden_compra if self.prediseno == "no" else get_po.no_cotizacion,
+            "date_rel":get_po.fecha_salida,
+            "name_client":get_po.cliente_prov,
+            "description":self.item,
+            "no_cotizacion":get_po.no_cotizacion,
+            "disenador":disenador,
+            "po_fecha_creacion":self.create_date if self.prediseno == "no" else "",
+            "tipe_order":tipo_orden,
+            "ot_number":self.orden_trabajo,
+            "po_fecha":self.orden_trabajo if self.prediseno == "no" else ""
+        }
+        get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
+        get_otd.write(vals) if get_otd else get_otd.create(vals)
+
+
 
 
 
