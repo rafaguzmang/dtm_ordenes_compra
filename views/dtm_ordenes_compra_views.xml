@@ -112,7 +112,7 @@
                             <div class="col-4">
                                     <group>
                                         <field name="orden_compra"/>
-                                        <field name="fecha_po"/>
+                                        <field name="fecha_po" attrs="{'readonly': [('fecha_captura_po', '!=',False)]}" />
                                     </group>
                             </div>
                             <div class="col-3">
@@ -130,6 +130,7 @@
                                             <field name="item" />
                                             <field name="cantidad" />
                                             <field name="tipo_servicio" />
+                                            <field name="prediseno" />
                                             <field name="precio_unitario"/>
                                             <field name="precio_total" />
                                             <field name="orden_trabajo" />
@@ -147,7 +148,8 @@
                                 </page>
                                 <page string="Notas">
                                     <field name="notas" />
-                                </page> <page string="Anexos">
+                                </page>
+                                <page string="Anexos">
                                     <field name="anexos_id" widget="many2many_binary" />
                                 </page>
                             </notebook>
