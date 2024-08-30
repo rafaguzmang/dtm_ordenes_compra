@@ -140,19 +140,17 @@ class OrdenesCompra(models.Model):
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
         else:
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])
-
         get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
         self.proveedor = get_cot.proveedor
         self.cliente_prov = get_cot.cliente_id.name
         self.currency = get_cot.curency
-
-        get_req_ext = self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",get_cot.id)])
-        get_compras.write({"descripcion_id":[(5,0,{})]})
+        get_req_ext = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])#Tabla con los items de Cotizaciones
+        get_compras.write({"descripcion_id":[(5,0,{})]})#Tabla con los items de ordenes de compra
         lines = []
         sum = 0
-        for req in get_req_ext:
+        for req in get_req_ext.servicios_id:
             sum += req.total
-            get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("id_item","=",req.id)],limit = 1)
+            get_items = self.env['dtm.compras.items'].search([("id_item","=",req.id)])
             vals = {
                     "item":req.descripcion,
                     "id_item":req.id,
@@ -160,21 +158,11 @@ class OrdenesCompra(models.Model):
                     "precio_unitario":req.precio_unitario,
                     "precio_total":req.total,
                 }
-            if get_items:
-                get_items.write(vals)
-                lines.append(get_items.id)
-            else:
-                get_items.create(vals)
-                get_items = self.env['dtm.compras.items'].search([("item","=",req.descripcion),("id_item","=",req.id)],limit = 1)
-                lines.append(get_items.id)
+            get_items.write(vals) if get_items else get_items.create(vals)
+            lines.append(self.env['dtm.compras.items'].search([("id_item","=",req.id)]).id)
         get_compras.write({"descripcion_id":[(6,0,lines)]})
         self.precio_total = sum
-
-        get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
-        val = {
-            "po_number": self.orden_compra
-        }
-        get_cotizaciones.write(val)
+        self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)]).write({"po_number": self.orden_compra})
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
@@ -317,16 +305,15 @@ class ItemsCompras(models.Model):
             "po_number":get_po.orden_compra if self.prediseno == "no" else get_po.no_cotizacion,
             "date_rel":get_po.fecha_salida,
             "name_client":get_po.cliente_prov,
-            "description":self.item,
+            "product_name":self.item,
             "no_cotizacion":get_po.no_cotizacion,
             "disenador":disenador,
             "po_fecha_creacion":get_po.fecha_captura_po if self.prediseno == "no" else None,
             "tipe_order":tipo_orden,
             "ot_number":self.orden_trabajo,
-            "po_fecha":get_po.fecha_po if self.prediseno == "no" else None
+            "po_fecha":get_po.fecha_po if self.prediseno == "no" else None,
+            "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name'))
         }
-        print(self.create_date)
-        print(vals)
         get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
         get_otd.write(vals) if get_otd else get_otd.create(vals)
         get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
