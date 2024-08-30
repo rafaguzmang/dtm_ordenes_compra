@@ -320,13 +320,24 @@ class ItemsCompras(models.Model):
             "description":self.item,
             "no_cotizacion":get_po.no_cotizacion,
             "disenador":disenador,
-            "po_fecha_creacion":self.create_date if self.prediseno == "no" else "",
+            "po_fecha_creacion":get_po.fecha_captura_po if self.prediseno == "no" else None,
             "tipe_order":tipo_orden,
             "ot_number":self.orden_trabajo,
-            "po_fecha":self.orden_trabajo if self.prediseno == "no" else ""
+            "po_fecha":get_po.fecha_po if self.prediseno == "no" else None
         }
+        print(self.create_date)
+        print(vals)
         get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
         get_otd.write(vals) if get_otd else get_otd.create(vals)
+        get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
+        get_otd.write({'orden_compra_pdf': [(5, 0, {})]})
+        if self.prediseno == "si":
+            get_otd.write({'orden_compra_pdf': [(6, 0, get_po.anexos_id.mapped('id'))]})
+        else:
+            lines = []
+            lines.extend(get_po.archivos_id.mapped('id'))
+            lines.extend(get_po.anexos_id.mapped('id'))
+            get_otd.write({'orden_compra_pdf': [(6, 0, lines)]})
 
 
 
