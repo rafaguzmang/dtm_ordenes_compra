@@ -298,7 +298,12 @@ class ItemsCompras(models.Model):
             if self._origin.id in oc.descripcion_id.mapped('id'):
                 po_n = oc.id
         get_po = self.env['dtm.ordenes.compra'].browse(po_n)
-        disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "Luís Gracía"
+        disenador = "N/A"
+        if self.firma_diseno == "orozco":
+            disenador == "Andrés Orozco"
+        elif self.firma_diseno == "garcia":
+            disenador == "Luís Gracía"
+
         vals = {
             "cuantity":self.cantidad,
             "product_name":self.item,
