@@ -247,7 +247,7 @@ class ItemsCompras(models.Model):
     cantidad = fields.Integer(string="Cantidad")
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
-    orden_trabajo = fields.Integer(string="Orden de Trabajo", readonly = True)
+    orden_trabajo = fields.Integer(string="Orden de Trabajo")
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
