@@ -175,51 +175,51 @@ class OrdenesCompra(models.Model):
                 }
                 self.env['dtm.ordenes.compra.precotizaciones'].create(cot)
 
-        get_desc = self.env['dtm.ordenes.compra'].search([])#Revisa si todas las ordenes de esta cotización ya están realizadas y de ser así las marca en color verde
-        for ordenes_compra in get_desc:
-            for ordenes_trabajo in ordenes_compra:
-                line_set = set()
-                for orden in ordenes_trabajo.descripcion_id:
-                    get_ot_status = self.env['dtm.proceso'].search([("ot_number","=",orden.orden_trabajo),("tipe_order","=","OT")])
-                    line_set.add(get_ot_status.status)
-                line = list(line_set)
-                if len(line) == 1 and line[0] == "terminado":
-                    ordenes_trabajo.write({"terminado": True})
-        get_for_import = self.env['dtm.ordenes.compra'].search(["|",("exportacion","=","definitiva"),("exportacion","=","virtual")])
-        for compra in get_for_import:
-            vals = {
-                "no_cotizacion":compra.no_cotizacion,
-                "proveedor":compra.proveedor,
-                "cliente":compra.cliente_prov,
-                "order_compra":compra.orden_compra,
-                "fecha_entrada":compra.fecha_entrada,
-                "fecha_salida":compra.fecha_salida,
-                "precio_total":compra.precio_total,
-                "currency":compra.currency,
-                "odt_ids":compra.descripcion_id,
-            }
-            get_compra_import = self.env['dtm.exportaciones'].search([("no_cotizacion","=",compra.no_cotizacion)])#Busca que la compra exista y de no ser así la crea
-            get_compra_import.write(vals) if get_compra_import else get_compra_import.create(vals)
-            get_compra_import = self.env['dtm.exportaciones'].search([("no_cotizacion","=",compra.no_cotizacion)])#Busca que la compra exista y de no ser así la crea
-
-            trabajos = compra.descripcion_id.mapped("orden_trabajo")
-
-            get_compra_import.write({'planos_id': [(5, 0, {})]})
-            lines = []
-            for trabajo in trabajos:
-                get_planos = self.env['dtm.proceso'].search([("ot_number","=",trabajo),("tipe_order","=","OT")])
-                if get_planos:
-                    for planos in get_planos.anexos_id:
-                        datos = {
-                            "nombre":planos.nombre,
-                            "archivo":planos.documentos,
-                            "orden":trabajo
-                        }
-                        get_copra_ots = self.env['dtm.exportaciones.planos'].search([("nombre","=",planos.nombre),("orden","=",trabajo)])
-                        get_copra_ots.write(datos) if get_copra_ots else get_copra_ots.create(datos)
-                        get_copra_ots = self.env['dtm.exportaciones.planos'].search([("nombre","=",planos.nombre),("orden","=",trabajo)])
-                        lines.append(get_copra_ots[0].id)
-            get_compra_import.write({'planos_id': [(6, 0, lines)]})
+        # get_desc = self.env['dtm.ordenes.compra'].search([])#Revisa si todas las ordenes de esta cotización ya están realizadas y de ser así las marca en color verde
+        # for ordenes_compra in get_desc:
+        #     for ordenes_trabajo in ordenes_compra:
+        #         line_set = set()
+        #         for orden in ordenes_trabajo.descripcion_id:
+        #             get_ot_status = self.env['dtm.proceso'].search([("ot_number","=",orden.orden_trabajo),("tipe_order","=","OT")])
+        #             line_set.add(get_ot_status.status)
+        #         line = list(line_set)
+        #         if len(line) == 1 and line[0] == "terminado":
+        #             ordenes_trabajo.write({"terminado": True})
+        # get_for_import = self.env['dtm.ordenes.compra'].search(["|",("exportacion","=","definitiva"),("exportacion","=","virtual")])
+        # for compra in get_for_import:
+        #     vals = {
+        #         "no_cotizacion":compra.no_cotizacion,
+        #         "proveedor":compra.proveedor,
+        #         "cliente":compra.cliente_prov,
+        #         "order_compra":compra.orden_compra,
+        #         "fecha_entrada":compra.fecha_entrada,
+        #         "fecha_salida":compra.fecha_salida,
+        #         "precio_total":compra.precio_total,
+        #         "currency":compra.currency,
+        #         "odt_ids":compra.descripcion_id,
+        #     }
+        #     get_compra_import = self.env['dtm.exportaciones'].search([("no_cotizacion","=",compra.no_cotizacion)])#Busca que la compra exista y de no ser así la crea
+        #     get_compra_import.write(vals) if get_compra_import else get_compra_import.create(vals)
+        #     get_compra_import = self.env['dtm.exportaciones'].search([("no_cotizacion","=",compra.no_cotizacion)])#Busca que la compra exista y de no ser así la crea
+        #
+        #     trabajos = compra.descripcion_id.mapped("orden_trabajo")
+        #
+        #     get_compra_import.write({'planos_id': [(5, 0, {})]})
+        #     lines = []
+        #     for trabajo in trabajos:
+        #         get_planos = self.env['dtm.proceso'].search([("ot_number","=",trabajo),("tipe_order","=","OT")])
+        #         if get_planos:
+        #             for planos in get_planos.anexos_id:
+        #                 datos = {
+        #                     "nombre":planos.nombre,
+        #                     "archivo":planos.documentos,
+        #                     "orden":trabajo
+        #                 }
+        #                 get_copra_ots = self.env['dtm.exportaciones.planos'].search([("nombre","=",planos.nombre),("orden","=",trabajo)])
+        #                 get_copra_ots.write(datos) if get_copra_ots else get_copra_ots.create(datos)
+        #                 get_copra_ots = self.env['dtm.exportaciones.planos'].search([("nombre","=",planos.nombre),("orden","=",trabajo)])
+        #                 lines.append(get_copra_ots[0].id)
+        #     get_compra_import.write({'planos_id': [(6, 0, lines)]})
 
 
         return res
@@ -326,11 +326,6 @@ class ItemsCompras(models.Model):
             "ot_asignadas":" ".join([str(item.orden_trabajo) for item in list_orm]),
             "status": " ".join(lista)
         })
-
-
-
-
-
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
     _name = "dtm.ordenes.compra.precotizaciones"
