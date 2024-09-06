@@ -300,9 +300,9 @@ class ItemsCompras(models.Model):
         get_po = self.env['dtm.ordenes.compra'].browse(po_n)
         disenador = "N/A"
         if self.firma_diseno == "orozco":
-            disenador == "Andrés Orozco"
+            disenador = "Andrés Orozco"
         elif self.firma_diseno == "garcia":
-            disenador == "Luís Gracía"
+            disenador = "Luís Gracía"
 
         vals = {
             "cuantity":self.cantidad,
