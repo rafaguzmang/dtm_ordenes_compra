@@ -164,29 +164,17 @@ class OrdenesCompra(models.Model):
         self.precio_total = sum
         self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)]).write({"po_number": self.orden_compra})
 
+
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
         get_cotizaciones =  self.env['dtm.cotizaciones'].search([("po_number", "!=", "po")])
-        # print(get_cotizaciones)
         for cotizaciones in get_cotizaciones:
             if not self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion","=",cotizaciones.no_cotizacion)]):
                 cot = {
                     "precotizacion":cotizaciones.no_cotizacion
                 }
                 self.env['dtm.ordenes.compra.precotizaciones'].create(cot)
-        get_desc = self.env['dtm.ordenes.compra'].search([])
-        for desc in get_desc:
-            desc.ot_asignadas = ""
-            for ot in desc.descripcion_id:
-                desc.ot_asignadas += str(ot.orden_trabajo) + " "
-        for desc in get_desc:
-            desc.status = ""
-            for ot in desc.descripcion_id:
-                get_odt = self.env['dtm.odt'].search([("ot_number","=",ot.orden_trabajo)])
-                firma = "❌"
-                if get_odt.firma:
-                    firma = "✔"
-                desc.status += str(firma) + " "
+
         get_desc = self.env['dtm.ordenes.compra'].search([])#Revisa si todas las ordenes de esta cotización ya están realizadas y de ser así las marca en color verde
         for ordenes_compra in get_desc:
             for ordenes_trabajo in ordenes_compra:
@@ -303,7 +291,10 @@ class ItemsCompras(models.Model):
             disenador = "Andrés Orozco"
         elif self.firma_diseno == "garcia":
             disenador = "Luís Gracía"
+<<<<<<< HEAD
 
+=======
+>>>>>>> 10353655da8cddd3d967e11e06f82a7ecef47150
         vals = {
             "cuantity":self.cantidad,
             "product_name":self.item,
@@ -330,6 +321,16 @@ class ItemsCompras(models.Model):
             lines.extend(get_po.archivos_id.mapped('id'))
             lines.extend(get_po.anexos_id.mapped('id'))
             get_otd.write({'orden_compra_pdf': [(6, 0, lines)]})
+        #------------------------------------------------------------------------------------------------------
+        get_orden_compra =  self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).descripcion_id.mapped('id')
+        list_items = [item for item in get_orden_compra if self.env['dtm.compras.items'].search([("id", "=", item)]).tipo_servicio == "servicio"]
+        list_orm = [self.env['dtm.compras.items'].search([("id", "=", item)]) for item in list_items]
+        lista = ["𝓐" if item.firma_diseno == "orozco" and item.firma == "Andrés Alberto Orozco Martínez" else  "a" if item.firma_diseno == "orozco" and not item.firma else "𝓛" if item.firma_diseno == "garcia" and item.firma == "Luís Donaldo García Rayos" else "l" if item.firma_diseno == "garcia" and not item.firma else "❌" for item in list_orm]
+        self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).write({
+            "ot_asignadas":" ".join([str(item.orden_trabajo) for item in list_orm]),
+            "status": " ".join(lista)
+        })
+
 
 
 
