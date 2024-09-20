@@ -321,10 +321,9 @@ class ItemsCompras(models.Model):
         get_orden_compra =  self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).descripcion_id.mapped('id')
         list_items = [item for item in get_orden_compra if self.env['dtm.compras.items'].search([("id", "=", item)]).tipo_servicio == "servicio"]
         list_orm = [self.env['dtm.compras.items'].search([("id", "=", item)]) for item in list_items]
-        lista = ["𝓐" if item.firma_diseno == "orozco" and item.firma == "Andrés Alberto Orozco Martínez" else  "a" if item.firma_diseno == "orozco" and not item.firma else "𝓛" if item.firma_diseno == "garcia" and item.firma == "Luís Donaldo García Rayos" else "l" if item.firma_diseno == "garcia" and not item.firma else "❌" for item in list_orm]
+        lista = [f"|𝓐 {item.orden_trabajo}✔|" if item.firma_diseno == "orozco" and item.firma == "Andrés Alberto Orozco Martínez" else f"|𝓐 {item.orden_trabajo}❌| " if item.firma_diseno == "orozco" and not item.firma  else f"|𝓛 {item.orden_trabajo}✔|" if item.firma_diseno == "garcia" and item.firma == "Luís Donaldo García Rayos" else f"|𝓛 {item.orden_trabajo}❌|" if item.firma_diseno == "garcia" and not item.firma else f"|{item.orden_trabajo}❌|" for item in list_orm]
         self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).write({
-            "ot_asignadas":" ".join([str(item.orden_trabajo) for item in list_orm]),
-            "status": " ".join(lista)
+            "ot_asignadas":" ".join(lista),
         })
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra

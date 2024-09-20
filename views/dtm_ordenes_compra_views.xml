@@ -44,7 +44,6 @@
                     <field name="cliente_prov"/>
                     <field name="orden_compra"/>
                     <field name="ot_asignadas" />
-                    <field name="status" />
                     <field name="comentarios" />
                     <field name="fecha_entrada"/>
                     <field name="fecha_salida"/>
@@ -134,7 +133,7 @@
                                             <field name="precio_unitario"/>
                                             <field name="precio_total" />
                                             <field name="orden_trabajo" />
-                                            <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '=','compra')]}" icon="fa-bolt" />
+                                            <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '!=','servicio')]}" icon="fa-bolt" />
                                             <field name="firma_diseno" />
                                             <field name="firma" />
                                         </tree>
