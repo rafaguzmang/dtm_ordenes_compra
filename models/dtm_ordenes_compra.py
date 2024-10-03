@@ -10,6 +10,8 @@ class OrdenesCompra(models.Model):
     _inherit = ['mail.thread']
     _description = "Se muestran todos los archivos de las ordenes de compra"
     _order = "id desc"
+    _rec_name = "no_cotizacion"
+
 
     no_cotizacion_id = fields.Many2one("dtm.ordenes.compra.precotizaciones")
     no_cotizacion = fields.Char(readonly=True)
