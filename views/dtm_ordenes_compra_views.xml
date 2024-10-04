@@ -61,10 +61,26 @@
         <field name="arch" type="xml">
             <form string="">
                  <header>
+                    <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
                     <button name="action_facturado" type="object" string="Facturar" class="btn btn-primary" attrs="{'invisible': [('no_factura', '=',False)]}"/>
                 </header>
                 <sheet>
-                     <div class="row">
+                    <div class="oe_button_box" name="button_box">
+                         <button name="action_pasive" type="object" string="Anexos" class="oe_stat_button" icon="fa-calendar">
+                            <field name="fecha_salida"  string="" widget="statinfo"/>
+                        </button>
+                        <button name="action_pasive" type="object" string="Anexos" class="oe_stat_button" icon="fa-paperclip">
+                            <field name="anexos_id"  string="" widget="statinfo"/>
+                        </button>
+                         <button name="action_pasive" type="object" string="P.O." class="oe_stat_button" icon="fa-file">
+                            <field name="archivos_id"  string="Facturas" widget="statinfo"/>
+                        </button>
+                        <button name="action_sumar" type="object" string="Anexos" class="oe_stat_button" icon="fa-dollar">
+                            <field name="precio_total"  string="" widget="statinfo"/>
+                        </button>
+                    </div>
+
+                    <div class="row">
                           <div class="col-6">
                               <h2>
                                 <field name="proveedor"/>
@@ -78,12 +94,11 @@
                                 <field name="no_cotizacion" class="" />
                               </h1>
                           </div>
-                     </div>
+                    </div>
                     <div class="row">
                         <div class="col-5">
                                 <group style="display:flex">
                                     <field name="no_cotizacion_id" class="primary"  />
-                                    <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
                                 </group >
                                     <field style="width: 100%" name="cliente_prov"/>
                         </div>
@@ -153,26 +168,6 @@
                                 </page>
                             </notebook>
 
-                            <div class="row">
-                                <div class="col-9">
-
-                                </div>
-                                <div class="col-1">
-                                        <button name="action_sumar" type="object" string="Sumar" class="btn btn-primary"  />
-                                </div>
-                                <div class="col-2">
-                                    <div class="row">
-                                        <div class="col-6">
-                                           <h3>
-                                            <field name="precio_total" widget="monetary" />
-                                           </h3>
-                                        </div>
-                                        <div class="col-6">
-                                            <field name="currency" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>

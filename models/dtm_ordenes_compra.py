@@ -26,10 +26,10 @@ class OrdenesCompra(models.Model):
 
     descripcion_id = fields.One2many("dtm.compras.items",'model_id')#Modelo donde se almacenan los requerimientos
 
-    precio_total = fields.Float(string="Precio total")
+    precio_total = fields.Float(string="Precio total",compute="_compute_action_sumar")
     proveedor = fields.Selection(string='Proveedor',default='dtm',
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
-    archivos_id = fields.Many2many("ir.attachment","archivos_id",string="Archivos")
+    archivos_id = fields.Many2many("ir.attachment","archivos_id",string="P.O.")
     anexos_id = fields.Many2many("ir.attachment")
     currency = fields.Selection(string="Moneda",default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
 
@@ -46,17 +46,23 @@ class OrdenesCompra(models.Model):
 
     comentarios = fields.Char(string="Comentarios")
 
+    #Acciones para los smart buttons
+    def action_sumar(self):
+        pass
+
+    def action_pasive(self):
+        pass
+
     @api.onchange("fecha_po")
     def _onchange_fecha_po(self):
         self.fecha_captura_po = datetime.datetime.now()
 
     # email_img = fields.Image(string="Imagen")
-    def action_sumar(self):
-        get_total = self.env['dtm.compras.items'].search([('model_id',"=",self.id)])
-        sum = 0
-        for total in get_total:
-            sum += total.precio_total
-        self.precio_total = sum
+    @api.depends("descripcion_id")
+    def _compute_action_sumar(self):
+        for result in self:
+            get_total = result.descripcion_id.mapped("precio_total")
+            result.precio_total = sum(get_total)
 
     @api.onchange("orden_compra")
     def _onchange_orden_compra(self):
