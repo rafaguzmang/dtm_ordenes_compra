@@ -248,7 +248,7 @@ class ItemsCompras(models.Model):
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
     nombre_archivo = fields.Char(string="Nombre")
-    status = fields.Char(string="Status")
+    status = fields.Char(string="Notas")
     parcial = fields.Boolean(default=False)
     prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
 
@@ -258,6 +258,8 @@ class ItemsCompras(models.Model):
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
                                          ("garcia","Luís García"),("na","N/A")],required=True,default="na")
 
+
+    #No se esta usando
     def action_duplicar(self):
         # print(self.model_id.id)
         get_inf = self.env['dtm.compras.items'].search([("model_id","=",self.model_id.id),("item","!=","")])
@@ -297,7 +299,6 @@ class ItemsCompras(models.Model):
             disenador = "Andrés Orozco"
         elif self.firma_diseno == "garcia":
             disenador = "Luís Gracía"
-
         vals = {
             "cuantity":self.cantidad,
             "product_name":self.item,
@@ -325,7 +326,6 @@ class ItemsCompras(models.Model):
             lines.extend(get_po.anexos_id.mapped('id'))
             get_otd.write({'orden_compra_pdf': [(6, 0, lines)]})
         #------------------------------------------------------------------------------------------------------
-        # Se encarga de ver los servicios y a quien están asignados así como si el diseñador ya firmó
         get_orden_compra =  self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).descripcion_id.mapped('id')
         list_items = [item for item in get_orden_compra if self.env['dtm.compras.items'].search([("id", "=", item)]).tipo_servicio == "servicio"]
         list_orm = [self.env['dtm.compras.items'].search([("id", "=", item)]) for item in list_items]

@@ -14,5 +14,10 @@
         'views/dtm_ordenes_minutas_views.xml',
     ],
     'license': 'LGPL-3',
+    'assets': {
+        'web.assets_backend': [
+            'dtm_ordenes_compra/static/src/css/styles.css',
+        ],
+    },
 }
 

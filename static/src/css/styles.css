@@ -1,0 +1,24 @@
+.o_form_sheet_bg {
+    display: flex;
+    flex-direction: column; /* Asegura que todo esté en columna */
+}
+
+/* Sobrescribe cualquier media query de pantallas grandes que lo coloque en fila */
+@media (min-width: 768px) {
+    .o_form_sheet_bg {
+        flex-direction: column; /* Mantén en columna para pantallas grandes */
+    }
+
+    .o_chatter {
+        margin-top: 20px; /* Añade un margen superior para separación */
+        width: 100%; /* Asegura que el chatter ocupe todo el ancho */
+    }
+}
+
+/* Para pantallas más pequeñas (opcionalmente ajusta el comportamiento) */
+@media (max-width: 767px) {
+    .o_chatter {
+        margin-top: 15px;
+        width: 100%;
+    }
+}
