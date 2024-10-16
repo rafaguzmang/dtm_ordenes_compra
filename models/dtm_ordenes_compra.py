@@ -248,7 +248,7 @@ class ItemsCompras(models.Model):
     orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
     nombre_archivo = fields.Char(string="Nombre")
-    status = fields.Char(string="Status")
+    status = fields.Char(string="Notas")
     parcial = fields.Boolean(default=False)
     prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
 
@@ -259,7 +259,7 @@ class ItemsCompras(models.Model):
                                          ("garcia","Luís García"),("na","N/A")],required=True,default="na")
 
 
-
+    #No se esta usando
     def action_duplicar(self):
         # print(self.model_id.id)
         get_inf = self.env['dtm.compras.items'].search([("model_id","=",self.model_id.id),("item","!=","")])
