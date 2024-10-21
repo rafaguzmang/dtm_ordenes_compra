@@ -140,7 +140,7 @@
                             <notebook>
                                 <page string="Requerimientos">
                                     <field name="descripcion_id">
-                                        <tree editable="bottom"  >
+                                        <tree editable="bottom"  decoration-success="parcial != False" decoration-bf="parcial != False">
 <!--                                            <button name="action_duplicar" icon="fa-clone" />-->
                                             <field name="item" />
                                             <field name="cantidad" />
@@ -153,6 +153,7 @@
                                             <field name="firma_diseno" />
                                             <field name="firma" />
                                             <field name="status" />
+                                            <field name="parcial" invisible="1" />
 
                                         </tree>
                                     </field>

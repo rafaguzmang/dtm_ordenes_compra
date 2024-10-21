@@ -279,60 +279,113 @@ class ItemsCompras(models.Model):
         self.precio_total = float(self.precio_unitario) * float(self.cantidad)
 
     def acction_generar(self):# Genera orden de trabajo
-        ot_number = self.orden_trabajo
-        tipo_orden = "OT" if self.prediseno == "no" else "SK" #Se obtine el último valor de la orden correspondiente
-        if not self.orden_trabajo:
-            get_odt = self.env['dtm.odt'].search([("tipe_order","=",tipo_orden)],order='ot_number desc', limit=1).mapped('ot_number')
-            get_odtf = self.env['dtm.facturado.odt'].search([("tipe_order","=",tipo_orden)],order='ot_number desc', limit=1).mapped('ot_number')
-            get_odt = get_odt[0] if get_odt else 0
-            get_odtf = get_odtf[0] if get_odtf else 0
-            ot_number = get_odt + 1 if get_odt > get_odtf else get_odtf + 1
-            self.orden_trabajo = ot_number
-        get_oc = self.env['dtm.ordenes.compra'].search([])
-        po_n = 0
-        for oc in get_oc: #Se obtienen los datos del la orden de compra al cual esta ligado este servicio
-            if self._origin.id in oc.descripcion_id.mapped('id'):
-                po_n = oc.id
-        get_po = self.env['dtm.ordenes.compra'].browse(po_n)
-        disenador = "N/A"
-        if self.firma_diseno == "orozco":
-            disenador = "Andrés Orozco"
-        elif self.firma_diseno == "garcia":
-            disenador = "Luís Gracía"
-        vals = {
-            "cuantity":self.cantidad,
-            "product_name":self.item,
-            "po_number":get_po.orden_compra if self.prediseno == "no" else get_po.no_cotizacion,
-            "date_rel":get_po.fecha_salida,
-            "name_client":get_po.cliente_prov,
-            "product_name":self.item,
-            "no_cotizacion":get_po.no_cotizacion,
-            "disenador":disenador,
-            "po_fecha_creacion":get_po.fecha_captura_po if self.prediseno == "no" else None,
-            "tipe_order":tipo_orden,
-            "ot_number":self.orden_trabajo,
-            "po_fecha":get_po.fecha_po if self.prediseno == "no" else None,
-            "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name'))
-        }
-        get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
-        get_otd.write(vals) if get_otd else get_otd.create(vals)
-        get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
-        get_otd.write({'orden_compra_pdf': [(5, 0, {})]})
-        if self.prediseno == "si":
-            get_otd.write({'orden_compra_pdf': [(6, 0, get_po.anexos_id.mapped('id'))]})
-        else:
+        if self.parcial and self.status != False:
+            print(self.parcial,self.status)
+            get_proceso = self.env['dtm.proceso'].search([("ot_number","=",int(self.orden_trabajo)),("tipe_order","=","OT")])
+            vals = {
+                        "status": self.env['dtm.ordenes.compra.facturado'].search([("orden_compra","=",get_proceso.po_number)], limit=1).factura,
+                        "ot_number": get_proceso.ot_number,
+                        "tipe_order": get_proceso.tipe_order,
+                        "name_client": get_proceso.name_client,
+                        "product_name": get_proceso.product_name,
+                        "date_in": get_proceso.date_in,
+                        "po_number": get_proceso.po_number,
+                        "date_rel": get_proceso.date_rel,
+                        "version_ot": get_proceso.version_ot,
+                        "color": get_proceso.color,
+                        "cuantity": get_proceso.cuantity,
+                        # "materials_ids": get_proceso.materials_ids,
+                        "planos": get_proceso.planos,
+                        "nesteos": get_proceso.nesteos,
+                        "rechazo_id":get_proceso.rechazo_id,
+                        "anexos_id":get_proceso.anexos_id,
+                        "cortadora_id":get_proceso.cortadora_id,
+                        "primera_pieza_id":get_proceso.primera_pieza_id,
+                        "tubos_id":get_proceso.tubos_id,
+                        "firma": get_proceso.firma,
+                        "firma_compras": get_proceso.firma_compras,
+                        "firma_diseno": get_proceso.firma_diseno,
+                        "firma_almacen": get_proceso.firma_almacen,
+                        "firma_ventas": get_proceso.firma_ventas,
+                        "description": get_proceso.description,
+                        "firma_calidad":get_proceso.firma_calidad
+                    }
+            get_facturado = self.env['dtm.facturado.odt'].search([("ot_number","=",get_proceso.ot_number)])
+            get_facturado.write(vals) if get_facturado else get_facturado.create(vals)
+            get_facturado = self.env['dtm.facturado.odt'].search([("ot_number","=",get_proceso.ot_number)])
+            get_facturado.write({'materieales_id': [(5, 0, {})]})
             lines = []
-            lines.extend(get_po.archivos_id.mapped('id'))
-            lines.extend(get_po.anexos_id.mapped('id'))
-            get_otd.write({'orden_compra_pdf': [(6, 0, lines)]})
-        #------------------------------------------------------------------------------------------------------
-        get_orden_compra =  self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).descripcion_id.mapped('id')
-        list_items = [item for item in get_orden_compra if self.env['dtm.compras.items'].search([("id", "=", item)]).tipo_servicio == "servicio"]
-        list_orm = [self.env['dtm.compras.items'].search([("id", "=", item)]) for item in list_items]
-        lista = [f"|𝓐 {item.orden_trabajo}✔|" if item.firma_diseno == "orozco" and item.firma == "Andrés Alberto Orozco Martínez" else f"|𝓐 {item.orden_trabajo}❌| " if item.firma_diseno == "orozco" and not item.firma  else f"|𝓛 {item.orden_trabajo}✔|" if item.firma_diseno == "garcia" and item.firma == "Luís Donaldo García Rayos" else f"|𝓛 {item.orden_trabajo}❌|" if item.firma_diseno == "garcia" and not item.firma else f"|{item.orden_trabajo}❌|" for item in list_orm]
-        self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).write({
-            "ot_asignadas":" ".join(lista),
-        })
+            for item in get_proceso.materials_ids:#Se agrega o se actualiza material de la tabla dtm.facturado.materiales y se obtienen los id para casarlos con la orden correspondiente
+                valmat = {
+                    "material":f"{item.nombre} {item.medida}",
+                    "cantidad":item.materials_cuantity,
+                }
+                get_facturado_material = self.env['dtm.facturado.materiales'].search([("material","=",f"{item.nombre} {item.medida}"),("cantidad","=",item.materials_cuantity)])
+                get_facturado_material.write(valmat) if get_facturado_material else get_facturado_material.create(valmat)
+                get_facturado_material = self.env['dtm.facturado.materiales'].search([("material","=",f"{item.nombre} {item.medida}"),("cantidad","=",item.materials_cuantity)])
+                lines.append(get_facturado_material.id)
+            get_facturado.write({'materieales_id': [(6, 0, lines)]})
+            #-------------------------------------------------------------------------------------------------------------------------------
+            if get_facturado:
+                self.env['dtm.odt'].search([('ot_number','=',int(self.orden_trabajo))]).unlink()
+                self.env['dtm.almacen.odt'].search([('ot_number','=',int(self.orden_trabajo))]).unlink()
+                self.env['dtm.compras.odt'].search([('ot_number','=',int(self.orden_trabajo))]).unlink()
+                self.env['dtm.proceso'].search([('ot_number','=',int(self.orden_trabajo))]).unlink()
+                self.env['dtm.compras.realizado'].search([('orden_trabajo','=',int(self.orden_trabajo))]).unlink()
+        else:
+            ot_number = self.orden_trabajo
+            tipo_orden = "OT" if self.prediseno == "no" else "SK" #Se obtine el último valor de la orden correspondiente
+            if not self.orden_trabajo:
+                get_odt = self.env['dtm.odt'].search([("tipe_order","=",tipo_orden)],order='ot_number desc', limit=1).mapped('ot_number')
+                get_odtf = self.env['dtm.facturado.odt'].search([("tipe_order","=",tipo_orden)],order='ot_number desc', limit=1).mapped('ot_number')
+                get_odt = get_odt[0] if get_odt else 0
+                get_odtf = get_odtf[0] if get_odtf else 0
+                ot_number = get_odt + 1 if get_odt > get_odtf else get_odtf + 1
+                self.orden_trabajo = ot_number
+            get_oc = self.env['dtm.ordenes.compra'].search([])
+            po_n = 0
+            for oc in get_oc: #Se obtienen los datos del la orden de compra al cual esta ligado este servicio
+                if self._origin.id in oc.descripcion_id.mapped('id'):
+                    po_n = oc.id
+            get_po = self.env['dtm.ordenes.compra'].browse(po_n)
+            disenador = "N/A"
+            if self.firma_diseno == "orozco":
+                disenador = "Andrés Orozco"
+            elif self.firma_diseno == "garcia":
+                disenador = "Luís Gracía"
+            vals = {
+                "cuantity":self.cantidad,
+                "product_name":self.item,
+                "po_number":get_po.orden_compra if self.prediseno == "no" else get_po.no_cotizacion,
+                "date_rel":get_po.fecha_salida,
+                "name_client":get_po.cliente_prov,
+                "no_cotizacion":get_po.no_cotizacion,
+                "disenador":disenador,
+                "po_fecha_creacion":get_po.fecha_captura_po if self.prediseno == "no" else None,
+                "tipe_order":tipo_orden,
+                "ot_number":self.orden_trabajo,
+                "po_fecha":get_po.fecha_po if self.prediseno == "no" else None,
+                "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name'))
+            }
+            get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
+            get_otd.write(vals) if get_otd else get_otd.create(vals)
+            get_otd = self.env["dtm.odt"].search([("ot_number","=",ot_number),("tipe_order","=",tipo_orden)])
+            get_otd.write({'orden_compra_pdf': [(5, 0, {})]})
+            if self.prediseno == "si":
+                get_otd.write({'orden_compra_pdf': [(6, 0, get_po.anexos_id.mapped('id'))]})
+            else:
+                lines = []
+                lines.extend(get_po.archivos_id.mapped('id'))
+                lines.extend(get_po.anexos_id.mapped('id'))
+                get_otd.write({'orden_compra_pdf': [(6, 0, lines)]})
+            #------------------------------------------------------------------------------------------------------
+            get_orden_compra =  self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).descripcion_id.mapped('id')
+            list_items = [item for item in get_orden_compra if self.env['dtm.compras.items'].search([("id", "=", item)]).tipo_servicio == "servicio"]
+            list_orm = [self.env['dtm.compras.items'].search([("id", "=", item)]) for item in list_items]
+            lista = [f"|𝓐 {item.orden_trabajo}✔|" if item.firma_diseno == "orozco" and item.firma == "Andrés Alberto Orozco Martínez" else f"|𝓐 {item.orden_trabajo}❌| " if item.firma_diseno == "orozco" and not item.firma  else f"|𝓛 {item.orden_trabajo}✔|" if item.firma_diseno == "garcia" and item.firma == "Luís Donaldo García Rayos" else f"|𝓛 {item.orden_trabajo}❌|" if item.firma_diseno == "garcia" and not item.firma else f"|{item.orden_trabajo}❌|" for item in list_orm]
+            self.env['dtm.ordenes.compra'].search([("id", "=", self.model_id.id)]).write({
+                "ot_asignadas":" ".join(lista),
+            })
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
     _name = "dtm.ordenes.compra.precotizaciones"
