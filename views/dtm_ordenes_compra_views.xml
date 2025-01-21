@@ -35,20 +35,19 @@
             <field name="name">dtm_ordenes_compra_tree</field>
             <field name="model">dtm.ordenes.compra</field>
             <field name="arch" type="xml">
-                <tree decoration-warning="exportacion!=False and terminado==False"
-                      decoration-success="terminado==True"
-                      decoration-info="exportacion!=False and terminado==True"
-                      decoration-bf = "exportacion!=False and terminado==True">
+                <tree>
                     <field name="no_cotizacion"/>
                     <field name="proveedor"/>
                     <field name="cliente_prov"/>
                     <field name="orden_compra"/>
-                    <field name="ot_asignadas" />
-                    <field name="comentarios" />
-                    <field name="fecha_entrada"/>
-                    <field name="fecha_salida"/>
                     <field name="precio_total" widget="monetary"/>
-                    <field name="currency" />
+<!--                    <field name="ot_asignadas" />-->
+<!--                    <field name="comentarios" />-->
+                    <field name="fecha_entrada"/>
+                    <field name="status"/>
+                    <field name="parcial"/>
+<!--                    <field name="fecha_salida"/>-->
+<!--                    <field name="currency" />-->
                     <field name="exportacion" invisible="1"/>
                     <field name="terminado" invisible="1"/>
                 </tree>
@@ -148,6 +147,7 @@
                                             <field name="prediseno" />
                                             <field name="precio_unitario"/>
                                             <field name="precio_total" />
+                                            <field name="orden_diseno" />
                                             <field name="orden_trabajo" />
                                             <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '!=','servicio')]}" icon="fa-bolt" />
                                             <field name="firma_diseno" />
