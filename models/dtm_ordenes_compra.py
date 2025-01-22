@@ -36,7 +36,7 @@ class OrdenesCompra(models.Model):
 
     ot_asignadas = fields.Char(string="OTs")
 
-    status = fields.Selection(string="Status",selection=[('no','N/A'),('od','O.D.'),('ot','O.T.')], readonly=False)
+    status = fields.Selection(string="Status",selection=[('no','N/A'),('od','O.D.'),('ot','O.T.')], readonly=False,default='no')
     parcial = fields.Boolean(string="Parcial",readonly=True)
     exportacion = fields.Selection(string="Exportación", selection=[('definitiva','Definitiva'),('virtual','Virtual')])
     terminado = fields.Boolean()
