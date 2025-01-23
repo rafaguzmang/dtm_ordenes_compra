@@ -36,7 +36,7 @@ class OrdenesCompra(models.Model):
 
     ot_asignadas = fields.Char(string="OTs")
 
-    status = fields.Selection(string="Status",selection=[('no','N/A'),('od','O.D.'),('ot','O.T.')], readonly=False,default='no')
+    status = fields.Selection(string="Status",selection=[('no','N/A'),('od','O.D.'),('ot','O.T.'),('p','P'),('c','C'),('t','T')], readonly=False,default='no')
     parcial = fields.Boolean(string="Parcial",readonly=True)
     exportacion = fields.Selection(string="Exportación", selection=[('definitiva','Definitiva'),('virtual','Virtual')])
     terminado = fields.Boolean()
@@ -218,10 +218,10 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Notas")
     parcial = fields.Boolean(default=False)
-    prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
+    # prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
 
-    tipo_servicio = fields.Selection(string="Compra/Servicio", selection=[("servicio","Servicio"),
-                                         ("compra","Compra")],default="servicio")
+    tipo_servicio = fields.Selection(string="Tipo", selection=[("fabricacion","Fabricación"),("servicio","Servicio"),
+                                         ("compra","Compra")],default="fabricacion")
     firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
                                          ("garcia","Luís García"),("na","N/A")],required=True,default="na")

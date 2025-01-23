@@ -144,7 +144,7 @@
                                             <field name="item" />
                                             <field name="cantidad" />
                                             <field name="tipo_servicio" />
-                                            <field name="prediseno" />
+<!--                                            <field name="prediseno" />-->
                                             <field name="precio_unitario"/>
                                             <field name="precio_total" />
                                             <field name="orden_diseno" />
