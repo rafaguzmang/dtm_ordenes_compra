@@ -187,10 +187,10 @@ class OrdenesCompra(models.Model):
         for orden in get_this:
             # revisa los items uno por uno
             orden.write({'status':'no'})
-            if max(orden.descripcion_id.mapped('orden_diseno'))>0:
+            if len(orden.descripcion_id.mapped('orden_diseno'))>0:
                 orden.write({'status':'od'})
                 orden.write({'parcial':True if 0 in orden.descripcion_id.mapped('orden_diseno') else False})
-            if max(orden.descripcion_id.mapped('orden_trabajo'))>0:
+            if len(orden.descripcion_id.mapped('orden_trabajo'))>0:
                 orden.write({'status':'ot'})
                 orden.write({'parcial':True if 0 in orden.descripcion_id.mapped('orden_trabajo') else False})
 
@@ -254,14 +254,14 @@ class ItemsCompras(models.Model):
                     "od_number": self.orden_diseno,
                     "cuantity":self.cantidad,
                     "product_name":self.item,
-                    "po_number":self.orden_compra if self.prediseno == "no" else get_father.no_cotizacion,
+                    "po_number":self.orden_compra,
                     "date_rel":get_father.fecha_salida,
                     "name_client":get_father.cliente_prov,
                     "no_cotizacion":get_father.no_cotizacion,
                     "disenador":disenador,
-                    "po_fecha_creacion":get_father.fecha_captura_po if self.prediseno == "no" else None,
-                    "tipe_order":"OT" if self.prediseno == "no" else "SK", #Se obtine el último valor de la orden correspondiente,
-                    "po_fecha":get_father.fecha_po if self.prediseno == "no" else None,
+                    "po_fecha_creacion":get_father.fecha_captura_po,
+                    "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
+                    "po_fecha":get_father.fecha_po,
                     "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name')),
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
