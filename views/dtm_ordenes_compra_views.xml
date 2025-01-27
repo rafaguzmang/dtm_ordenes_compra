@@ -149,7 +149,7 @@
                                             <field name="precio_total" />
                                             <field name="orden_diseno" />
                                             <field name="orden_trabajo" />
-                                            <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '!=','servicio')]}" icon="fa-bolt" />
+                                            <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '!=','fabricacion')]}" icon="fa-bolt" />
                                             <field name="firma_diseno" />
                                             <field name="firma" />
                                             <field name="status" />
