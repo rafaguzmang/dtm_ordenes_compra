@@ -187,12 +187,11 @@ class OrdenesCompra(models.Model):
         for orden in get_this:
             # revisa los items uno por uno
             orden.write({'status':'no'})
-            # Si todas las ordenes tienen OD la compra esta en OD si solo hay una esta en OD parcial
-            if max(orden.descripcion_id.mapped('orden_diseno'))>0:
+            if len(orden.descripcion_id.mapped('orden_diseno'))>0:
                 orden.write({'status':'od'})
                 orden.write({'parcial':True if 0 in orden.descripcion_id.mapped('orden_diseno') else False})
-            # Si todas las ordenes tienen OT la compra esta en OT si solo hay una esta en OT parcial
-            if max(orden.descripcion_id.mapped('orden_trabajo'))>0:
+            if len(orden.descripcion_id.mapped('orden_trabajo'))>0:
+
                 orden.write({'status':'ot'})
                 orden.write({'parcial':True if 0 in orden.descripcion_id.mapped('orden_trabajo') else False})
 
@@ -275,7 +274,7 @@ class ItemsCompras(models.Model):
                 # Busca el ultimo registro de la orden de diseño y le suma uno
                 get_diseno = self.env['dtm.odt'].search([('od_number','!=',False)],order='od_number desc',limit=1)
                 self.orden_diseno = get_diseno.od_number + 1
-
+                # print(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name'))).remove(False))
                 self.env['dtm.odt'].create( {
                     "od_number": self.orden_diseno,
                     "cuantity":self.cantidad,
@@ -288,7 +287,7 @@ class ItemsCompras(models.Model):
                     "po_fecha_creacion":get_father.fecha_captura_po,
                     "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
                     "po_fecha":get_father.fecha_po,
-                    "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name')),
+                    "description":', '.join(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name'))).remove(False)),
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
                     "ot_number":0,
