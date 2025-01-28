@@ -270,6 +270,7 @@ class ItemsCompras(models.Model):
                 disenador = "Andrés Orozco"
             elif self.firma_diseno == "garcia":
                 disenador = "Luís Gracía"
+            print(self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))
             if not self.orden_diseno and not self.orden_trabajo:
                 # Busca el ultimo registro de la orden de diseño y le suma uno
                 get_diseno = self.env['dtm.odt'].search([('od_number','!=',False)],order='od_number desc',limit=1)
@@ -287,10 +288,11 @@ class ItemsCompras(models.Model):
                     "po_fecha_creacion":get_father.fecha_captura_po,
                     "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
                     "po_fecha":get_father.fecha_po,
-                    "description":', '.join(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name'))).remove(False)),
+                    "description":', '.join(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name')))),
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
                     "ot_number":0,
+                    "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))]
                 })
             else:
                 vals = {
@@ -306,7 +308,8 @@ class ItemsCompras(models.Model):
                     "po_fecha":get_father.fecha_po,
                     "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name')),
                     "anexos_ventas_id":[(6,0,get_father.anexos_id.mapped('id'))],
-                    "orden_compra_pdf":get_father.archivos_id
+                    "orden_compra_pdf":get_father.archivos_id,
+                    "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))]
                 }
                 self.env['dtm.odt'].search([("od_number",'=', self.orden_diseno)]).write(vals)
 
