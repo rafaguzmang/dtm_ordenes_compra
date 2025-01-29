@@ -187,13 +187,21 @@ class OrdenesCompra(models.Model):
         for orden in get_this:
             # revisa los items uno por uno
             orden.write({'status':'no'})
-            if len(orden.descripcion_id.mapped('orden_diseno'))>0:
-                orden.write({'status':'od'})
-                orden.write({'parcial':True if 0 in orden.descripcion_id.mapped('orden_diseno') else False})
-            if len(orden.descripcion_id.mapped('orden_trabajo'))>0:
 
+            if not 0 in orden.descripcion_id.mapped('orden_diseno'):
+                orden.write({'status':'od'})
+                orden.write({'parcial':False})
+            elif len(list(set(orden.descripcion_id.mapped('orden_diseno'))))>1 and 0 in list(set(orden.descripcion_id.mapped('orden_diseno'))):
+                orden.write({'status':'od'})
+                orden.write({'parcial':True})
+
+            if not 0 in orden.descripcion_id.mapped('orden_trabajo'):
                 orden.write({'status':'ot'})
-                orden.write({'parcial':True if 0 in orden.descripcion_id.mapped('orden_trabajo') else False})
+                orden.write({'parcial':False})
+            elif len(list(set(orden.descripcion_id.mapped('orden_trabajo'))))>1 and 0 in list(set(orden.descripcion_id.mapped('orden_trabajo'))):
+                orden.write({'status':'ot'})
+                orden.write({'parcial':True})
+
 
             # Busca si las ordenes ya estan en producción de se así marca parcial si solo hay una y quita parcial si estan todas
             firma_list = list(set(orden.descripcion_id.mapped('firma')))
@@ -201,7 +209,6 @@ class OrdenesCompra(models.Model):
                 orden.write({'status':'p','parcial':True})
             if len(firma_list)==1 and not False in firma_list:
                 orden.write({'status':'p','parcial':False})
-
             proceso_ot = orden.descripcion_id.mapped('orden_trabajo')
             status_proceso = [self.env['dtm.proceso'].search([('ot_number','=',orden)]).status for orden in proceso_ot]
             # Busca si hay ordenes en calidad para poner parcial o quitarlo si todad están en calidad
@@ -214,14 +221,6 @@ class OrdenesCompra(models.Model):
                 orden.write({'status':'t','parcial':True})
             if 'terminado' in list(set(status_proceso)) and len(list(set(status_proceso)))==1:
                 orden.write({'status':'t','parcial':False})
-
-
-
-
-
-
-
-
         return res
 
 class ItemsCompras(models.Model):
