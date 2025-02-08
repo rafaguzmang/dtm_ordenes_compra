@@ -276,7 +276,7 @@ class ItemsCompras(models.Model):
                 get_diseno_odt = self.env['dtm.odt'].search([('od_number','!=',False)],order='od_number desc',limit=1)
                 get_diseno_fact = self.env['dtm.compra.facturado.item'].search([('orden_diseno','!=',False)],order='orden_diseno desc',limit=1)
                 self.orden_diseno = max(get_diseno_odt.od_number,get_diseno_fact.orden_diseno) + 1
-                print(get_diseno_odt.od_number,get_diseno_fact.orden_diseno)
+                # print(get_diseno_odt.od_number,get_diseno_fact.orden_diseno)
                 # print(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name'))).remove(False))
                 self.env['dtm.odt'].create( {
                     "od_number": self.orden_diseno,
