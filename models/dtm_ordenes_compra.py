@@ -112,7 +112,8 @@ class OrdenesCompra(models.Model):
                     'precio_total': item.precio_total,
                     'orden_trabajo': item.orden_trabajo,
                     'no_factura': self.no_factura,
-                    'orden_compra': item.orden_compra
+                    'orden_compra': item.orden_compra,
+                    'orden_diseno': item.orden_diseno,
                 }
                 self.env['dtm.compra.facturado.item'].create(vals)
             archivos_id = ""
@@ -269,11 +270,13 @@ class ItemsCompras(models.Model):
                 disenador = "Andrés Orozco"
             elif self.firma_diseno == "garcia":
                 disenador = "Luís Gracía"
-            print(self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))
+            # print(self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))
             if not self.orden_diseno and not self.orden_trabajo:
                 # Busca el ultimo registro de la orden de diseño y le suma uno
-                get_diseno = self.env['dtm.odt'].search([('od_number','!=',False)],order='od_number desc',limit=1)
-                self.orden_diseno = get_diseno.od_number + 1
+                get_diseno_odt = self.env['dtm.odt'].search([('od_number','!=',False)],order='od_number desc',limit=1)
+                get_diseno_fact = self.env['dtm.compra.facturado.item'].search([('orden_diseno','!=',False)],order='orden_diseno desc',limit=1)
+                self.orden_diseno = max(get_diseno_odt.od_number,get_diseno_fact.orden_diseno) + 1
+                print(get_diseno_odt.od_number,get_diseno_fact.orden_diseno)
                 # print(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name'))).remove(False))
                 self.env['dtm.odt'].create( {
                     "od_number": self.orden_diseno,

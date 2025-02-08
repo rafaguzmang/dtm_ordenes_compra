@@ -41,9 +41,10 @@ class ItemFactura(models.Model):
     cantidad = fields.Char(string="Cantidad")
     precio_unitario = fields.Float(string="Precio Unitario")
     precio_total = fields.Float(string="Precio Total", store=True)
-    orden_trabajo = fields.Char(string="Orden de Trabajo")
+    orden_trabajo = fields.Char(string="OT")
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
+    orden_diseno = fields.Integer(string="OD")
 
 class ArchivosAnexos(models.Model):
     _name = "dtm.compras.facturado.archivos"
