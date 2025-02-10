@@ -144,9 +144,9 @@
                                             <field name="item" />
                                             <field name="cantidad" />
                                             <field name="tipo_servicio" />
-<!--                                            <field name="prediseno" />-->
                                             <field name="precio_unitario"/>
                                             <field name="precio_total" />
+                                            <field name="date_disign_finish" />
                                             <field name="orden_diseno" />
                                             <field name="orden_trabajo" />
                                             <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '!=','fabricacion')]}" icon="fa-bolt" />

@@ -243,6 +243,7 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Notas")
     parcial = fields.Boolean(default=False)
+    date_disign_finish = fields.Date(string="Diseño")
     # prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
 
     tipo_servicio = fields.Selection(string="Tipo", selection=[("fabricacion","Fabricación"),("servicio","Servicio"),
@@ -294,7 +295,8 @@ class ItemsCompras(models.Model):
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
                     "ot_number":0,
-                    "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))]
+                    "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
+                    "date_disign_finish":self.date_disign_finish
                 })
             else:
                 vals = {
@@ -311,7 +313,8 @@ class ItemsCompras(models.Model):
                     "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name')),
                     "anexos_ventas_id":[(6,0,get_father.anexos_id.mapped('id'))],
                     "orden_compra_pdf":get_father.archivos_id,
-                    "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))]
+                    "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
+                    "date_disign_finish":self.date_disign_finish
                 }
                 self.env['dtm.odt'].search([("od_number",'=', self.orden_diseno)]).write(vals)
 
