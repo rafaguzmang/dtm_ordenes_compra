@@ -316,7 +316,7 @@ class ItemsCompras(models.Model):
                     "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
                     "date_disign_finish":self.date_disign_finish
                 }
-                self.env['dtm.odt'].search([("od_number",'=', self.orden_diseno)]).write(vals)
+                self.env['dtm.odt'].search(["|",("od_number",'=', self.orden_diseno),("ot_number",'=', self.orden_trabajo)]).write(vals)
 
 
 
