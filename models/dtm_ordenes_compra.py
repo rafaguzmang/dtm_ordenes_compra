@@ -250,7 +250,7 @@ class ItemsCompras(models.Model):
                                          ("compra","Compra")],default="fabricacion")
     firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
-                                         ("garcia","Luís García"),("na","N/A")],required=True,default="na")
+                                         ("garcia","Luís García"), ("bryan","Bryan Banda"),("na","N/A")],required=True,default="na")
 
     @api.onchange("cantidad")
     def _onchange_cantidad(self):
@@ -268,6 +268,8 @@ class ItemsCompras(models.Model):
                 disenador = "Andrés Orozco"
             elif self.firma_diseno == "garcia":
                 disenador = "Luís Gracía"
+            elif self.firma_diseno == "bryan":
+                disenador = "Bryan Banda"
             # print(self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))
             if not self.orden_diseno and not self.orden_trabajo:
                 # Busca el ultimo registro de la orden de diseño y le suma uno
