@@ -252,9 +252,6 @@ class ItemsCompras(models.Model):
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
                                          ("garcia","Luís García"),("na","N/A")],required=True,default="na")
 
-
-
-
     @api.onchange("cantidad")
     def _onchange_cantidad(self):
         self.precio_total =self.precio_unitario * float(self.cantidad)
@@ -316,7 +313,10 @@ class ItemsCompras(models.Model):
                     "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
                     "date_disign_finish":self.date_disign_finish
                 }
-                self.env['dtm.odt'].search(["|",("od_number",'=', self.orden_diseno),("ot_number",'=', self.orden_trabajo)]).write(vals)
+                if self.orden_trabajo > 0:
+                    self.env['dtm.odt'].search(["|",("od_number",'=', self.orden_diseno),("ot_number",'=', self.orden_trabajo)]).write(vals)
+                else:
+                    self.env['dtm.odt'].search([("od_number", '=', self.orden_diseno)]).write(vals)
 
             get_proceso = self.env['dtm.proceso'].search([("status","=","terminado"),("ot_number","=",self.orden_trabajo)])
             if get_proceso:
@@ -351,7 +351,6 @@ class ItemsCompras(models.Model):
                         "date_terminado":get_proceso.date_terminado,
                     }
                 get_facturado = self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)])
-                print(get_facturado)
                 get_facturado.write(vals) if get_facturado else get_facturado.create(vals)
                 get_facturado.write({'materieales_id': [(5, 0, {})]})
                 lines = []
