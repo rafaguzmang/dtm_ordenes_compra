@@ -348,10 +348,9 @@ class ItemsCompras(models.Model):
                         "description": get_proceso.description,
                         "firma_calidad":get_proceso.firma_calidad,
                         "calidad_liberacion":get_proceso.calidad_liberacion,
-                        "date_terminado":get_proceso.date_terminado,
+                        "date_disign_finish":self.date_disign_finish
                     }
                 get_facturado = self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)])
-                print(get_facturado)
                 get_facturado.write(vals) if get_facturado else get_facturado.create(vals)
                 get_facturado.write({'materieales_id': [(5, 0, {})]})
                 lines = []
@@ -371,10 +370,6 @@ class ItemsCompras(models.Model):
                     self.env['dtm.compras.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
                     self.env['dtm.proceso'].search([('ot_number','=',self.orden_trabajo)]).unlink()
                     self.env['dtm.compras.realizado'].search([('orden_trabajo','=',self.orden_trabajo)]).unlink()
-
-
-
-
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
     _name = "dtm.ordenes.compra.precotizaciones"
