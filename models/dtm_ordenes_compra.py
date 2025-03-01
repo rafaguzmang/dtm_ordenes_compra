@@ -128,16 +128,16 @@ class OrdenesCompra(models.Model):
                         'archivo':attachment.datas,
                         'nombre': attachment.name,
                         'model_id':get_id.id,
-
                     }
                     self.env['dtm.compras.facturado.archivos'].create(vals)
 
                 #Pasa la información del modulo de proceso a facturado
                 for orden in self.descripcion_id:
                     get_proceso =  self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])#Vamos a recabar la información
+                    # print('orden de compra',self.env['dtm.ordenes.compra.facturado'].search([("orden_compra","=",get_proceso.po_number)], limit=1).factura,get_proceso.po_number)
                     if get_proceso:
                         vals = {
-                                "status": self.env['dtm.ordenes.compra.facturado'].search([("orden_compra","=",get_proceso.po_number)], limit=1).factura,
+                                "status": self.env['dtm.ordenes.compra.facturado'].search([("orden_compra","=",get_proceso.po_number)], limit=1).factura if get_proceso.po_number else 'Sin P.O.',
                                 "ot_number": get_proceso.ot_number,
                                 "tipe_order": get_proceso.tipe_order,
                                 "name_client": get_proceso.name_client,
@@ -182,18 +182,16 @@ class OrdenesCompra(models.Model):
                             lines.append(get_facturado_material.id)
                         get_facturado.write({'materieales_id': [(6, 0, lines)]})
                 #-------------------------------------------------------------------------------------------------------------------------------
-                        if get_facturado:
-                            self.env['dtm.odt'].search([('ot_number','=',int(orden.orden_trabajo))]).unlink()
-                            self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).unlink()
-                            self.env['dtm.compras.realizado'].search([('orden_trabajo','=',int(orden.orden_trabajo))]).unlink()
+                        # if get_facturado:
+                        #     self.env['dtm.odt'].search([('ot_number','=',int(orden.orden_trabajo))]).unlink()
+                        #     self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).unlink()
+                        #     self.env['dtm.compras.realizado'].search([('orden_trabajo','=',int(orden.orden_trabajo))]).unlink()
 
                 #Borra la orden de compra de este modelo principal
-                get_items = self.env['dtm.compras.items'].search([("model_id","=",self.id)])
-                get_items.unlink()
-                get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
-                get_unlink.unlink()
-
-
+                # get_items = self.env['dtm.compras.items'].search([("model_id","=",self.id)])
+                # get_items.unlink()
+                # get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
+                # get_unlink.unlink()
                 #----------
             else:
                 raise ValidationError("Todas las ordenes deben de estar en \"Estatus de Terminado\"!!")
