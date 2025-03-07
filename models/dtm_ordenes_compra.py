@@ -181,18 +181,18 @@ class OrdenesCompra(models.Model):
                             get_facturado_material = self.env['dtm.facturado.materiales'].search([("material","=",f"{item.nombre} {item.medida}"),("cantidad","=",item.materials_cuantity)])
                             lines.append(get_facturado_material.id)
                         get_facturado.write({'materieales_id': [(6, 0, lines)]})
-                #-------------------------------------------------------------------------------------------------------------------------------
-                        # if get_facturado:
-                        #     self.env['dtm.odt'].search([('ot_number','=',int(orden.orden_trabajo))]).unlink()
-                        #     self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).unlink()
-                        #     self.env['dtm.compras.realizado'].search([('orden_trabajo','=',int(orden.orden_trabajo))]).unlink()
+                # -------------------------------------------------------------------------------------------------------------------------------
+                        if get_facturado:
+                            self.env['dtm.odt'].search([('ot_number','=',int(orden.orden_trabajo))]).unlink()
+                            self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).unlink()
+                            self.env['dtm.compras.realizado'].search([('orden_trabajo','=',int(orden.orden_trabajo))]).unlink()
 
-                #Borra la orden de compra de este modelo principal
-                # get_items = self.env['dtm.compras.items'].search([("model_id","=",self.id)])
-                # get_items.unlink()
-                # get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
-                # get_unlink.unlink()
-                #----------
+                # Borra la orden de compra de este modelo principal
+                get_items = self.env['dtm.compras.items'].search([("model_id","=",self.id)])
+                get_items.unlink()
+                get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
+                get_unlink.unlink()
+                # ----------
             else:
                 raise ValidationError("Todas las ordenes deben de estar en \"Estatus de Terminado\"!!")
         else:
