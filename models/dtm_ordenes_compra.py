@@ -301,7 +301,6 @@ class ItemsCompras(models.Model):
     orden_trabajo = fields.Integer(string="OT", readonly=False)
     orden_diseno = fields.Integer(string="OD", readonly=False)
     no_factura = fields.Char(string="No Factura")
-    orden_compra = fields.Char(string="PO")
     archivos = fields.Binary(string="Archivo")
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Notas")
@@ -345,14 +344,14 @@ class ItemsCompras(models.Model):
                     "od_number": self.orden_diseno,
                     "cuantity":self.cantidad,
                     "product_name":self.item,
-                    "po_number":self.orden_compra,
+                    "po_number": self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]).orden_compra if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]) else 'N/A',
                     "date_rel":get_father.fecha_salida,
                     "name_client":get_father.cliente_prov,
                     "no_cotizacion":get_father.no_cotizacion,
                     "disenador":disenador,
-                    "po_fecha_creacion":get_father.fecha_captura_po,
+                    "po_fecha_creacion":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]).fecha_captura_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]) else '',
                     "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
-                    "po_fecha":get_father.fecha_po,
+                    "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]) else '',
                     "description":', '.join(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name')))),
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
@@ -364,14 +363,14 @@ class ItemsCompras(models.Model):
                 vals = {
                     "cuantity":self.cantidad,
                     "product_name":self.item,
-                    "po_number":self.orden_compra,
+                    "po_number":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).orden_compra if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else 'N/A',
                     "date_rel":get_father.fecha_salida,
                     "name_client":get_father.cliente_prov,
                     "no_cotizacion":get_father.no_cotizacion,
                     "disenador":disenador,
-                    "po_fecha_creacion":get_father.fecha_captura_po,
+                    "po_fecha_creacion":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_captura_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
-                    "po_fecha":get_father.fecha_po,
+                    "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name')),
                     "anexos_ventas_id":[(6,0,get_father.anexos_id.mapped('id'))],
                     "orden_compra_pdf":get_father.archivos_id,
@@ -379,6 +378,7 @@ class ItemsCompras(models.Model):
                     "date_disign_finish":self.date_disign_finish
                 }
                 if self.orden_trabajo > 0:
+                    print(vals)
                     self.env['dtm.odt'].search(["|",("od_number",'=', self.orden_diseno),("ot_number",'=', self.orden_trabajo)]).write(vals)
                 else:
                     self.env['dtm.odt'].search([("od_number", '=', self.orden_diseno)]).write(vals)
