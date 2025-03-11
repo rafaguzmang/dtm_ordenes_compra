@@ -106,7 +106,6 @@ class OrdenesCompra(models.Model):
                     'notas': self.notas
                 }
 
-
                 self.env['dtm.ordenes.compra.facturado'].create(vals)# Crea el objeto en el modelo de facturado
                 get_id=self.env['dtm.ordenes.compra.facturado'].search([('factura','=',self.no_factura)])# Apunto al nuevo objeto para manipulación
 
@@ -118,7 +117,7 @@ class OrdenesCompra(models.Model):
                         'precio_total': item.precio_total,
                         'orden_trabajo': item.orden_trabajo,
                         'no_factura': self.no_factura,
-                        'orden_compra': item.orden_compra,
+                        'orden_compra': self.orden_compra,
                         'orden_diseno': item.orden_diseno,
                     }
                     self.env['dtm.compra.facturado.item'].create(vals)
@@ -307,7 +306,6 @@ class ItemsCompras(models.Model):
     parcial = fields.Boolean(default=False)
     date_disign_finish = fields.Date(string="Diseño")
     # prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
-
     tipo_servicio = fields.Selection(string="Tipo", selection=[("fabricacion","Fabricación"),("servicio","Servicio"),
                                          ("compra","Compra")],default="fabricacion")
     firma = fields.Char(string="Firmado")
