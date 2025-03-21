@@ -152,6 +152,7 @@
                                             <button name="acction_generar" type="object"  class="btn-primary" attrs="{'invisible': [('tipo_servicio', '!=','fabricacion')]}" icon="fa-bolt" />
                                             <field name="firma_diseno" />
                                             <field name="firma" />
+                                            <field name="intervencion_calidad" />
                                             <field name="status" />
                                             <field name="parcial" invisible="1" />
 
