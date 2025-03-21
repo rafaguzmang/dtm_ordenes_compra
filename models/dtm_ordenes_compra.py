@@ -93,7 +93,7 @@ class OrdenesCompra(models.Model):
             for orden in self.descripcion_id:
                 if self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]):#Vamos a revisar si todas las ordenes ya están terminadas
                     ordenes_lts.append(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).status)
-            # if len(list(set(ordenes_lts))) == 1 and list(set(ordenes_lts))[0] == 'terminado':
+            if len(list(set(ordenes_lts))) == 1 and list(set(ordenes_lts))[0] == 'terminado':
                 vals = {
                     'no_cotizacion': self.no_cotizacion,
                     'cliente_prov': self.cliente_prov,
