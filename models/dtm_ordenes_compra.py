@@ -311,6 +311,7 @@ class ItemsCompras(models.Model):
     firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
                                          ("garcia","Luís García"), ("bryan","Bryan Banda"),("na","N/A")],required=True,default="na")
+    intervencion_calidad = fields.Boolean(string='Calidad',default=False)
 
     @api.onchange("cantidad")
     def _onchange_cantidad(self):
@@ -342,20 +343,21 @@ class ItemsCompras(models.Model):
                     "od_number": self.orden_diseno,
                     "cuantity":self.cantidad,
                     "product_name":self.item,
-                    "po_number": self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]).orden_compra if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]) else 'N/A',
+                    "po_number": self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).orden_compra if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else 'N/A',
                     "date_rel":get_father.fecha_salida,
                     "name_client":get_father.cliente_prov,
                     "no_cotizacion":get_father.no_cotizacion,
                     "disenador":disenador,
-                    "po_fecha_creacion":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]).fecha_captura_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]) else '',
+                    "po_fecha_creacion":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_captura_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
-                    "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id)]) else '',
+                    "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "description":', '.join(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name')))),
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
                     "ot_number":0,
                     "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
-                    "date_disign_finish":self.date_disign_finish
+                    "date_disign_finish":self.date_disign_finish,
+                    "intervencion_calidad":self.intervencion_calidad
                 })
             else:
                 vals = {
@@ -373,14 +375,16 @@ class ItemsCompras(models.Model):
                     "anexos_ventas_id":[(6,0,get_father.anexos_id.mapped('id'))],
                     "orden_compra_pdf":get_father.archivos_id,
                     "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
-                    "date_disign_finish":self.date_disign_finish
+                    "date_disign_finish":self.date_disign_finish,
+                    "intervencion_calidad": self.intervencion_calidad
+
                 }
                 if self.orden_trabajo > 0:
                     print(vals)
                     self.env['dtm.odt'].search(["|",("od_number",'=', self.orden_diseno),("ot_number",'=', self.orden_trabajo)]).write(vals)
                 else:
                     self.env['dtm.odt'].search([("od_number", '=', self.orden_diseno)]).write(vals)
-
+            # Proceso para facturar de forma parcial
             get_proceso = self.env['dtm.proceso'].search([("status","=","terminado"),("ot_number","=",self.orden_trabajo)])
             if get_proceso:
                 vals = {
