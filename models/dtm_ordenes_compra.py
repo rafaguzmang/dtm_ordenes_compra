@@ -119,6 +119,7 @@ class OrdenesCompra(models.Model):
                         'no_factura': self.no_factura,
                         'orden_compra': self.orden_compra,
                         'orden_diseno': item.orden_diseno,
+                        'disenador': "Andrés Orozco" if item.firma_diseno == "orozco" else "Luis Donaldo García Rayos" if item.firma_diseno == "garcia" else "Bryan Banda" if item.firma_diseno == "bryan" else "N/A"
                     }
                     self.env['dtm.compra.facturado.item'].create(vals)
                 for archivo in self.archivos_id: # Inserta los archivos anexos jalandolos de ir_attachment y pasandolos al modelo de dtm.compras.facturado.archivos
@@ -209,6 +210,7 @@ class OrdenesCompra(models.Model):
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion_id.precotizacion)])
         else:
             get_cot = self.env['dtm.cotizaciones'].search([("no_cotizacion","=",self.no_cotizacion)])
+
         get_compras = self.env['dtm.ordenes.compra'].search([("no_cotizacion","=",get_cot.no_cotizacion)])
         self.proveedor = get_cot.proveedor
         self.cliente_prov = get_cot.cliente_id.name
@@ -217,22 +219,44 @@ class OrdenesCompra(models.Model):
         get_compras.write({"descripcion_id":[(5,0,{})]})#Tabla con los items de ordenes de compra
         lines = []
         sum = 0
-        for req in get_req_ext.servicios_id:
-            sum += req.total
-            get_items = self.env['dtm.compras.items'].search([("id_item","=",req.id)])
-            vals = {
-                    "item":req.descripcion,
-                    "id_item":req.id,
-                    "cantidad":req.cantidad,
-                    "precio_unitario":req.precio_unitario,
-                    "precio_total":req.total,
+        # Se busca si esta compra ya fué facturada y de ser así entra como reetrabajo
+        get_facturado = self.env['dtm.ordenes.compra.facturado'].search([('no_cotizacion', '=', self.no_cotizacion)],limit=1)
+        # En caso de encontrar esta venta en facturado
+        if get_facturado:
+            # Busca coincidencias en item y cantidad para poder obtener el número de orden de trabajo y de diseño
+            for item in get_facturado.descripcion_id:
+                get_items = self.env['dtm.compras.items'].search([("id_item","=",get_req_ext.id)])
+                sum += item.precio_total
+                vals = {
+                    "item": item.item,
+                    "id_item": get_req_ext.id,
+                    "cantidad": item.cantidad,
+                    "precio_unitario": item.precio_unitario,
+                    "precio_total": item.precio_total,
+                    "orden_trabajo":item.orden_trabajo,
+                    "orden_diseno":item.orden_diseno,
+                    "tipo_servicio":'retrabajo'
                 }
-            get_items.write(vals) if get_items else get_items.create(vals)
-            lines.append(self.env['dtm.compras.items'].search([("id_item","=",req.id)]).id)
+                get_items.write(vals) if get_items else get_items.create(vals)
+                lines.append(self.env['dtm.compras.items'].search([("id_item", "=", get_req_ext.id)]).id)
+        else:
+            # Se itera por todos los items de la cotización
+            for req in get_req_ext.servicios_id:
+                # Suma el costo total del item
+                sum += req.total
+                get_items = self.env['dtm.compras.items'].search([("id_item","=",req.id)])
+                vals = {
+                        "item":req.descripcion,
+                        "id_item":req.id,
+                        "cantidad":req.cantidad,
+                        "precio_unitario":req.precio_unitario,
+                        "precio_total":req.total,
+                    }
+                get_items.write(vals) if get_items else get_items.create(vals)
+                lines.append(self.env['dtm.compras.items'].search([("id_item","=",req.id)]).id)
         get_compras.write({"descripcion_id":[(6,0,lines)]})
         self.precio_total = sum
         self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)]).write({"po_number": self.orden_compra})
-
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
@@ -307,7 +331,7 @@ class ItemsCompras(models.Model):
     date_disign_finish = fields.Date(string="Diseño")
     # prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
     tipo_servicio = fields.Selection(string="Tipo", selection=[("fabricacion","Fabricación"),("servicio","Servicio"),
-                                         ("compra","Compra")],default="fabricacion")
+                                         ("compra","Compra"),("retrabajo","Retrabajo")],default="fabricacion")
     firma = fields.Char(string="Firmado")
     firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
                                          ("garcia","Luís García"), ("bryan","Bryan Banda"),("na","N/A")],required=True,default="na")
@@ -323,14 +347,8 @@ class ItemsCompras(models.Model):
 
     def acction_generar(self):# Genera orden de diseño si existe la actualiza
             get_father = self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)])
-            disenador = "N/A"
             # Obtine el nombre del diseñador asignado
-            if self.firma_diseno == "orozco":
-                disenador = "Andrés Orozco"
-            elif self.firma_diseno == "garcia":
-                disenador = "Luís Gracía"
-            elif self.firma_diseno == "bryan":
-                disenador = "Bryan Banda"
+            disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "garcia" if self.firma_diseno == "garcia" else "bryan" if self.firma_diseno == "bryan" else "N/A"
             # print(self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))
             if not self.orden_diseno and not self.orden_trabajo:
                 # Busca el ultimo registro de la orden de diseño y le suma uno
@@ -369,19 +387,25 @@ class ItemsCompras(models.Model):
                     "no_cotizacion":get_father.no_cotizacion,
                     "disenador":disenador,
                     "po_fecha_creacion":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_captura_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
-                    "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
+                    "tipe_order": "RT" if self.tipo_servicio == "retrabajo" else "OT", #Se obtine el último valor de la orden correspondiente,
                     "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name')),
                     "anexos_ventas_id":[(6,0,get_father.anexos_id.mapped('id'))],
                     "orden_compra_pdf":get_father.archivos_id,
                     "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
                     "date_disign_finish":self.date_disign_finish,
-                    "intervencion_calidad": self.intervencion_calidad
-
+                    "intervencion_calidad": self.intervencion_calidad,
+                    "ot_number":self.orden_trabajo if self.orden_trabajo else 0,
+                    "od_number":self.orden_diseno if self.orden_diseno else 0,
                 }
                 if self.orden_trabajo > 0:
-                    print(vals)
-                    self.env['dtm.odt'].search(["|",("od_number",'=', self.orden_diseno),("ot_number",'=', self.orden_trabajo)]).write(vals)
+                    print("pasa")
+                    if self.tipo_servicio == 'retrabajo' and self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)]) :
+                        retrabajo = self.env['dtm.odt'].search([('ot_number','=',self.orden_trabajo),('tipe_order','=','RT')], limit=1)
+                        retrabajo.write(vals) if retrabajo else retrabajo.create(vals)
+
+                    else:
+                        self.env['dtm.odt'].search(["|",("od_number",'=', self.orden_diseno),("ot_number",'=', self.orden_trabajo)]).write(vals)
                 else:
                     self.env['dtm.odt'].search([("od_number", '=', self.orden_diseno)]).write(vals)
             # Proceso para facturar de forma parcial

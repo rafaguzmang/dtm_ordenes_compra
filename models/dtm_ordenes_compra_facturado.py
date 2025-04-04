@@ -45,6 +45,8 @@ class ItemFactura(models.Model):
     no_factura = fields.Char(string="No Factura")
     orden_compra = fields.Char(string="PO")
     orden_diseno = fields.Integer(string="OD")
+    disenador = fields.Char(string="Diseñador")
+
 
 class ArchivosAnexos(models.Model):
     _name = "dtm.compras.facturado.archivos"

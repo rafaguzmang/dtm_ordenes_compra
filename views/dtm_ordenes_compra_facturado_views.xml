@@ -71,18 +71,17 @@
                         </div>
                         <notebook>
                             <page string="Requerimientos">
-                                <div class="row">
-                                    <field name="descripcion_id">
-                                        <tree editable="bottom" >
-                                            <field name="item" />
-                                            <field name="cantidad" />
-                                            <field name="precio_unitario"/>
-                                            <field name="precio_total" />
-                                            <field name="orden_trabajo" />
-                                            <field name="orden_diseno" />
-                                        </tree>
-                                    </field>
-                                </div>
+                                <field name="descripcion_id">
+                                    <tree editable="bottom" >
+                                        <field name="item" />
+                                        <field name="cantidad" />
+                                        <field name="precio_unitario"/>
+                                        <field name="precio_total" />
+                                        <field name="orden_trabajo" />
+                                        <field name="orden_diseno" />
+                                        <field name="disenador" />
+                                    </tree>
+                                </field>
                             </page>
                             <page string="Ordenes de Compra">
                                <div class="row">
