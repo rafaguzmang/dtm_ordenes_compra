@@ -93,7 +93,7 @@ class OrdenesCompra(models.Model):
             for orden in self.descripcion_id:
                 if self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]):#Vamos a revisar si todas las ordenes ya están terminadas
                     ordenes_lts.append(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).status)
-            if len(list(set(ordenes_lts))) == 1 and list(set(ordenes_lts))[0] == 'terminado':
+            if (len(list(set(ordenes_lts))) == 1 and list(set(ordenes_lts))[0] == 'terminado'):
                 vals = {
                     'no_cotizacion': self.no_cotizacion,
                     'cliente_prov': self.cliente_prov,
@@ -439,10 +439,10 @@ class ItemsCompras(models.Model):
                         "description": get_proceso.description,
                         "firma_calidad":get_proceso.firma_calidad,
                         "calidad_liberacion":get_proceso.calidad_liberacion,
-                        "date_disign_finish":self.date_disign_finish
                     }
                 get_facturado = self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)])
                 get_facturado.write(vals) if get_facturado else get_facturado.create(vals)
+                get_facturado = self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)])
                 get_facturado.write({'materieales_id': [(5, 0, {})]})
                 lines = []
                 for item in get_proceso.materials_ids:#Se agrega o se actualiza material de la tabla dtm.facturado.materiales y se obtienen los id para casarlos con la orden correspondiente
@@ -458,7 +458,7 @@ class ItemsCompras(models.Model):
                 #-------------------------------------------------------------------------------------------------------------------------------
                 if get_facturado:
                     self.env['dtm.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
-                    self.env['dtm.compras.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
+                    # self.env['dtm.compras.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
                     self.env['dtm.proceso'].search([('ot_number','=',self.orden_trabajo)]).unlink()
                     self.env['dtm.compras.realizado'].search([('orden_trabajo','=',self.orden_trabajo)]).unlink()
 
