@@ -165,6 +165,7 @@ class OrdenesCompra(models.Model):
                                 "firma_calidad":get_proceso.firma_calidad,
                                 "calidad_liberacion":get_proceso.calidad_liberacion,
                                 "date_terminado":get_proceso.date_terminado,
+                                "date_inicio":get_proceso.create_date
                             }
                         get_facturado = self.env['dtm.facturado.odt'].search([("ot_number","=",orden.orden_trabajo)])
                         get_facturado.write(vals) if get_facturado else get_facturado.create(vals)
