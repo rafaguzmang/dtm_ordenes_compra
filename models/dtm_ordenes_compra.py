@@ -273,9 +273,9 @@ class OrdenesCompra(models.Model):
         get_this = self.env['dtm.ordenes.compra'].search([])
         # Obtiene todas las ordenes y sus atibutos
         for orden in get_this:
+            orden.ot_asignadas = ','.join(str(ot)for ot in orden.descripcion_id.mapped('orden_trabajo') if ot !=0 )#Asigna las ots existentes para poder filtrar
             # revisa los items uno por uno
             orden.write({'status':'no'})
-
             if not 0 in orden.descripcion_id.mapped('orden_diseno'):
                 orden.write({'status':'od'})
                 orden.write({'parcial':False})
@@ -400,7 +400,6 @@ class ItemsCompras(models.Model):
                     "od_number":self.orden_diseno if self.orden_diseno else 0,
                 }
                 if self.orden_trabajo > 0:
-                    print("pasa")
                     if self.tipo_servicio == 'retrabajo' and self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)]) :
                         retrabajo = self.env['dtm.odt'].search([('ot_number','=',self.orden_trabajo),('tipe_order','=','RT')], limit=1)
                         retrabajo.write(vals) if retrabajo else retrabajo.create(vals)
