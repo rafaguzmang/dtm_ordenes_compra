@@ -213,7 +213,6 @@ class OrdenesCompra(models.Model):
                         unlinkList.append(self.env['dtm.compras.realizado'].search([('orden_trabajo', '=', int(version.ot_number)),("revision_ot","=",version.revision_ot)]))
 
             for orm in unlinkList:
-                print(orm)
                 orm.unlink()
             # Borra la orden de compra de este modelo principal
             get_items = self.env['dtm.compras.items'].search([("model_id", "=", self.id)])
@@ -374,6 +373,8 @@ class ItemsCompras(models.Model):
 
     def acction_generar(self):# Genera orden de diseño si existe la actualiza
             get_father = self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)])
+            # Busca la cotización en necesidades del cliente
+            necesidades = self.env['cot.list.material'].search([('name','=',self.item),('model_id','=',int(self.env['dtm.client.needs'].search([('no_cotizacion','=',self.model_id.no_cotizacion)]).id))])
             # Obtine el nombre del diseñador asignado
             disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "garcia" if self.firma_diseno == "garcia" else "bryan" if self.firma_diseno == "bryan" else "N/A"
             # print(self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))
@@ -396,7 +397,8 @@ class ItemsCompras(models.Model):
                     "po_fecha_creacion":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_captura_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
                     "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
-                    "description":', '.join(list(set(self.env['dtm.cotizacion.requerimientos'].search([("model_id","=",self.env['dtm.cotizaciones'].search([('no_cotizacion','=',str(get_father.no_cotizacion))]).id)]).items_id.mapped('name')))),
+                    "description":necesidades.descripcion,
+                    "color": necesidades.color,
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
                     "ot_number":0,
@@ -416,7 +418,8 @@ class ItemsCompras(models.Model):
                     "po_fecha_creacion":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_captura_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "tipe_order": "RT" if self.tipo_servicio == "retrabajo" else "OT", #Se obtine el último valor de la orden correspondiente,
                     "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
-                    "description":', '.join(self.env['dtm.cotizacion.requerimientos'].search([("id","=",self.id_item)]).items_id.mapped('name')),
+                    "description":necesidades.descripcion,
+                    "color":necesidades.color,
                     "anexos_ventas_id":[(6,0,get_father.anexos_id.mapped('id'))],
                     "orden_compra_pdf":get_father.archivos_id,
                     "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
