@@ -91,20 +91,25 @@ class OrdenesCompra(models.Model):
         if self.no_factura:
             ordenes_lts = []
             for orden in self.descripcion_id:
-                if self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) == 1:#Vamos a revisar si todas las ordenes ya están terminadas
+                if orden.tipo_servicio != 'fabricacion':
+                    ordenes_lts.append('terminado')
+                elif self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) == 1:#Vamos a revisar si todas las ordenes ya están terminadas
                     ordenes_lts.append(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).status)
 
                     # print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
                 elif self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) > 1:
-                    # print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
+                    print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
                     for version in self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]):
                         ordenes_lts.append(version.status)
+                elif self.env['dtm.facturado.odt'].search([('ot_number','=',orden.orden_trabajo)]):
+
+                    ordenes_lts.append('terminado')
             self.facturar(ordenes_lts) # Función para pasar la cotización al modulo de facturados
         else:
             raise ValidationError("No existe número de factura")
 
     def facturar(self, ordenes_lts):
-        print(ordenes_lts)
+        # print(ordenes_lts)
         if len(list(set(ordenes_lts))) == 1 and list(set(ordenes_lts))[0] == 'terminado':
             vals = {
                 'no_cotizacion': self.no_cotizacion,
@@ -117,12 +122,12 @@ class OrdenesCompra(models.Model):
                 'factura': self.no_factura,
                 'notas': self.notas
             }
-
+            # Crea la cotización en facturaro
             self.env['dtm.ordenes.compra.facturado'].create(vals)  # Crea el objeto en el modelo de facturado
             get_id = self.env['dtm.ordenes.compra.facturado'].search(
                 [('factura', '=', self.no_factura)])  # Apunto al nuevo objeto para manipulación
-
-            for item in self.descripcion_id:  # Inserta los items asociados a las ordenes de trabajo tabla one2many
+            # Inserta los items asociados a las ordenes de trabajo tabla one2many
+            for item in self.descripcion_id:
                 vals = {
                     'item': item.item,
                     'cantidad': item.cantidad,
@@ -185,7 +190,6 @@ class OrdenesCompra(models.Model):
                             "date_terminado": version.date_terminado,
                             "date_inicio": version.create_date
                         }
-                    print(version.ot_number,version.revision_ot)
                     get_facturado = self.env['dtm.facturado.odt'].search([("ot_number", "=", version.ot_number),("revision_ot","=",version.revision_ot)])
                     get_facturado.write(vals) if get_facturado else get_facturado.create(vals)# Crea la orden en facturados
                     get_facturado = self.env['dtm.facturado.odt'].search([("ot_number", "=", version.ot_number),("revision_ot","=",version.revision_ot)])
@@ -470,10 +474,10 @@ class ItemsCompras(models.Model):
                         "description": get_proceso.description,
                         "firma_calidad":get_proceso.firma_calidad,
                         "calidad_liberacion":get_proceso.calidad_liberacion,
+                        "date_disign_finish":self.date_disign_finish
                     }
                 get_facturado = self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)])
                 get_facturado.write(vals) if get_facturado else get_facturado.create(vals)
-                get_facturado = self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)])
                 get_facturado.write({'materieales_id': [(5, 0, {})]})
                 lines = []
                 for item in get_proceso.materials_ids:#Se agrega o se actualiza material de la tabla dtm.facturado.materiales y se obtienen los id para casarlos con la orden correspondiente
@@ -489,7 +493,7 @@ class ItemsCompras(models.Model):
                 #-------------------------------------------------------------------------------------------------------------------------------
                 if get_facturado:
                     self.env['dtm.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
-                    # self.env['dtm.compras.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
+                    self.env['dtm.compras.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
                     self.env['dtm.proceso'].search([('ot_number','=',self.orden_trabajo)]).unlink()
                     self.env['dtm.compras.realizado'].search([('orden_trabajo','=',self.orden_trabajo)]).unlink()
 
