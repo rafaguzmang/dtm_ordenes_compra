@@ -94,9 +94,9 @@ class OrdenesCompra(models.Model):
                 if self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) == 1:#Vamos a revisar si todas las ordenes ya están terminadas
                     ordenes_lts.append(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).status)
 
-                    print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
+                    # print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
                 elif self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) > 1:
-                    print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
+                    # print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
                     for version in self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]):
                         ordenes_lts.append(version.status)
             self.facturar(ordenes_lts) # Función para pasar la cotización al modulo de facturados
@@ -400,7 +400,7 @@ class ItemsCompras(models.Model):
                     "tipe_order":"OT", #Se obtine el último valor de la orden correspondiente,
                     "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "description":necesidades.descripcion,
-                    "color": necesidades.color,
+                    "color": necesidades.color if necesidades.color else '',
                     "anexos_ventas_id":get_father.anexos_id,
                     "orden_compra_pdf":get_father.archivos_id,
                     "ot_number":0,
@@ -421,7 +421,7 @@ class ItemsCompras(models.Model):
                     "tipe_order": "RT" if self.tipo_servicio == "retrabajo" else "OT", #Se obtine el último valor de la orden correspondiente,
                     "po_fecha":self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]).fecha_po if self.env['dtm.ordenes.compra'].search([('id','=',self.model_id.id)]) else '',
                     "description":necesidades.descripcion,
-                    "color":necesidades.color,
+                    "color":necesidades.color if necesidades.color else '',
                     "anexos_ventas_id":[(6,0,get_father.anexos_id.mapped('id'))],
                     "orden_compra_pdf":get_father.archivos_id,
                     "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
