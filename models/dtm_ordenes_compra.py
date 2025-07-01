@@ -409,14 +409,10 @@ class ItemsCompras(models.Model):
                     "intervencion_calidad":self.intervencion_calidad
              }
             # Busca si existe la orden de diseño o de trabajo siempre que od_number > 0 si la encuentra actualiza y si no la crea
-            dtm_odt = self.env['dtm.odt'].search(['&','|',
-                ('ot_number', '=', self.orden_trabajo),
-                ('od_number', '=', self.orden_diseno),
-                ('od_number', '>', 0)
-            ],limit=1)
+            dtm_odt = self.env['dtm.odt'].search([('ot_number', '=', self.orden_trabajo),('od_number', '=', self.orden_diseno)],limit=1)
             # print(vals)
+            print(dtm_odt)
             if dtm_odt:
-#                 print(dtm_odt)
                 dtm_odt.write(vals)
             else:
                 dtm_odt.create(vals)
