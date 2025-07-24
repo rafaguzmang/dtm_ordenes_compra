@@ -1,3 +1,4 @@
+from Tools.scripts.dutree import store
 from odoo import api,fields,models
 import datetime
 from odoo.exceptions import ValidationError, AccessError, MissingError,Warning
@@ -19,7 +20,7 @@ class OrdenesCompra(models.Model):
     fecha_entrada = fields.Date(string="Fecha Entrada",default= datetime.datetime.today(),readonly=True,store=True)
     fecha_salida = fields.Date(string="Fecha Entrega",default= datetime.datetime.today())
     fecha_po = fields.Date(string="Fecha de la PO")
-    fecha_captura_po = fields.Date(string="Fecha Captura PO", readonly= True)
+    fecha_captura_po = fields.Date(string="Fecha Captura PO", readonly= True,compute='_compute_fecha_po')
 
     descripcion_id = fields.One2many("dtm.compras.items",'model_id')#Modelo donde se almacenan los requerimientos
 
@@ -51,9 +52,11 @@ class OrdenesCompra(models.Model):
     def action_pasive(self):
         pass
 
-    @api.onchange("fecha_po")
-    def _onchange_fecha_po(self):
+    @api.depends("archivos_id")
+    def _compute_fecha_po(self):
         self.fecha_captura_po = datetime.datetime.now()
+        if not self.archivos_id:
+            self.fecha_captura_po = None
 
     # email_img = fields.Image(string="Imagen")
     @api.depends("descripcion_id")
@@ -62,18 +65,19 @@ class OrdenesCompra(models.Model):
             get_total = result.descripcion_id.mapped("precio_total")
             result.precio_total = sum(get_total)
 
-    @api.onchange("orden_compra")
-    def _onchange_orden_compra(self):
-        get_odc = self.env['dtm.ordenes.compra'].search([("orden_compra","=",self.orden_compra)])
-        get_cotizaciones =  self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)])
-        val = {
-            "po_number": self.orden_compra
-        }
-        get_cotizaciones.write(val)
-        self.env['dtm.ordenes.compra.precotizaciones'].search([("precotizacion","=",self.no_cotizacion)]).unlink()
+    @api.constrains("orden_compra")
+    def _check_orden_compra_unique(self):
+        for row in self:
+            for row in self:
+                if row.orden_compra and row.orden_compra not in ("Pendiente", "N/A"):
+                    # Buscar otro registro distinto con la misma orden_compra
+                    duplicate = self.search([
+                        ("orden_compra", "=", row.orden_compra),
+                        ("id", "!=", row.id)
+                    ], limit=1)
+                    if duplicate:
+                        raise ValidationError("Esta orden de compra ya existe.")
 
-        if get_odc and self.orden_compra and self.orden_compra != "Pendiente" and self.orden_compra != "N/A":
-             raise ValidationError("Esta orden de compra ya existe")
 
     @api.onchange("parcial")
     def _onchange_parcial(self):
@@ -380,7 +384,10 @@ class ItemsCompras(models.Model):
             # Busca la cotización en necesidades del cliente
             necesidades = self.env['dtm.client.needs'].search([('no_cotizacion','=',self.model_id.no_cotizacion)]).list_materials_ids.filtered_domain([('name','=',self.item)])
             # Obtine el nombre del diseñador asignado
-            disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "Luis García" if self.firma_diseno == "garcia" else "Bryan Banda" if self.firma_diseno == "bryan" else "N/A"
+            # disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "Luis García" if self.firma_diseno == "garcia" else "Bryan Banda" if self.firma_diseno == "bryan" else "N/A"
+            desinador_dict = dict(self._fields['firma_diseno'].selection)
+            disenador = desinador_dict.get(self.firma_diseno)
+            # print(disenador)
             # Busca el ultimo registro de la orden de diseño y le suma uno
             if not self.orden_diseno:
                 get_diseno_odt = self.env['dtm.odt'].search([('od_number', '!=', False)], order='od_number desc', limit=1)
@@ -411,7 +418,7 @@ class ItemsCompras(models.Model):
             # Busca si existe la orden de diseño o de trabajo siempre que od_number > 0 si la encuentra actualiza y si no la crea
             dtm_odt = self.env['dtm.odt'].search([('ot_number', '=', self.orden_trabajo),('od_number', '=', self.orden_diseno)],limit=1)
             # print(vals)
-            print(dtm_odt)
+            # print(dtm_odt)
             if dtm_odt:
                 dtm_odt.write(vals)
             else:
