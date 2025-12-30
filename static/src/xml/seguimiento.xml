@@ -1,0 +1,7 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.seguimiento" owl="1">
+        <h1>Cotizaciones</h1>
+        <br/>
+        <Cotizaciones/>
+    </t>
+</template>
