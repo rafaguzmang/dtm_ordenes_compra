@@ -1,0 +1,60 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.ordenes_dialogo" owl="1">
+          <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+          <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="d-flex justify-content-between w-100">
+                  <h5 class="modal-title">Ordenes Asociadas <t t-esc="props.cotizacion"/></h5>
+                  <h5 class="modal-title">Costo P.O. <t t-esc="props.po_costo"/></h5>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close" t-on-click="props.cerrar"></button>
+              </div>
+              <div class="modal-body">
+                 <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>OD</th>
+                            <th>OT</th>
+                            <!-- <th>V</th>
+                            <th>R</th> -->
+                            <th>Nombre</th>
+                            <th>Diseñador</th>
+                            <th>Nesteo</th>
+                            <th>Material</th>
+                            <th>C.Diseño</th>
+                            <th>C.Ingeniería</th>
+                            <th>Compras</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.ordenes" t-as="orden" t-key="orden.od">
+                            <tr>
+                                <td><t t-esc="orden.od"/></td>
+                                <td><t t-esc="orden.ot"/></td>
+                                <!-- <td><t t-esc="orden.v"/></td>
+                                <td><t t-esc="orden.r"/></td> -->
+                                <td><t t-esc="orden.nombre"/></td>
+                                <td><t t-esc="orden.disenador"/></td>
+                                <td><t t-esc="orden.nesteo"/></td>
+                                <td><t t-esc="orden.material"/></td>
+                                <td><t t-esc="orden.costo_diseno"/></td>
+                                <td><t t-esc="orden.costo_ingenieria"/></td>
+                                <td><t t-esc="orden.compras"/></td>
+                                <td><t t-esc="orden.status"/></td>
+                            </tr>
+                        </t>
+                 </table>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" t-on-click="this.props.cerrar">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </t>
+</template>
