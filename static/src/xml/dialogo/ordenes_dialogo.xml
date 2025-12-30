@@ -45,7 +45,20 @@
                                 <td><t t-esc="orden.status"/></td>
                             </tr>
                         </t>
+                    </tbody>
                  </table>
+                 <hr/>
+                <div>
+                  <div class="mb-3 col-md-6">
+                    <span><strong>Total Costo Diseño: </strong> <t t-esc="this.state.costo_diseno"/></span><br/>
+                    <span><strong>Total Costo Ingeniería: </strong> <t t-esc="this.state.costo_ingenieria"/></span><br/>
+                    <span><strong>Total Costo Compras: </strong> <t t-esc="this.state.costo_compras"/></span><br/>                  
+                  </div>
+                  <div class="mb-3 col-md-6">
+                    <span><strong>P.O. en MXN: </strong> <t t-esc="this.state.precio_mxn"/></span><br/>
+                    <span><strong>Precio Dollar: </strong> <t t-esc="this.state.precio_dollar"/></span><br/>
+                  </div>
+                </div>
 
 
               </div>

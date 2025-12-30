@@ -1,6 +1,6 @@
 from odoo import http
 from odoo.http import request, Response
-import json
+import json,requests
 
 class WebSiteDirectios(http.Controller):
 
@@ -67,3 +67,12 @@ class WebSiteDirectios(http.Controller):
 
 
         return result
+
+    @http.route('/dtm_precio_dollar', type='json', auth='public')
+    def precioDollar(self):
+        try:
+            result = requests.get("https://www.banxico.org.mx/SieAPIRest/service/v1/series/SF60653/datos/oportuno?token=48ae5fcf525e8658eb784d0c4030054d7aa97bf2b5859747015820245978f739",timeout=5)
+            result.raise_for_status()
+            return result.json()
+        except  Exception as e:
+            return {"error": str(e)}
