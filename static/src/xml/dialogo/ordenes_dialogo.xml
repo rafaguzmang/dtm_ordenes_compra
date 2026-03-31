@@ -1,72 +1,114 @@
 <template xml:space="preserve">
     <t t-name="dtm_ordenes_compra.ordenes_dialogo" owl="1">
-          <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
-          <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-              <div class="modal-header">
-                <div class="d-flex justify-content-between w-100">
-                  <h5 class="modal-title">Ordenes Asociadas <t t-esc="props.cotizacion"/></h5>
-                  <h5 class="modal-title">Costo P.O. <t t-esc="props.po_costo"/></h5>
-                </div>
-                <button type="button" class="btn-close" aria-label="Close" t-on-click="props.cerrar"></button>
-              </div>
-              <div class="modal-body">
-                 <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>OD</th>
-                            <th>OT</th>
-                            <!-- <th>V</th>
-                            <th>R</th> -->
-                            <th>Nombre</th>
-                            <th>Diseñador</th>
-                            <th>Nesteo</th>
-                            <th>Material</th>
-                            <th>C.Diseño</th>
-                            <th>C.Ingeniería</th>
-                            <th>Compras</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="state.ordenes" t-as="orden" t-key="orden.od">
-                            <tr>
-                                <td><t t-esc="orden.od"/></td>
-                                <td><t t-esc="orden.ot"/></td>
-                                <!-- <td><t t-esc="orden.v"/></td>
-                                <td><t t-esc="orden.r"/></td> -->
-                                <td><t t-esc="orden.nombre"/></td>
-                                <td><t t-esc="orden.disenador"/></td>
-                                <td><t t-esc="orden.nesteo"/></td>
-                                <td><t t-esc="orden.material"/></td>
-                                <td><t t-esc="orden.costo_diseno"/></td>
-                                <td><t t-esc="orden.costo_ingenieria"/></td>
-                                <td><t t-esc="orden.compras"/></td>
-                                <td><t t-esc="orden.status"/></td>
-                            </tr>
-                        </t>
-                    </tbody>
-                 </table>
-                 <hr/>
-                <div>
-                  <div class="mb-3 col-md-6">
-                    <span><strong>Total Costo Diseño: </strong> <t t-esc="this.state.costo_diseno"/></span><br/>
-                    <span><strong>Total Costo Ingeniería: </strong> <t t-esc="this.state.costo_ingenieria"/></span><br/>
-                    <span><strong>Total Costo Compras: </strong> <t t-esc="this.state.costo_compras"/></span><br/>                  
-                  </div>
-                  <div class="mb-3 col-md-6">
-                    <span><strong>P.O. en MXN: </strong> <t t-esc="this.state.precio_mxn"/></span><br/>
-                    <span><strong>Precio Dollar: </strong> <t t-esc="this.state.precio_dollar"/></span><br/>
-                  </div>
-                </div>
 
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
 
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" t-on-click="this.props.cerrar">Cerrar</button>
-              </div>
+                    <!-- Header personalizado -->
+                    <div class="dtm-mh">
+                        <div>
+                            <div class="dtm-mh-eyebrow">Detalle de órdenes</div>
+                            <div class="dtm-mh-title">
+                                Órdenes Asociadas · <t t-esc="props.cotizacion"/>
+                            </div>
+                        </div>
+                        <div class="dtm-mh-right">
+                            <div class="dtm-po-box">
+                                <div class="dtm-po-lbl">Costo P.O.</div>
+                                <div class="dtm-po-val">
+                                    <t t-esc="props.po_costo"/>
+                                    <span class="dtm-po-cur"></span>
+                                </div>
+                            </div>
+                            <button class="dtm-close" t-on-click="props.cerrar">
+                                <svg width="11" height="11" viewBox="0 0 14 14" fill="none"
+                                     stroke="white" stroke-width="2" stroke-linecap="round">
+                                    <path d="M1 1L13 13M13 1L1 13"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Body: tabla -->
+                    <div class="modal-body">
+                        <div class="dtm-tbl-outer">
+                            <table class="dtm-ot">
+                                <thead>
+                                    <tr>
+                                        <th>OD</th>
+                                        <th>OT</th>
+                                        <th>Nombre</th>
+                                        <th>Diseñador</th>
+                                        <th>Nesteo</th>
+                                        <th>Material</th>
+                                        <th>C. Diseño</th>
+                                        <th>C. Ingeniería</th>
+                                        <th>Compras</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.ordenes" t-as="orden" t-key="orden.od">
+                                        <tr>
+                                            <td><span class="dtm-od"><t t-esc="orden.od"/></span></td>
+                                            <td><span class="dtm-ot-n"><t t-esc="orden.ot"/></span></td>
+                                            <td class="dtm-nombre"><t t-esc="orden.nombre"/></td>
+                                            <td class="dtm-designer"><t t-esc="orden.disenador"/></td>
+                                            <td>
+                                                <span t-attf-class="#{orden.nesteo === 'Si' ? 'dtm-nesteo-si' : 'dtm-nesteo-no'}">
+                                                    <t t-esc="orden.nesteo"/>
+                                                </span>
+                                            </td>
+                                            <td class="dtm-na"><t t-esc="orden.material"/></td>
+                                            <td class="dtm-na"><t t-esc="orden.costo_diseno"/></td>
+                                            <td class="dtm-na"><t t-esc="orden.costo_ingenieria"/></td>
+                                            <td class="dtm-na"><t t-esc="orden.compras"/></td>
+                                            <td class="dtm-na"><t t-esc="orden.status"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Footer: totales + cerrar -->
+                    <div class="modal-footer">
+                        <div class="dtm-totals">
+                            <div class="dtm-tcol">
+                                <div class="dtm-tcol-title">Resumen de costos</div>
+                                <div class="dtm-trow">
+                                    <span class="dtm-tkey">Total Costo Diseño</span>
+                                    <span class="dtm-tval"><t t-esc="this.state.costo_diseno"/></span>
+                                </div>
+                                <div class="dtm-trow">
+                                    <span class="dtm-tkey">Total Costo Ingeniería</span>
+                                    <span class="dtm-tval"><t t-esc="this.state.costo_ingenieria"/></span>
+                                </div>
+                                <div class="dtm-trow">
+                                    <span class="dtm-tkey">Total Costo Compras</span>
+                                    <span class="dtm-tval"><t t-esc="this.state.costo_compras"/></span>
+                                </div>
+                            </div>
+                            <div class="dtm-tcol">
+                                <div class="dtm-tcol-title">Tipo de cambio</div>
+                                <div class="dtm-trow">
+                                    <span class="dtm-tkey">P.O. en MXN</span>
+                                    <span class="dtm-tval"><t t-esc="this.state.precio_mxn"/></span>
+                                </div>
+                                <div class="dtm-trow">
+                                    <span class="dtm-tkey">Precio Dólar</span>
+                                    <span class="dtm-tval"><t t-esc="this.state.precio_dollar"/></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dtm-actions">
+                            <button class="dtm-btn-cerrar" t-on-click="this.props.cerrar">Cerrar</button>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-          </div>
         </div>
 
     </t>

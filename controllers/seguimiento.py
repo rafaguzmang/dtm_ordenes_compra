@@ -8,19 +8,36 @@ class WebSiteDirectios(http.Controller):
     @http.route('/dtm_cotizaciones', type='http', auth='public')
     def cotizaciones(self):
         get_po = request.env['dtm.ordenes.compra'].sudo().search([])
-        result = [
-            {
+        result = []
+        for orden in get_po:
+
+            get_ordenes = orden.descripcion_id
+            terminado = False
+            if len(get_ordenes) == 1:
+                status = request.env['dtm.proceso'].sudo().search([('ot_number','=',get_ordenes.orden_trabajo)],limit=1).status
+                get_status = 'Terminado' if status == 'terminado' else 'Calidad' if status == 'calidad' else 'Proceso' if status else 'OT' if get_ordenes.orden_trabajo else 'OD'
+                terminado = True if get_status == 'Terminado' else False
+            elif len(get_ordenes) > 1:
+                get_procesos = [request.env['dtm.proceso'].sudo().search([('ot_number','=',ot)],limit=1).status for ot in get_ordenes.mapped('orden_trabajo')]
+                od_list = list(set(orden.descripcion_id.mapped('orden_diseno')))
+                ot_list = list(set(orden.descripcion_id.mapped('orden_trabajo')))
+                get_status = f"Terminado {len(list(filter(lambda x: x == 'terminado', get_procesos)))}/{len(get_ordenes)}"if 'terminado' in get_procesos else f"Calidad {len(list(filter(lambda x: x == 'calidad', get_procesos)))}/{len(get_ordenes)}" if 'calidad' in get_procesos else f"Proceso {len(get_procesos)}/{len(get_ordenes)}" if True in get_procesos else  f"OT {len(list(filter(lambda x: x != 0,ot_list)))}/{len(get_ordenes)}" if len(ot_list) > 1 else f"OD {len(list(filter(lambda x: x != 0,od_list)))}/{len(get_ordenes)}" if len(od_list) > 1 else f"N/A {len(get_ordenes)}/{len(get_ordenes)}"
+                terminado = True if (len(list(filter(lambda x: x == 'terminado', get_procesos)))/len(get_ordenes)) == 1 else False
+            else:
+                get_status = 'N/A'
+
+            result.append({
                 'cotizacion': orden.no_cotizacion,
                 'proveedor': 'DTM' if orden.proveedor == 'dtm' else 'MTD',
                 'cliente': orden.cliente_prov,
                 'po': orden.orden_compra,
+                'pdf': orden.archivos_id[0].datas.decode('utf-8') if orden.archivos_id else '',
                 'precio': f"{round(orden.precio_total, 2)} {'mx' if request.env['dtm.cotizaciones'].sudo().search([('no_cotizacion','=',orden.no_cotizacion)],limit=1).curency == 'mx' else 'dlls'}",
                 'fecha_entrada': orden.fecha_entrada.strftime("%x") if orden.fecha_entrada else '---',
                 'fecha_salida': orden.fecha_salida.strftime("%x") if orden.fecha_salida else '---',
-                'status': orden.status
-            }
-            for orden in get_po
-        ]
+                'status': get_status,
+                'terminado': terminado
+            })
 
         return request.make_response(
             json.dumps(result),

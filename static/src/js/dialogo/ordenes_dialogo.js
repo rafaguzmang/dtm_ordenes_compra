@@ -1,12 +1,12 @@
 
 /** @odoo-module **/
-import { Component, useState,onWillStart} from "@odoo/owl"
+import { Component, useState, onWillStart } from "@odoo/owl"
 import { useService } from "@web/core/utils/hooks";
 
-export class OrdenesTrabajo extends Component{
-   static props = ["cerrar", "cotizacion", "po_costo"]
+export class OrdenesTrabajo extends Component {
+    static props = ["cerrar", "cotizacion", "po_costo"]
 
-    setup(){
+    setup() {
         this.state = useState({
             ordenes: [],
             costo_diseno: 0.0,
@@ -24,25 +24,25 @@ export class OrdenesTrabajo extends Component{
 
     }
 
-    async precioDollar(){
-        try{
-            const data = await this.rpc("dtm_precio_dollar",{})
+    async precioDollar() {
+        try {
+            const data = await this.rpc("dtm_precio_dollar", {})
             this.state.precio_dollar = Math.round(data.bmx.series[0].datos[0].dato * 100) / 100;
-            this.state.precio_mxn = this.props.po_costo.includes("dlls") ? Math.round(parseFloat(this.props.po_costo.split("dlls")[0].trim()) * this.state.precio_dollar * 100)/100 : parseFloat(this.props.po_costo);
-        }catch(error){
-            console.error("Esta madre ya falló:", error);
+            this.state.precio_mxn = this.props.po_costo.includes("dlls") ? Math.round(parseFloat(this.props.po_costo.split("dlls")[0].trim()) * this.state.precio_dollar * 100) / 100 : parseFloat(this.props.po_costo);
+        } catch (error) {
+            console.error("Error de comunicación con el banco de México:", error);
         }
     }
 
-    async ordenesTrabajo(){
-        const response = await fetch("/dtm_ordenes_cotizacion",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
+    async ordenesTrabajo() {
+        const response = await fetch("/dtm_ordenes_cotizacion", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
             },
             body: JSON.stringify(
                 {
-                'cotizacion':this.props.cotizacion,
+                    'cotizacion': this.props.cotizacion,
                 }),
         });
         const data = await response.json();

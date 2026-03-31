@@ -1,77 +1,174 @@
 <template xml:space="preserve">
     <t t-name="dtm_ordenes_compra.cotizaciones" owl="1">
-        
-        <table class="table table-striped table-bordered table-hover table-sm">
-            <thead class="table-dark">
-                <tr>
-                    <th>Cotización</th>
-                    <th>Fecha Entrega</th>
-                    <th>Proveedor</th>
-                    <th>Cliente</th>
-                    <th>P.O.</th>
-                    <th>Precio</th>
-                    <th>Fecha Entrada</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-            <!-- Filtros -->
-                <tr>
-                    <td>
-                        <input type="number" min ="0" t-on-input="(ev) => this.cotizacionFiltro(ev)"/>
-                    </td>
-                    <!-- Fecha de entrega -->
-                    <td>
-                        <input type="date" name="fentrega_filtro" t-on-input="(ev) => this.fechaEntregaFiltro(ev)"/>
-                    </td>
-                    <td>
-                        <select name="proveedor_filtro" t-on-change="(ev) => this.proveedorFiltro(ev)">
-                            <option value="">--</option>
-                            <option value="dtm">DTM</option>
-                            <option value="mtd">MTD</option>                           
-                        </select>
-                    </td> 
-                    <!-- Cliente -->
-                    <td>
-                        <select name="cliente_filtro" t-on-change="(ev) => this.clienteFiltro(ev)" >
-                            <option value="">--</option>
-                            <t t-foreach="state.clientes" t-as="cliente" t-key="cliente">
-                                <option t-att-value="cliente">
-                                    <t t-esc="cliente"/>
-                                </option>
-                            </t>
-                        </select>
-                    </td>
-                     <!-- PO -->
-                    <td >
-                        <input type="text" min ="0" t-on-input="(ev) => this.poFiltro(ev)"/>
-                    </td>
-                    <td></td>
-                    <td>
-                        <input type="date" name="fentrada_filtro" t-on-input="(ev) => this.fechaEntradaFiltro(ev)"/>
-                    </td>
-                    <td>
-                    </td>
-                </tr>
-                <t t-foreach="this.state.cotizaciones" t-as="cotizacion" t-key="cotizacion.cotizacion">
-                    <tr t-on-click="()=>this.ordenesTrabajo(cotizacion.cotizacion,cotizacion.precio)">
-                        <td><t t-esc="cotizacion.cotizacion"/></td>
-                        <td><t t-esc="cotizacion.fecha_salida"/></td>
-                        <td><t t-esc="cotizacion.proveedor"/></td>
-                        <td><t t-esc="cotizacion.cliente"/></td>
-                        <td><t t-esc="cotizacion.po"/></td>
-                        <td><t t-esc="cotizacion.precio"/></td>
-                        <td><t t-esc="cotizacion.fecha_entrada"/></td>
-                        <td><t t-esc="cotizacion.status"/></td>
-                    </tr>                    
-                </t>
-            </tbody>
-        </table>
 
+        <!-- Topbar -->
+        <div class="dtm-topbar">
+            <div>
+                <div class="dtm-page-title">Cotizaciones</div>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="dtm-content">
+            <div class="dtm-kpi-grid">
+                <div class="dtm-kpi-card c1">
+                    <div class="dtm-kpi-label">Total Cotizaciones</div>
+                    <div class="dtm-kpi-val" t-esc="this.state.cotizaciones_totales"/>
+                    <div class="dtm-kpi-delta up">Este período</div>
+                </div>
+                <div class="dtm-kpi-card c2">
+                    <div class="dtm-kpi-label">Terminadas</div>
+                    <div class="dtm-kpi-val" t-esc="this.state.terminadas"/>
+                    <div class="dtm-kpi-delta up">A Facturar</div>
+                </div>
+                <div class="dtm-kpi-card c3">
+                    <div class="dtm-kpi-label">Clientes</div>
+                    <div class="dtm-kpi-val" t-esc="state.clientes.length"/>
+                    <div class="dtm-kpi-delta up">Acumulado</div>
+                </div>
+                <div class="dtm-kpi-card c4">
+                    <div class="dtm-kpi-label">Valor Total</div>
+                    <div class="dtm-kpi-val">$<t t-esc="state.acumulado"/></div>
+                    <div class="dtm-kpi-delta up">Acumulado</div>
+                </div>
+                <div class="dtm-kpi-card c5">
+                    <div class="dtm-kpi-label">Precio Dolar</div>
+                    <div class="dtm-kpi-val" t-esc="state.precio_dollar"/>
+                    <div class="dtm-kpi-delta neutral">Precio actual</div>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="dtm-table-card">
+                <div class="dtm-tc-header">
+                    <div>
+                        <div class="dtm-tc-title">Registro de Cotizaciones</div>
+                        <div class="dtm-tc-count"><t t-esc="state.cotizaciones.length"/> registros</div>
+                    </div>                   
+                </div>
+
+                <div style="overflow-x:auto">
+                    <table class="dtm-table">
+                        <thead>
+                            <tr>
+                                <th>Cotización</th>
+                                <th>P.O.</th>
+                                <th>F. Entrega</th>
+                                <th>Proveedor</th>
+                                <th>Cliente</th>
+                                <th style="text-align:right">Precio</th>
+                                <th>F. Entrada</th>
+                                <th style="text-align:center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Filtros -->
+                            <tr class="dtm-filter-row">
+                                <td><input type="number" min="0" placeholder="Nº" t-on-input="(ev) => this.cotizacionFiltro(ev)"/></td>
+                                <td><input type="text" placeholder="PO..." t-on-input="(ev) => this.poFiltro(ev)"/></td>
+                                <td><input type="date" name="fentrega_filtro" t-on-input="(ev) => this.fechaEntregaFiltro(ev)"/></td>
+                                <td>
+                                    <select name="proveedor_filtro" t-on-change="(ev) => this.proveedorFiltro(ev)">
+                                        <option value="">Todos</option>
+                                        <option value="dtm">DTM</option>
+                                        <option value="mtd">MTD</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select name="cliente_filtro" t-on-change="(ev) => this.clienteFiltro(ev)">
+                                        <option value="">Todos</option>
+                                        <t t-foreach="state.clientes" t-as="cliente" t-key="cliente">
+                                            <option t-att-value="cliente"><t t-esc="cliente"/></option>
+                                        </t>
+                                    </select>
+                                </td>
+                                <td></td>
+                                <td><input type="date" name="fentrada_filtro" t-on-input="(ev) => this.fechaEntradaFiltro(ev)"/></td>
+                                <td>
+                                    <select name="terminado_filtro" t-on-change="(ev) => this.terminadoFiltro(ev)">
+                                        <option value="0">Todos</option>
+                                        <option value="1">Terminado</option>
+                                        <option value="2">Calidad</option>
+                                        <option value="3">Proceso</option>
+                                        <option value="4">OT</option>
+                                        <option value="5">OD</option>
+                                        <option value="6">N/A</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <!-- Datos -->
+                            <t t-foreach="this.state.cotizaciones" t-as="cotizacion" t-key="cotizacion.cotizacion">
+                                <tr class="dtm-dr"
+                                    t-attf-style="background-color: #{cotizacion.terminado ? '#d4f7e0ff' : '#e9fdedff'}"
+                                    t-on-click="() => this.ordenesTrabajo(cotizacion.cotizacion, cotizacion.precio)">
+                                    <td><span class="dtm-cot-link"><t t-esc="cotizacion.cotizacion"/></span></td>
+                                    <td><span class="dtm-po-code"
+                                        t-att-class="cotizacion.terminado ? 'bg-amarillo' : ''"
+                                        t-on-click="(ev) => { ev.stopPropagation(); this.openPDF(cotizacion.pdf); }"><t t-esc="cotizacion.po"/></span></td>
+                                    <td class="dtm-date-cell"><t t-esc="cotizacion.fecha_salida"/></td>
+                                    <td>
+                                        <span class="dtm-prov">
+                                            <span class="dtm-prov-dot" t-attf-style="background:#{cotizacion.proveedor === 'DTM' ? '#2e7cf6' : '#8b5cf6'}"/>
+                                            <t t-esc="cotizacion.proveedor"/>
+                                        </span>
+                                    </td>
+                                    <td><t t-esc="cotizacion.cliente"/></td>
+                                    <td class="dtm-price"><t t-esc="cotizacion.precio"/></td>
+                                    <td class="dtm-date-cell"><t t-esc="cotizacion.fecha_entrada"/></td>
+                                    <td style="text-align:center">
+                                        <span t-attf-class="dtm-st dtm-st-#{cotizacion.status?.toLowerCase().replace(' ','-')}">
+                                            <t t-esc="cotizacion.status"/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="dtm-tc-footer">
+                    <div class="dtm-pg-info">
+                        Mostrando <t t-esc="state.cotizaciones.length"/> registros
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diálogo órdenes -->
         <div>
             <t t-if="this.state.ordenes_dialogo">
-               <OrdenesTrabajo cerrar="cerrarOrdenesTrabajo" cotizacion="this.state.cotizacion" po_costo="this.state.po_costo"/>
+                <OrdenesTrabajo cerrar="cerrarOrdenesTrabajo"
+                                cotizacion="this.state.cotizacion"
+                                po_costo="this.state.po_costo"/>
             </t>
         </div>
+        <t t-if="state.showPDF">
+            <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">PO</h5>
+                        <button type="button" class="btn-close" aria-label="Close" t-on-click="closePDF"></button>
+                    </div>
+                    <div class="modal-body">
+                        <t t-if="state.pdf">
+                            <iframe 
+                                t-att-src="'data:application/pdf;base64,' + state.pdf"
+                                class="pdf-iframe"
+                                type="application/pdf">
+                            </iframe>
+                        </t>
+                        <t t-else="">
+                            <div class="alert alert-warning">No se encontró el PDF</div>
+                        </t>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" t-on-click="closePDF">Cerrar</button> 
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </t>
     </t>
 </template>

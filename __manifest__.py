@@ -18,6 +18,8 @@
     'assets': {
         'web.assets_backend': [
             'dtm_ordenes_compra/static/src/css/styles.css',
+            'dtm_ordenes_compra/static/src/css/cotizaciones.css',
+            'dtm_ordenes_compra/static/src/css/ordenes_dialogo.css',
             # JS
             'dtm_ordenes_compra/static/src/js/seguimiento.js',
             'dtm_ordenes_compra/static/src/js/cotizaciones.js',
