@@ -1,0 +1,263 @@
+/* ── modal-content: quita bordes Bootstrap, agrega los tuyos ── */
+.dtm-ordenes-dialogo .modal-content,
+.modal-content {
+    border: none !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+/* ── Header ── */
+.dtm-mh {
+    background: #0f1f3d;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dtm-mh-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 3px;
+}
+
+.dtm-mh-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.dtm-mh-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.dtm-po-box {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    padding: 7px 14px;
+    text-align: right;
+}
+
+.dtm-po-lbl {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.dtm-po-val {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+.dtm-po-cur {
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.4);
+    margin-left: 3px;
+}
+
+.dtm-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.dtm-close:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* ── modal-body: sin padding Bootstrap ── */
+.modal-body {
+    padding: 0 !important;
+}
+
+/* ── Tabla ── */
+.dtm-tbl-outer {
+    overflow-x: auto;
+}
+
+.dtm-ot {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dtm-ot thead th {
+    padding: 9px 13px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #8494b2;
+    background: #f4f7fc;
+    border-bottom: 1px solid #dde3ef;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.dtm-ot thead th:first-child {
+    padding-left: 20px;
+}
+
+.dtm-ot tbody tr {
+    border-bottom: 1px solid #dde3ef;
+    transition: background 0.1s;
+}
+
+.dtm-ot tbody tr:last-child {
+    border-bottom: none;
+}
+
+.dtm-ot tbody tr:hover {
+    background: #f4f7fc;
+}
+
+.dtm-ot tbody td {
+    padding: 10px 13px;
+    font-size: 13px;
+    color: #0f1f3d;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.dtm-ot tbody td:first-child {
+    padding-left: 20px;
+}
+
+.dtm-od {
+    font-weight: 600;
+    color: #2e7cf6;
+    font-variant-numeric: tabular-nums;
+}
+
+.dtm-ot-n {
+    color: #4a5878;
+    font-variant-numeric: tabular-nums;
+}
+
+.dtm-nombre {
+    font-weight: 500;
+    white-space: normal;
+    min-width: 160px;
+}
+
+.dtm-designer {
+    color: #4a5878;
+}
+
+.dtm-na {
+    color: #8494b2;
+    font-size: 12px;
+}
+
+.dtm-nesteo-si {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 99px;
+    background: #e8f5ee;
+    color: #1a6640;
+}
+
+.dtm-nesteo-no {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 99px;
+    background: #f4f7fc;
+    color: #8494b2;
+}
+
+/* ── modal-footer: reemplaza Bootstrap ── */
+.modal-footer {
+    padding: 0 !important;
+    border-top: 1px solid #dde3ef !important;
+    display: block !important;
+}
+
+.dtm-totals {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid #dde3ef;
+}
+
+.dtm-tcol {
+    padding: 16px 24px;
+}
+
+.dtm-tcol:first-child {
+    border-right: 1px solid #dde3ef;
+}
+
+.dtm-tcol-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8494b2;
+    margin-bottom: 10px;
+}
+
+.dtm-trow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 0.5px solid #edf1f9;
+}
+
+.dtm-trow:last-child {
+    border-bottom: none;
+}
+
+.dtm-tkey {
+    font-size: 12px;
+    color: #4a5878;
+}
+
+.dtm-tval {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f1f3d;
+    font-variant-numeric: tabular-nums;
+}
+
+.dtm-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 20px;
+}
+
+.dtm-btn-cerrar {
+    padding: 7px 20px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #0f1f3d;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.dtm-btn-cerrar:hover {
+    background: #162847;
+}
