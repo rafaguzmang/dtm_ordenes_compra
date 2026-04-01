@@ -45,13 +45,15 @@ export class Cotizaciones extends Component {
         this.state.clientes = [...new Set(data.map(cotizacion => cotizacion.cliente))];
         this.state.cotizaciones_totales = data.length;
         const precios = data.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
-        this.state.acumulado = Math.round(precios.reduce((acc, precio) => acc + precio, 2));
+        this.state.acumulado = Math.round(precios.reduce((acc, precio) => acc + precio) * 100) / 100;
         this.state.terminadas = data.filter(cotizacion => cotizacion.terminado).length;
     }
 
     async fetchPrecioDollar() {
         try {
             const data = await this.rpc("dtm_precio_dollar", {})
+            console.log(data)
+            console.log(data.bmx.series[0].datos[0].dato)
             this.state.precio_dollar = Math.round(data.bmx.series[0].datos[0].dato * 100) / 100;
         } catch (error) {
             console.error("Error de comunicación con el banco de México:", error);
@@ -71,34 +73,6 @@ export class Cotizaciones extends Component {
     };
 
     //    Filtros
-    // Filtro de busqueda por status
-
-    terminadoFiltro = (event) => {
-        const option = event.target.value;
-        switch (option) {
-            case '0':
-                this.state.cotizaciones = this.state.cotizaciones_filtradas;
-                break;
-            case '1':
-                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.terminado);
-                break;
-            case '2':
-                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.status.includes('Calidad'));
-                break;
-            case '3':
-                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.status.includes('Proceso'));
-                break;
-            case '4':
-                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.status.includes('OT'));
-                break;
-            case '5':
-                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.status.includes('OD'));
-                break;
-            case '6':
-                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.status.includes('N/A'));
-                break;
-        }
-    }
     // Filtro de busqueda por po
     poFiltro = (event) => {
         const po = event.target.value;
@@ -133,12 +107,13 @@ export class Cotizaciones extends Component {
         const proveedor = event.target.value;
         const cliente = event.target.closest('tr').querySelector('[name=cliente_filtro]').value;
         const fentrega = event.target.closest('tr').querySelector('[name=fentrega_filtro]').value;
+        const status = event.target.closest('tr').querySelector('[name=terminado_filtro]').value;
         let [year, month, day] = fentrega.split('-');
         let formattedDate = '';
         if (year != '') {
             formattedDate = `${day}/${month}/${year}`;
         }
-        this.filtroGeneral(proveedor.toUpperCase(), cliente, formattedDate)
+        this.filtroGeneral(proveedor.toUpperCase(), cliente, formattedDate, status)
     }
     // Filtro de busqueda por cotización
     cotizacionFiltro = (event) => {
@@ -151,15 +126,30 @@ export class Cotizaciones extends Component {
         const cliente = event.target.value;
         const proveedor = event.target.closest('tr').querySelector('[name=proveedor_filtro]').value;
         const fentrega = event.target.closest('tr').querySelector('[name=fentrega_filtro]').value;
+        const status = event.target.closest('tr').querySelector('[name=terminado_filtro]').value;
         let [year, month, day] = fentrega.split('-');
         let formattedDate = '';
         if (year != '') {
             formattedDate = `${day}/${month}/${year}`;
         }
-        this.filtroGeneral(proveedor.toUpperCase(), cliente, formattedDate)
+        this.filtroGeneral(proveedor.toUpperCase(), cliente, formattedDate, status)
     }
 
-    filtroGeneral(proveedor, cliente, fentrega) {
+    // Filtro de busqueda por status
+    terminadoFiltro = (event) => {
+        const status = event.target.value;
+        const proveedor = event.target.closest('tr').querySelector('[name=proveedor_filtro]').value;
+        const cliente = event.target.closest('tr').querySelector('[name=cliente_filtro]').value;
+        const fentrega = event.target.closest('tr').querySelector('[name=fentrega_filtro]').value;
+        let [year, month, day] = fentrega.split('-');
+        let formattedDate = '';
+        if (year != '') {
+            formattedDate = `${day}/${month}/${year}`;
+        }
+        this.filtroGeneral(proveedor.toUpperCase(), cliente, formattedDate, status)
+    }
+
+    filtroGeneral(proveedor, cliente, fentrega, status) {
         let tabla = this.state.cotizaciones_filtradas;
         if (proveedor) {
             tabla = tabla.filter(cotizacion => {
@@ -176,6 +166,31 @@ export class Cotizaciones extends Component {
                 return cotizacion.fecha_salida.includes(fentrega);
             });
         }
+        if (status) {
+            switch (status) {
+                case '0':
+                    tabla = tabla;
+                    break;
+                case '1':
+                    tabla = tabla.filter(record => record.terminado);
+                    break;
+                case '2':
+                    tabla = tabla.filter(record => record.status.includes('Calidad'));
+                    break;
+                case '3':
+                    tabla = tabla.filter(record => record.status.includes('Proceso'));
+                    break;
+                case '4':
+                    tabla = tabla.filter(record => record.status.includes('OT'));
+                    break;
+                case '5':
+                    tabla = tabla.filter(record => record.status.includes('OD'));
+                    break;
+                case '6':
+                    tabla = tabla.filter(record => record.status.includes('N/A'));
+                    break;
+            }
+        }
 
         this.state.cotizaciones = tabla;
         if (!proveedor && !cliente && !fentrega) {
@@ -184,6 +199,8 @@ export class Cotizaciones extends Component {
 
 
     }
+
+
 
 
 }

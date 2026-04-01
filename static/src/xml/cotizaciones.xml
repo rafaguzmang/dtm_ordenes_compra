@@ -31,11 +31,7 @@
                     <div class="dtm-kpi-val">$<t t-esc="state.acumulado"/></div>
                     <div class="dtm-kpi-delta up">Acumulado</div>
                 </div>
-                <div class="dtm-kpi-card c5">
-                    <div class="dtm-kpi-label">Precio Dolar</div>
-                    <div class="dtm-kpi-val" t-esc="state.precio_dollar"/>
-                    <div class="dtm-kpi-delta neutral">Precio actual</div>
-                </div>
+               
             </div>
 
             <!-- Tabla -->
@@ -45,6 +41,12 @@
                         <div class="dtm-tc-title">Registro de Cotizaciones</div>
                         <div class="dtm-tc-count"><t t-esc="state.cotizaciones.length"/> registros</div>
                     </div>                   
+                    <div class="dtm-tc-usd-card">
+                        <span class="dtm-tc-usd-label">USD/MXN</span>
+                        <span style="color: #ccc;">·</span>
+                        <span class="dtm-tc-usd-price">$<t t-esc="state.precio_dollar"/></span>
+                        
+                    </div>            
                 </div>
 
                 <div style="overflow-x:auto">
