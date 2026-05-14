@@ -77,6 +77,7 @@
                             <tr>
                                 <th>Cotización</th>
                                 <th>P.O.</th>
+                                <th>F.P.O</th>
                                 <th>F. Entrega</th>
                                 <th>Proveedor</th>
                                 <th>Cliente</th>
@@ -90,6 +91,7 @@
                             <tr class="dtm-filter-row">
                                 <td><input type="number" min="0" placeholder="Nº" t-on-input="(ev) => this.cotizacionFiltro(ev)"/></td>
                                 <td><input type="text" placeholder="PO..." t-on-input="(ev) => this.poFiltro(ev)"/></td>
+                                <td></td>
                                 <td><input type="date" name="fentrega_filtro" t-on-input="(ev) => this.fechaEntregaFiltro(ev)"/></td>
                                 <td>
                                     <select name="proveedor_filtro" t-on-change="(ev) => this.proveedorFiltro(ev)">
@@ -134,6 +136,7 @@
                                     <td><span class="dtm-po-code"
                                         t-att-class="cotizacion.terminado ? 'bg-amarillo' : ''"
                                         t-on-click="(ev) => { ev.stopPropagation(); this.openPDF(cotizacion.pdf); }"><t t-esc="cotizacion.po"/></span></td>
+                                    <td class="dtm-date-cell"><t t-esc="cotizacion.po_date"/></td>
                                     <td class="dtm-date-cell"><t t-esc="cotizacion.fecha_salida"/></td>
                                     <td>
                                         <span class="dtm-prov">

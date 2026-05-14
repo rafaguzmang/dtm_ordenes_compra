@@ -52,6 +52,7 @@ class WebSiteDirectios(http.Controller):
                 'status': get_status,
                 'terminado': terminado,
                 'atencion_material': atencion_material,
+                'po_date': orden.fecha_po.strftime("%x") if orden.fecha_po else '---',
             })
 
         return request.make_response(

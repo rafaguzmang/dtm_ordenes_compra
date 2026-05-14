@@ -26,7 +26,7 @@ class OrdenesCompra(models.Model):
     precio_total = fields.Float(string="Precio total",compute="_compute_action_sumar")
     proveedor = fields.Selection(string='Proveedor',default='dtm',
         selection=[('dtm', 'DTM'), ('mtd', 'MTD')])
-    archivos_id = fields.Many2many("ir.attachment","archivos_id",string="P.O.")
+    archivos_id = fields.Many2many("ir.attachment","archivos_id",string="P.O.",required=True)
     factura_pdf = fields.Many2many("ir.attachment","factura_pdf",string="Factura")
     anexos_id = fields.Many2many("ir.attachment")
     currency = fields.Selection(string="Moneda",default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
@@ -398,6 +398,7 @@ class ItemsCompras(models.Model):
         self.precio_total = float(self.precio_unitario) * float(self.cantidad)
 
     def acction_generar(self):# Genera orden de diseño si existe la actualiza
+        if self.model_id.archivos_id:
             # Busca la cotización en necesidades del cliente
             necesidades = self.env['dtm.client.needs'].search([('no_cotizacion','=',self.model_id.no_cotizacion)]).list_materials_ids.filtered_domain([('name','=',self.item)])
             # Obtine el nombre del diseñador asignado
@@ -441,59 +442,11 @@ class ItemsCompras(models.Model):
             else:
                 dtm_odt.create(vals)
 
-            # Proceso para facturar de forma parcial
-            # get_proceso = self.env['dtm.proceso'].search([("status","=","terminado"),("ot_number","=",self.orden_trabajo)])
-            # if get_proceso:
-            #     vals = {
-            #             "status": self.status,
-            #             "ot_number": get_proceso.ot_number,
-            #             "tipe_order": get_proceso.tipe_order,
-            #             "name_client": get_proceso.name_client,
-            #             "product_name": get_proceso.product_name,
-            #             "date_in": get_proceso.date_in,
-            #             "po_number": get_proceso.po_number,
-            #             "date_rel": get_proceso.date_rel,
-            #             "version_ot": get_proceso.version_ot,
-            #             "color": get_proceso.color,
-            #             "cuantity": get_proceso.cuantity,
-            #             # "materials_ids": get_proceso.materials_ids,
-            #             "planos": get_proceso.planos,
-            #             "nesteos": get_proceso.nesteos,
-            #             "rechazo_id":get_proceso.rechazo_id,
-            #             "anexos_id":get_proceso.anexos_id,
-            #             "cortadora_id":get_proceso.cortadora_id,
-            #             "primera_pieza_id":get_proceso.primera_pieza_id,
-            #             "tubos_id":get_proceso.tubos_id,
-            #             "firma": get_proceso.firma,
-            #             "firma_compras": get_proceso.firma_compras,
-            #             "firma_diseno": get_proceso.firma_diseno,
-            #             "firma_almacen": get_proceso.firma_almacen,
-            #             "firma_ventas": get_proceso.firma_ventas,
-            #             "description": get_proceso.description,
-            #             "firma_calidad":get_proceso.firma_calidad,
-            #             "calidad_liberacion":get_proceso.calidad_liberacion,
-            #             "date_disign_finish":self.date_disign_finish if self.date_disign_finish else None
-            #         }
-            #     get_facturado = self.env['dtm.facturado.odt'].search([('ot_number','=',self.orden_trabajo)])
-            #     get_facturado.write(vals) if get_facturado else get_facturado.create(vals)
-            #     get_facturado.write({'materieales_id': [(5, 0, {})]})
-            #     lines = []
-            #     for item in get_proceso.materials_ids:#Se agrega o se actualiza material de la tabla dtm.facturado.materiales y se obtienen los id para casarlos con la orden correspondiente
-            #         valmat = {
-            #             "material":f"{item.nombre} {item.medida}",
-            #             "cantidad":item.materials_cuantity,
-            #         }
-            #         get_facturado_material = self.env['dtm.facturado.materiales'].search([("material","=",f"{item.nombre} {item.medida}"),("cantidad","=",item.materials_cuantity)])
-            #         get_facturado_material.write(valmat) if get_facturado_material else get_facturado_material.create(valmat)
-            #         get_facturado_material = self.env['dtm.facturado.materiales'].search([("material","=",f"{item.nombre} {item.medida}"),("cantidad","=",item.materials_cuantity)])
-            #         lines.append(get_facturado_material.id)
-            #     get_facturado.write({'materieales_id': [(6, 0, lines)]})
-            #     #-------------------------------------------------------------------------------------------------------------------------------
-            #     if get_facturado:
-            #         self.env['dtm.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
-            #         self.env['dtm.compras.odt'].search([('ot_number','=',self.orden_trabajo)]).unlink()
-            #         self.env['dtm.proceso'].search([('ot_number','=',self.orden_trabajo)]).unlink()
-            #         self.env['dtm.compras.realizado'].search([('orden_trabajo','=',self.orden_trabajo)]).unlink()
+        else:
+            raise ValidationError("No se ha subido el archivo de la orden de compra")
+
+         
+            
 
 class Precotizaciones(models.Model): # Modelo para capturar las precotizaciones pendientes sin orden de compra
     _name = "dtm.ordenes.compra.precotizaciones"
