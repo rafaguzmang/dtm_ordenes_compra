@@ -39,11 +39,12 @@
                                         <th>OD</th>
                                         <th>OT</th>
                                         <th>Nombre</th>
+                                        <th>Cant</th>
                                         <th>Diseñador</th>
                                         <th>Nesteo</th>
                                         <th>Material</th>
-                                        <th>C. Diseño</th>
-                                        <th>C. Ingeniería</th>
+                                        <th>Corte</th>
+                                        <th>Maquinados</th>
                                         <th>Compras</th>
                                         <th>Status</th>
                                     </tr>
@@ -53,16 +54,17 @@
                                         <tr>
                                             <td><span class="dtm-od"><t t-esc="orden.od"/></span></td>
                                             <td><span class="dtm-ot-n"><t t-esc="orden.ot"/></span></td>
-                                            <td class="dtm-nombre"><t t-esc="orden.nombre"/></td>
+                                            <td class="dtm-nombre dtm-na-material" t-on-click="() => abrirDiseno(orden.ot)"><t t-esc="orden.nombre"/></td>
+                                            <td><span class="dtm-cant"><t t-esc="orden.cantidad"/></span></td>
                                             <td class="dtm-designer"><t t-esc="orden.disenador"/></td>
                                             <td>
                                                 <span t-attf-class="#{orden.nesteo === 'Si' ? 'dtm-nesteo-si' : 'dtm-nesteo-no'}">
                                                     <t t-esc="orden.nesteo"/>
                                                 </span>
                                             </td>
-                                            <td class="dtm-na"><t t-esc="orden.material"/></td>
-                                            <td class="dtm-na"><t t-esc="orden.costo_diseno"/></td>
-                                            <td class="dtm-na"><t t-esc="orden.costo_ingenieria"/></td>
+                                            <td class="dtm-na dtm-na-material" t-on-click="() => abrirMateriales(orden.ot)"><t t-esc="orden.material"/></td>
+                                            <td class="dtm-na dtm-na-material" t-on-click="() => abrirCorte(orden.ot, orden.V)"><t t-esc="orden.corte"/></td>
+                                            <td class="dtm-na"><t t-esc="orden.maquinados"/></td>
                                             <td class="dtm-na"><t t-esc="orden.compras"/></td>
                                             <td class="dtm-na"><t t-esc="orden.status"/></td>
                                         </tr>
@@ -101,15 +103,36 @@
                                     <span class="dtm-tval"><t t-esc="this.state.precio_dollar"/></span>
                                 </div>
                             </div>
+                            <div class="dtm-tcol">
+                                <div class="dtm-tcol-title">Facturación</div>
+                                <div class="dtm-trow">
+                                    <span class="dtm-tkey">No. Factura</span>
+                                    <span class="dtm-tval">1552454dsf</span>
+                                </div>                            
+                            </div>
                         </div>
-                        <div class="dtm-actions">
-                            <button class="dtm-btn-cerrar" t-on-click="this.props.cerrar">Cerrar</button>
-                        </div>
+                        
                     </div>
 
                 </div>
             </div>
+
+            <div t-if="this.state.showMaterialesModal">
+                <MaterialesDialogo cerrar="cerrarMateriales" orden="this.state.orden"/>
+            </div>
+
+            <div t-if="this.state.showCorteModal">
+                <CorteDialogo cerrar="cerrarCorte" orden="this.state.orden" version="this.state.version"/>
+            </div>  
+
+            <div t-if="this.state.showDisenoModal">
+                <DisenoDialogo cerrar="cerrarDiseno" orden="this.state.orden"/>
+            </div>
+            
         </div>
+
+       
+        
 
     </t>
 </template>

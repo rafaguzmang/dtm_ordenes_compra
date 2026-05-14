@@ -19,6 +19,8 @@ export class Cotizaciones extends Component {
             terminadas: 0,
             pdf: '',
             showPDF: false,
+            material_a_liberar: false,
+            material_a_liberar_count: 0,
         });
         this.rpc = useService("rpc");
 
@@ -28,7 +30,13 @@ export class Cotizaciones extends Component {
         });
     }
 
+    materialALiberar() {
+        this.state.material_a_liberar = !this.state.material_a_liberar;
+        this.state.cotizaciones = this.state.material_a_liberar ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.atencion_material) : this.state.cotizaciones_filtradas;
+    }
+
     openPDF(pdf) {
+        console.log("PDF", pdf)
         this.state.pdf = pdf;
         this.state.showPDF = true;
     }
@@ -47,6 +55,8 @@ export class Cotizaciones extends Component {
         const precios = data.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
         this.state.acumulado = Math.round(precios.reduce((acc, precio) => acc + precio) * 100) / 100;
         this.state.terminadas = data.filter(cotizacion => cotizacion.terminado).length;
+        this.state.material_a_liberar_count = data.filter(cotizacion => cotizacion.atencion_material).length;
+
     }
 
     async fetchPrecioDollar() {
@@ -193,7 +203,7 @@ export class Cotizaciones extends Component {
         }
 
         this.state.cotizaciones = tabla;
-        if (!proveedor && !cliente && !fentrega) {
+        if (!proveedor && !cliente && !fentrega && !status) {
             this.state.cotizaciones = this.state.cotizaciones_filtradas;
         }
 

@@ -11,15 +11,19 @@ class Facturado(models.Model):
     cliente_prov = fields.Char(string="Cliente", readonly=True)
     orden_compra = fields.Char(string="Orden de Compra",readonly=True)
     fecha_factura = fields.Date(string="Fecha de Facturación",readonly=True)
-    descripcion_id = fields.Many2many("dtm.compra.facturado.item",compute="_compute_descripcion_id", readonly=False)
+    descripcion_id = fields.Many2many("dtm.compra.facturado.item",compute="_compute_descripcion_id", readonly=True)
     precio_total = fields.Float(string="Precio total",readonly=True)
     proveedor = fields.Selection(string='Proveedor',readonly=True,
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
-    archivos_id = fields.One2many("dtm.compras.facturado.archivos","model_id",string="Archivos")
+    archivos_id = fields.One2many("dtm.compras.facturado.archivos","model_id",string="Archivos", readonly=True)
     currency = fields.Selection(default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
     factura = fields.Char(string="Factura/s",readonly=False)
-    notas = fields.Text(string="notas", default="solo notas")
+    notas = fields.Text(string="notas", default="solo notas", readonly=True)
     res_id = fields.Integer()
+    cantidad_pagada = fields.Float(string="Cantidad pagada", readonly=True)
+    cantidad_pagada_date = fields.Date(string="Fecha de pago", readonly=True)
+    factura_pdf = fields.Binary(string="Factura PDF", readonly=True)
+    factura_pdf_name = fields.Char( readonly=True)
 
     def _compute_descripcion_id(self):
         for result in self:

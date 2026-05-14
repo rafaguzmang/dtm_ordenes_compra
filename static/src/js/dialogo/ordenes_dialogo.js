@@ -2,9 +2,13 @@
 /** @odoo-module **/
 import { Component, useState, onWillStart } from "@odoo/owl"
 import { useService } from "@web/core/utils/hooks";
+import { MaterialesDialogo } from "./materiales_dialogo";
+import { CorteDialogo } from "./corte_dialogo";
+import { DisenoDialogo } from "./diseno_dialogo";
 
 export class OrdenesTrabajo extends Component {
     static props = ["cerrar", "cotizacion", "po_costo"]
+    static components = { MaterialesDialogo, CorteDialogo, DisenoDialogo };
 
     setup() {
         this.state = useState({
@@ -14,6 +18,11 @@ export class OrdenesTrabajo extends Component {
             costo_compras: 0.0,
             precio_dollar: 0.0,
             precio_mxn: 0.0,
+            showMaterialesModal: false,
+            orden: 0,
+            showCorteModal: false,
+            version: 0,
+            showDisenoModal: false,
         })
         this.rpc = useService("rpc")
 
@@ -22,6 +31,37 @@ export class OrdenesTrabajo extends Component {
             await this.precioDollar();
         });
 
+    }
+
+    abrirDiseno = (orden) => {
+        console.log(orden);
+        this.state.showDisenoModal = true;
+        this.state.orden = orden;
+    }
+
+    cerrarDiseno = () => {
+        this.state.showDisenoModal = false;
+    }
+
+    abrirCorte = (orden, version) => {
+        console.log(orden);
+        this.state.showCorteModal = true;
+        this.state.orden = orden;
+        this.state.version = version;
+    }
+
+    cerrarCorte = () => {
+        this.state.showCorteModal = false;
+    }
+
+    abrirMateriales = (orden) => {
+        console.log(orden);
+        this.state.showMaterialesModal = true;
+        this.state.orden = orden;
+    }
+
+    cerrarMateriales = () => {
+        this.state.showMaterialesModal = false;
     }
 
     async precioDollar() {

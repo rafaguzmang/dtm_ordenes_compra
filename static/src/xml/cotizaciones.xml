@@ -1,13 +1,6 @@
 <template xml:space="preserve">
     <t t-name="dtm_ordenes_compra.cotizaciones" owl="1">
 
-        <!-- Topbar -->
-        <div class="dtm-topbar">
-            <div>
-                <div class="dtm-page-title">Cotizaciones</div>
-            </div>
-        </div>
-
         <!-- KPIs -->
         <div class="dtm-content">
             <div class="dtm-kpi-grid">
@@ -33,6 +26,35 @@
                 </div>
                
             </div>
+
+            <div class="ml-bar">
+                <div class="ml-btn active" t-on-click="() => this.materialALiberar()">
+                    <div class="ml-dot" style="background:#E6F1FB;color:#0C447C;"><t t-esc="this.state.material_a_liberar_count"/></div>
+                    <span class="ml-name">Material por liberar</span>
+                </div>
+
+                <!-- <div class="ml-btn">
+                    <div class="ml-dot" style="background:#FAEEDA;color:#633806;">8</div>
+                    <span class="ml-name">En revisión</span>
+                </div>
+
+                <div class="ml-btn">
+                    <div class="ml-dot" style="background:#E1F5EE;color:#085041;">13</div>
+                    <span class="ml-name">Liberado</span>
+                </div>
+
+                <div class="ml-btn">
+                    <div class="ml-dot" style="background:#F1EFE8;color:#888780;">—</div>
+                    <span class="ml-name">Undefined</span>
+                </div>
+
+                <div class="ml-btn">
+                    <div class="ml-dot" style="background:#F1EFE8;color:#888780;">—</div>
+                    <span class="ml-name">Undefined</span>
+                </div> -->
+            </div>
+
+            
 
             <!-- Tabla -->
             <div class="dtm-table-card">
@@ -104,7 +126,11 @@
                                 <tr class="dtm-dr"
                                     t-attf-style="background-color: #{cotizacion.terminado ? '#d4f7e0ff' : '#e9fdedff'}"
                                     t-on-click="() => this.ordenesTrabajo(cotizacion.cotizacion, cotizacion.precio)">
-                                    <td><span class="dtm-cot-link"><t t-esc="cotizacion.cotizacion"/></span></td>
+                                    <td>
+                                        <span class="dtm-cot-link" t-att-class="cotizacion.atencion_material ? 'dtm-cot-material' : ''">
+                                            <t t-esc="cotizacion.cotizacion"/>
+                                        </span>
+                                    </td>
                                     <td><span class="dtm-po-code"
                                         t-att-class="cotizacion.terminado ? 'bg-amarillo' : ''"
                                         t-on-click="(ev) => { ev.stopPropagation(); this.openPDF(cotizacion.pdf); }"><t t-esc="cotizacion.po"/></span></td>
@@ -145,6 +171,7 @@
                                 po_costo="this.state.po_costo"/>
             </t>
         </div>
+        <!-- Abre el archivo PDF -->
         <t t-if="state.showPDF">
             <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
                 <div class="modal-dialog modal-xl">

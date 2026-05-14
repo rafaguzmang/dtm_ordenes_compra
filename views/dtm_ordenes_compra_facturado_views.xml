@@ -67,6 +67,8 @@
                                     <field name="cliente_prov"/>
                                     <field name="orden_compra"/>
                                     <field name="no_cotizacion"/>
+                                    <field name="cantidad_pagada"/>
+                                    <field name="cantidad_pagada_date"/>
                                </group>
                         </div>
                         <notebook>
@@ -96,6 +98,12 @@
                                             </group>
                                         </form>
                                     </field>
+                               </div>
+                            </page>
+                            <page string="Factura">
+                               <div class="row">
+                                     <field name="factura_pdf" filename="factura_pdf_name" widget="pdf_viewer"></field>
+                                     <field name="factura_pdf_name" invisible="1"></field>
                                </div>
                             </page>
                             <page string="Notas">

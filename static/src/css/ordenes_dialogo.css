@@ -85,11 +85,14 @@
 /* ── modal-body: sin padding Bootstrap ── */
 .modal-body {
     padding: 0 !important;
+
 }
 
 /* ── Tabla ── */
 .dtm-tbl-outer {
-    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 50vh;
+    overflow-x: auto !important;
 }
 
 .dtm-ot {
@@ -108,6 +111,9 @@
     border-bottom: 1px solid #dde3ef;
     white-space: nowrap;
     text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .dtm-ot thead th:first-child {
@@ -139,6 +145,12 @@
     padding-left: 20px;
 }
 
+table.mat-tbl tbody td.code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--accent);
+}
+
 .dtm-od {
     font-weight: 600;
     color: #2e7cf6;
@@ -163,6 +175,12 @@
 .dtm-na {
     color: #8494b2;
     font-size: 12px;
+}
+
+.dtm-na-material:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #2e7cf6;
 }
 
 .dtm-nesteo-si {
@@ -194,7 +212,7 @@
 
 .dtm-totals {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     border-bottom: 1px solid #dde3ef;
 }
 
@@ -202,7 +220,8 @@
     padding: 16px 24px;
 }
 
-.dtm-tcol:first-child {
+.dtm-tcol:nth-child(1),
+.dtm-tcol:nth-child(2) {
     border-right: 1px solid #dde3ef;
 }
 

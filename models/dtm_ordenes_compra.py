@@ -27,6 +27,7 @@ class OrdenesCompra(models.Model):
     proveedor = fields.Selection(string='Proveedor',default='dtm',
         selection=[('dtm', 'DTM'), ('mtd', 'MTD')])
     archivos_id = fields.Many2many("ir.attachment","archivos_id",string="P.O.")
+    factura_pdf = fields.Many2many("ir.attachment","factura_pdf",string="Factura")
     anexos_id = fields.Many2many("ir.attachment")
     currency = fields.Selection(string="Moneda",default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
 
@@ -42,6 +43,28 @@ class OrdenesCompra(models.Model):
     terminado = fields.Boolean()
 
     comentarios = fields.Char(string="Comentarios")
+    usuario = fields.Boolean(string="Usuario",default=False, compute='_compute_usuario')
+    usuario_factura = fields.Boolean(string="Usuario Factura", default=False)
+    cantidad_pagada = fields.Float(string="Cantidad pagada")
+    cantidad_pagada_date = fields.Date(string="Fecha de pago")
+
+    tiene_factura_pdf = fields.Boolean(string="Tiene Factura PDF", compute="_compute_tiene_factura_pdf")
+
+    @api.depends("factura_pdf")
+    def _compute_tiene_factura_pdf(self):
+        for rec in self:
+            rec.tiene_factura_pdf = bool(rec.factura_pdf)
+
+
+    def _compute_usuario(self):
+        for result in self:
+            result.usuario = False
+            result.usuario_factura = False
+            usuario = result.env.user.partner_id.email
+            if usuario in ['finanzas@dtmindustry.com','rafaguzmang@hotmail.com']:
+                result.usuario = True
+            if usuario in ['administracion@dtmindustry.com','g.natera@outlook.com']:
+                result.usuario_factura = True
 
 
     #Acciones para los smart buttons
@@ -80,10 +103,7 @@ class OrdenesCompra(models.Model):
 
     @api.onchange("parcial")
     def _onchange_parcial(self):
-        # print(self.descripcion_id._origin.id)
-        # print(self.parcial)
         for par in self.descripcion_id:
-            # print(par._origin.id)
             if self.parcial:
                 parcial = "true"
             else:
@@ -91,7 +111,7 @@ class OrdenesCompra(models.Model):
             self.env.cr.execute("UPDATE dtm_compras_items SET parcial='"+parcial+"' WHERE id="+str(par._origin.id))
 
     def action_facturado(self): # Pasa los trabajos con orden o ordenes de compra al modelo de facturados
-        if self.no_factura:
+        if self.no_factura and self.cantidad_pagada > 0 and self.cantidad_pagada_date:
             ordenes_lts = []
             for orden in self.descripcion_id:
                 if orden.tipo_servicio != 'fabricacion':
@@ -100,18 +120,18 @@ class OrdenesCompra(models.Model):
                     ordenes_lts.append(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).status)
 
                 elif self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) > 1:
-                    # print(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]))
                     for version in self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]):
                         ordenes_lts.append(version.status)
                 elif self.env['dtm.facturado.odt'].search([('ot_number','=',orden.orden_trabajo)]):
 
                     ordenes_lts.append('terminado')
             self.facturar(ordenes_lts) # Función para pasar la cotización al modulo de facturados
+            return self.env.ref('dtm_ordenes_compra.dtm_ordenes_compra_accion').read()[0]
         else:
-            raise ValidationError("No existe número de factura")
+            raise ValidationError("No se puede facturar la cotización porque no se ha completado la información requerida \n No. Factura \n Cantidad Pagada \n Fecha de Pago")
+
 
     def facturar(self, ordenes_lts):
-        # print(ordenes_lts)
         if len(list(set(ordenes_lts))) == 1 and list(set(ordenes_lts))[0] == 'terminado':
             vals = {
                 'no_cotizacion': self.no_cotizacion,
@@ -122,7 +142,11 @@ class OrdenesCompra(models.Model):
                 'proveedor': self.proveedor,
                 'currency': self.currency,
                 'factura': self.no_factura,
-                'notas': self.notas
+                'notas': self.notas,
+                'cantidad_pagada': self.cantidad_pagada,
+                'factura_pdf': self.factura_pdf.datas,
+                'factura_pdf_name': self.factura_pdf.name,
+                'cantidad_pagada_date': self.cantidad_pagada_date,
             }
             # Crea la cotización en facturaro
             self.env['dtm.ordenes.compra.facturado'].create(vals)  # Crea el objeto en el modelo de facturado
@@ -156,7 +180,6 @@ class OrdenesCompra(models.Model):
             for orden in self.descripcion_id:
                 get_proceso = self.env['dtm.proceso'].search([('ot_number', '=', str(orden.orden_trabajo))])  # Vamos a recabar la información
                 for version in get_proceso:
-                # print('orden de compra',self.env['dtm.ordenes.compra.facturado'].search([("orden_compra","=",get_proceso.po_number)], limit=1).factura,get_proceso.po_number)
                     if version:
                         vals = {
                             "status": self.env['dtm.ordenes.compra.facturado'].search(
@@ -173,7 +196,6 @@ class OrdenesCompra(models.Model):
                             "version_ot": version.version_ot,
                             "color": version.color,
                             "cuantity": version.cuantity,
-                            # "materials_ids": version.materials_ids,
                             "planos": version.planos,
                             "nesteos": version.nesteos,
                             "rechazo_id": version.rechazo_id,
@@ -364,8 +386,7 @@ class ItemsCompras(models.Model):
     tipo_servicio = fields.Selection(string="Tipo", selection=[("fabricacion","Fabricación"),("servicio","Servicio"),
                                          ("compra","Compra"),("retrabajo","Retrabajo"),('concentrado','Concentrado')],default="fabricacion")
     firma = fields.Char(string="Firmado")
-    firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"),
-                                         ("garcia","Luís García"), ("bryan","Bryan Banda"),("na","N/A")],required=True,default="na")
+    firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"), ("bryan","Bryan Banda"),("na","N/A")],required=True,default="na")
     intervencion_calidad = fields.Boolean(string='Calidad',default=False)
 
     @api.onchange("cantidad")
