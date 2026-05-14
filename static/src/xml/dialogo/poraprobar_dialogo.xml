@@ -1,0 +1,91 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.poraprobar_dialogo" owl="1">
+        <div class="modal-por-aprobar-overlay">
+            <div class="pa-modal">
+
+                <!-- Header -->
+                <div class="pa-header">
+                    <div class="pa-header-left">
+                        <div class="pa-header-icon">
+                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                        </div>
+                        <p class="pa-header-title">Confirmar compra</p>
+                    </div>
+                    <button class="pa-close" t-on-click="props.cerrar" aria-label="Cerrar">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="pa-body">
+                    <div class="pa-info">
+                        <div class="pa-info-left">
+                            <p class="pa-product"><t t-esc="props.id"/> - <t t-esc="props.name"/></p>
+                            <p class="pa-supplier">
+                                <i class="fa fa-building-o" aria-hidden="true"></i> Proveedor: <t t-esc="state.proveedor"/>
+                            </p>
+                        </div>
+                        
+
+
+                        <div class="pa-totals">
+                            <p class="pa-total-label">Total</p>
+                            <p class="pa-total-value">$<t t-esc="state.costo_total"/></p>
+                            <p class="pa-unit-label">Precio / unidad</p>
+                            <p class="pa-unit-value">$<t t-esc="state.unitario"/> × <t t-esc="state.cantidad"/></p>
+                        </div>
+                    </div>
+
+                    <div class="pa-content">
+                        <div class="pa-table-wrap">
+                            <table class="pa-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:8%">Orden</th>
+                                        <th style="width:37%">Proyecto</th>
+                                        <th style="width:15%">Cliente</th>
+                                        <th style="width:16%">Diseñador</th>
+                                        <th style="width:9%">Cantidad</th>
+                                        <th style="width:7%">Nesteo</th>
+                                        <th style="width:8%"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.materiales" t-as="material" t-key="material.num">
+                                        <tr>
+                                            <td class="pa-td-orden"><t t-esc="material.orden"/></td>
+                                            <td><t t-esc="material.proyecto"/></td>
+                                            <td><t t-esc="material.cliente"/></td>
+                                            <td><t t-esc="material.disenador"/></td>
+                                            <td class="pa-td-center"><t t-esc="material.cantidad"/></td>
+                                            <td class="pa-td-center">   
+                                                <t t-if="material.nesteo">
+                                                    <span class="pa-check">
+                                                        <i class="fa fa-check"></i>
+                                                    </span>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <!-- Quitar de la tabla -->
+                                                <button class="pa-del" aria-label="Eliminar fila" t-on-click="() => this.quitarMaterial(material.num)">
+                                                    <i class="fa fa-times"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>                           
+                        </div>                      
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="pa-footer">
+                    <button class="pa-btn-confirm" t-att-class="state.proveedor &amp;&amp; state.unitario > 0 ? 'visible' : 'hidden'" t-on-click="() => this.confirmar()">Confirmar</button>
+                    <button class="pa-btn-cancel" t-on-click="props.cerrar">Cancelar</button>
+                </div>
+
+            </div>
+        </div>
+    </t>
+</template>

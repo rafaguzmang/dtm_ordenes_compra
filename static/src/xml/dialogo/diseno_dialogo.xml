@@ -1,0 +1,53 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.diseno_dialogo" owl="1">
+         <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Material de Diseño <t t-esc="props.orden"/></h5>
+                  <button type="button" class="btn-close" aria-label="Close" t-on-click="props.cerrar"></button>
+                </div>
+                <div class="nc-modal-body">
+                  <div class="nc-section">
+                    <h4 class="nc-section-title"><t t-esc="state.materiales_len"/> - Materiales</h4>
+                    <div class="nc-table-wrapper">
+                    <table class="nc-table">
+                        <thead>
+                        <tr>
+                            <th>Material</th>
+                            <th>Cantidad</th>
+                            <th>Unitario</th>
+                            <th>Total</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <t t-foreach="state.materiales" t-as="material" t-key="material.index">
+                            <tr>
+                            <td class="nc-td-material"><t t-esc="material.material"/></td>
+                            <td class="nc-td-cantidad"><t t-esc="material.cantidad"/></td>
+                            <td class="nc-td-tiempo"><t t-esc="material.precio_unitario"/></td>
+                            <td><span class="nc-td-cortadora"><t t-esc="material.total"/></span></td>
+                            </tr>
+                        </t>
+                        </tbody>
+                    </table>
+
+                    <div class="dtm-ordenes-compra-aprobar">
+                        <button type="button" class="btn btn-primary" t-on-click="()=>aprovar(props.orden)">Aprovar</button>
+                    </div>
+
+
+
+
+
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" t-on-click="props.cerrar">Cerrar</button> 
+                </div>
+              </div>
+            </div>
+        </div>
+    </t>
+</template>

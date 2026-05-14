@@ -1,0 +1,608 @@
+/* ─────────────────────────────────────────────────────────────
+   materiales_dialogo.css
+   Scoped bajo .mat-overlay para no romper estilos de Odoo.
+───────────────────────────────────────────────────────────── */
+
+/* ── Reset scoped ── */
+.mat-overlay *,
+.mat-overlay *::before,
+.mat-overlay *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Tokens ── */
+.mat-overlay {
+    --bg-modal: #22262f;
+    --bg-head: #181b22;
+    --bg-foot: #1e2128;
+    --bg-row-even: #272b34;
+    --bg-row-odd: #22262f;
+    --bg-row-hover: #2d3240;
+    --border: #353a48;
+    --accent: #4f8ef7;
+    --accent2: #38bdf8;
+    --text-hi: #e8eaf0;
+    --text-lo: #7b8299;
+    --text-mid: #adb5c7;
+    --mono: 'IBM Plex Mono', monospace;
+    --radius: 6px;
+}
+
+/* ── Overlay ── */
+.mat-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+/* ── Dialog ── */
+.mat-overlay .mat-dialog {
+    background: var(--bg-modal);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: min(1080px, 97vw);
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .6);
+    overflow: hidden;
+    animation: mat-dlg-in .18s ease;
+    overflow-y: auto;
+}
+
+@keyframes mat-dlg-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ── Header ── */
+.mat-overlay .mat-head {
+    background: var(--bg-head);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.mat-overlay .mat-head-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mat-overlay .mat-eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: var(--mono);
+}
+
+.mat-overlay .mat-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-hi);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mat-overlay .mat-ot-badge {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: rgba(79, 142, 247, .13);
+    color: var(--accent);
+    border: 1px solid rgba(79, 142, 247, .3);
+    padding: 1px 8px;
+    border-radius: 4px;
+}
+
+.mat-overlay .mat-head-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.mat-overlay .mat-total-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.mat-overlay .mat-total-lbl {
+    font-size: 10px;
+    color: var(--text-lo);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.mat-overlay .mat-total-val {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent2);
+}
+
+.mat-overlay .mat-close-btn {
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid var(--border);
+    color: var(--text-lo);
+    cursor: pointer;
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, color .15s;
+}
+
+.mat-overlay .mat-close-btn:hover {
+    background: rgba(239, 68, 68, .15);
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+/* ── Filter tabs ── */
+.mat-overlay .mat-filterbar {
+    background: var(--bg-head);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    overflow-x: auto;
+}
+
+.mat-overlay .mat-tab {
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-lo);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: color .15s, border-color .15s;
+}
+
+.mat-overlay .mat-tab.cotizacion {
+    border-radius: 8px;
+    border: 2px solid rgb(255 255 255 / 50%);
+    color: #de6868;
+}
+
+.mat-overlay .mat-tab:hover {
+    color: var(--text-mid);
+}
+
+.mat-overlay .mat-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.mat-overlay .mat-tab .mat-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(79, 142, 247, .18);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    margin-left: 5px;
+}
+
+.mat-overlay .mat-tab.active .mat-count {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* ── Body ── */
+.mat-overlay .mat-body {
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+/* ── Column filters ── */
+.mat-overlay .mat-col-filters {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #1c1f27;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    gap: 6px;
+}
+
+.mat-overlay .mat-col-filters input,
+.mat-overlay .mat-col-filters select {
+    background: #14161c;
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+    font-size: 11px;
+    font-family: var(--mono);
+    border-radius: 4px;
+    padding: 4px 7px;
+    outline: none;
+    transition: border-color .15s;
+}
+
+.mat-overlay .mat-col-filters input:focus,
+.mat-overlay .mat-col-filters select:focus {
+    border-color: var(--accent);
+}
+
+.mat-overlay .mat-col-filters input::placeholder {
+    color: var(--text-lo);
+}
+
+.mat-overlay .cf-codigo {
+    width: 88px;
+}
+
+.mat-overlay .cf-nombre {
+    flex: 1;
+    min-width: 120px;
+}
+
+.mat-overlay .cf-prov {
+    width: 130px;
+}
+
+.mat-overlay .cf-cant {
+    width: 70px;
+}
+
+.mat-overlay .cf-pt {
+    width: 96px;
+}
+
+.mat-overlay .cf-status {
+    width: 120px;
+}
+
+/* ── Table ── */
+
+.hidden {
+    display: none !important;
+}
+
+.visible {
+    display: table !important;
+}
+
+.mat-overlay .mat-tbl-wrap {
+    overflow-x: auto;
+}
+
+.mat-overlay .mat-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+}
+
+.mat-overlay .mat-tbl thead th {
+    background: #1c1f27;
+    color: var(--text-lo);
+    font-weight: 600;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    padding: 9px 11px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    /* altura del row de filtros de columna */
+    z-index: 5;
+}
+
+.mat-overlay .mat-tbl thead th.num {
+    text-align: right;
+}
+
+.mat-overlay .mat-tbl tbody tr:nth-child(even) {
+    background: var(--bg-row-even);
+}
+
+.mat-overlay .mat-tbl tbody tr:nth-child(odd) {
+    background: var(--bg-row-odd);
+}
+
+.mat-overlay .mat-tbl tbody tr:hover {
+    background: var(--bg-row-hover);
+}
+
+.mat-overlay .mat-tbl tbody td {
+    padding: 8px 11px;
+    color: var(--text-mid);
+    border-bottom: 1px solid rgba(53, 58, 72, .5);
+    vertical-align: middle;
+}
+
+.mat-overlay .mat-tbl tbody td.num {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 12px;
+}
+
+/* Estas dos clases las usamos en el template como mat-td-code / mat-td-name
+   para evitar colisiones con clases genéricas de Odoo (.code, .name) */
+table.mat-tbl tbody td.mat-td-code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--accent);
+}
+
+table.mat-tbl tbody td.mat-td-name {
+    color: var(--text-hi);
+    font-weight: 500;
+    max-width: 200px;
+}
+
+table.mat-tbl tbody td.mat-cotizacion {
+    cursor: pointer;
+    color: #f1e154;
+    font-weight: 500;
+}
+
+table.mat-tbl tbody td.mat-cotizacion:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--text-hi);
+    font-weight: 500;
+}
+
+/* ── Status badges ── */
+table.mat-tbl tbody span.mat-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+table.mat-tbl tbody span.mat-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+table.mat-tbl tbody span.st-recibido {
+    background: rgba(168, 85, 247, .12);
+    color: #c084fc;
+}
+
+table.mat-tbl tbody span.st-recibido::before {
+    background: #c084fc;
+}
+
+table.mat-tbl tbody span.st-comprado {
+    background: rgba(56, 189, 248, .12);
+    color: #38bdf8;
+}
+
+table.mat-tbl tbody span.st-comprado::before {
+    background: #38bdf8;
+}
+
+table.mat-tbl tbody span.st-cotizacion {
+    background: rgba(245, 158, 11, .12);
+    color: #fbbf24;
+}
+
+table.mat-tbl tbody span.st-cotizacion::before {
+    background: #fbbf24;
+}
+
+table.mat-tbl tbody span.st-almacen {
+    background: rgba(34, 197, 94, .12);
+    color: #4ade80;
+}
+
+table.mat-tbl tbody span.st-almacen::before {
+    background: #4ade80;
+}
+
+table.mat-tbl tbody span.st-pendiente {
+    background: rgba(239, 68, 68, .10);
+    color: #f87171;
+}
+
+table.mat-tbl tbody span.st-pendiente::before {
+    background: #f87171;
+}
+
+table.mat-tbl tbody span.st-revision {
+    background: rgba(148, 163, 184, .10);
+    color: #94a3b8;
+}
+
+table.mat-tbl tbody span.st-revision::before {
+    background: #94a3b8;
+}
+
+/* Botones de acción */
+.mat-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mat-btn-ico {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, transform .1s;
+}
+
+.mat-btn-confirm {
+    background: #4f8ef7;
+    color: #000000;
+}
+
+.mat-btn-confirm:hover {
+    background: rgb(56 125 237);
+    color: #a89b9b;
+    border: 1px solid rgba(255, 255, 255, .5);
+}
+
+.mat-btn-reject {
+    background: rgb(255 33 33 / 35%);
+    color: #080808;
+}
+
+.mat-btn-reject:hover {
+    background: rgba(239, 68, 68, .25);
+    color: #a89b9b;
+    border: 1px solid rgba(255, 255, 255, .5);
+}
+
+/* ── Empty state ── */
+.mat-overlay .mat-empty {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--text-lo);
+}
+
+.mat-overlay .mat-empty svg {
+    opacity: .25;
+    margin-bottom: 10px;
+}
+
+.mat-overlay .mat-empty p {
+    font-size: 13px;
+}
+
+/* ── Footer ── */
+.mat-overlay .mat-foot {
+    background: var(--bg-foot);
+    border-top: 1px solid var(--border);
+    padding: 11px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.mat-overlay .mat-foot-stats {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.mat-overlay .mat-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-lo);
+}
+
+.mat-overlay .mat-stat strong {
+    color: var(--text-mid);
+    font-family: var(--mono);
+    font-size: 12px;
+}
+
+.mat-overlay .mat-stat-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+}
+
+.mat-overlay .mat-foot-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.mat-overlay .mat-btn {
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, border-color .15s, color .15s;
+}
+
+.mat-overlay .mat-btn-ghost {
+    background: transparent;
+    color: var(--text-lo);
+}
+
+.mat-overlay .mat-btn-ghost:hover {
+    background: rgba(255, 255, 255, .06);
+    color: var(--text-mid);
+}
+
+.mat-overlay .mat-btn-primary {
+    background: rgba(79, 142, 247, .15);
+    color: var(--accent);
+    border-color: rgba(79, 142, 247, .35);
+}
+
+.mat-overlay .mat-btn-primary:hover {
+    background: rgba(79, 142, 247, .25);
+    border-color: var(--accent);
+}
+
+/* ── Scrollbar ── */
+.mat-overlay .mat-body::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.mat-overlay .mat-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mat-overlay .mat-body::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.mat-overlay .mat-body::-webkit-scrollbar-thumb:hover {
+    background: #4b5068;
+}

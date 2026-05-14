@@ -1,0 +1,127 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.corte_dialogo" owl="1">
+          <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Corte Láser para la orden <t t-esc="props.orden"/></h5>
+                  <button type="button" class="btn-close" aria-label="Close" t-on-click="props.cerrar"></button>
+                </div>
+
+                <div class="nc-modal-body">
+                  <!-- Primera Pieza -->
+                  <div class="nc-section">
+                    <t t-if="state.cortes_primera.length > 0">
+                      <h4 class="nc-section-title">Primera Pieza</h4>
+                      <div class="nc-table-wrapper">
+                        <table class="nc-table">
+                          <thead>
+                            <tr>
+                              <th>Archivo</th>
+                              <th>Material</th>
+                              <th>Cantidad</th>
+                              <th>Tiempo</th>
+                              <th>Cortadora</th>
+                              <th>Porcentaje</th>
+                              <th>Tiempo Real</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <t t-foreach="state.cortes_primera" t-as="corte" t-key="corte.index">
+                              <tr>
+                                <td class="nc-td-archivo" t-on-click="(ev) => { ev.stopPropagation(); this.openPDF(corte.archivo_pdf); }"><t t-esc="corte.archivo_nombre"/></td>
+                                <td class="nc-td-material"><t t-esc="corte.material"/></td>
+                                <td class="nc-td-cantidad"><t t-esc="corte.cantidad"/></td>
+                                <td class="nc-td-tiempo"><t t-esc="corte.tiempo_teorico"/> min</td>
+                                <td><span class="nc-td-cortadora"><t t-esc="corte.cortadora"/></span></td>
+                                <td class="nc-td-porcentaje">
+                                  <span t-attf-class="#{corte.porcentaje >= 50 ? 'nc-pct-high' : 'nc-pct-low'}">
+                                    <t t-esc="corte.porcentaje"/> %
+                                  </span>
+                                </td>
+                                <td class="nc-td-tiempo-real"><t t-esc="corte.tiempo_real"/> min</td>
+                              </tr>
+                            </t>
+                          </tbody>
+                        </table>
+                      </div>
+                    </t>
+                  </div>
+
+                  <!-- Segundas Piezas -->
+                  <div class="nc-section">
+                    <t t-if="state.cortes_segunda.length > 0">
+                      <h4 class="nc-section-title">Segundas Piezas</h4>
+                      <div class="nc-table-wrapper">
+                        <table class="nc-table">
+                          <thead>
+                            <tr>
+                              <th>Archivo</th>
+                              <th>Material</th>
+                              <th>Cantidad</th>
+                              <th>Tiempo</th>
+                              <th>Cortadora</th>
+                              <th>Porcentaje</th>
+                              <th>Tiempo Real</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <t t-foreach="state.cortes_segunda" t-as="corte" t-key="corte.index">
+                              <tr>
+                                <td class="nc-td-archivo" t-on-click="(ev) => { ev.stopPropagation(); this.openPDF(corte.archivo_pdf); }"><t t-esc="corte.archivo_nombre"/></td>
+                                <td class="nc-td-material"><t t-esc="corte.material"/></td>
+                                <td class="nc-td-cantidad"><t t-esc="corte.cantidad"/></td>
+                                <td class="nc-td-tiempo"><t t-esc="corte.tiempo_teorico"/> min</td>
+                                <td><span class="nc-td-cortadora"><t t-esc="corte.cortadora"/></span></td>
+                                <td class="nc-td-porcentaje">
+                                  <span t-attf-class="#{corte.porcentaje >= 50 ? 'nc-pct-high' : 'nc-pct-low'}">
+                                    <t t-esc="corte.porcentaje"/> %
+                                  </span>
+                                </td>
+                                <td class="nc-td-tiempo-real"><t t-esc="corte.tiempo_real"/> min</td>
+                              </tr>
+                            </t>
+                          </tbody>
+                        </table>
+                      </div>
+                    </t>
+                  </div>
+                </div>
+               
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" t-on-click="props.cerrar">Cerrar</button> 
+                </div>
+              </div>
+            </div>
+        </div>
+
+         <!-- Abre el archivo PDF -->
+        <t t-if="state.showPDF">
+            <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nesteo</h5>
+                        <button type="button" class="btn-close" aria-label="Close" t-on-click="closePDF"></button>
+                    </div>
+                    <div class="modal-body">
+                        <t t-if="state.pdf">
+                            <iframe 
+                                t-att-src="'data:application/pdf;base64,' + state.pdf"
+                                class="pdf-iframe"
+                                type="application/pdf">
+                            </iframe>
+                        </t>
+                        <t t-else="">
+                            <div class="alert alert-warning">No se encontró el PDF</div>
+                        </t>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" t-on-click="closePDF">Cerrar</button> 
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+</template>

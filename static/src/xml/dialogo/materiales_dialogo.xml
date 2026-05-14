@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+<t t-name="dtm_ordenes_compra.materiales_dialogo" owl="1">
+
+    <div class="mat-overlay" id="matOverlay">
+        <t t-if="state.showPorAprobarModal">
+            <PorAprobarDialogo cerrar="cerrarPorAprobar" id="this.state.id_pa" name="this.state.name_pa" thisorden="this.state.orden" padre="(resp) => this.borrarHijo(resp)"/>
+        </t>
+        <div class="mat-dialog" role="dialog" aria-modal="true">
+
+            <!-- ── HEADER ── -->
+            <div class="mat-head">
+                <div class="mat-head-left">
+                    <span class="mat-eyebrow">Lista de Materiales</span>
+                    <span class="mat-title">
+                        <t t-esc="state.cliente"/>
+                        <span class="mat-ot-badge"><t t-esc="this.props.orden"/> - <t t-esc="state.proyecto"/></span>
+                    </span>
+                </div>
+                <div class="mat-head-right">
+                    <div class="mat-total-box">
+                        <span class="mat-total-lbl">Costo Total de Materiales</span>
+                        <span class="mat-total-val"><t t-esc="state.total"/></span>
+                    </div>
+                    <button class="mat-close-btn" t-on-click="props.cerrar" title="Cerrar">
+                        <svg width="10" height="10" viewBox="0 0 14 14" fill="none"
+                             stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                            <path d="M1 1L13 13M13 1L1 13"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── FILTER TABS ── -->
+            <!--
+                state.activeTab debe ser un string con el filtro activo,
+                p.ej. "todos", "Recibido", "Comprado", etc.
+                Maneja el click con t-on-click="setTab" pasando el valor.
+            -->
+            <div class="mat-filterbar">
+                <button class="mat-tab"
+                        t-att-class="state.activeTab === 'todos' ? 'mat-tab active' : 'mat-tab'"
+                        t-on-click="() => this.setTab('todos')">
+                    Todos
+                    <span class="mat-count"><t t-esc="this.state.todos"/></span>
+                </button>
+                <button t-att-class="state.activeTab === 'recibido' ? 'mat-tab active' : 'mat-tab'"
+                        t-on-click="() => this.setTab('recibido')">
+                    Recibido
+                    <span class="mat-count"><t t-esc="this.state.recibido"/></span>
+                </button>
+                <button t-att-class="state.activeTab === 'comprado' ? 'mat-tab active' : 'mat-tab'"
+                        t-on-click="() => this.setTab('comprado')">
+                    Comprado
+                    <span class="mat-count"><t t-esc="this.state.comprado"/></span>
+                </button>
+                <button t-att-class="{
+                        'mat-tab': true,
+                        'cotizacion': state.cotizacion > 0,
+                        'active': state.activeTab === 'cotizacion'
+                    }"
+                        t-on-click="() => this.setTab('cotizacion')">
+                    Cotización
+                    <span class="mat-count"><t t-esc="this.state.cotizacion"/></span>
+                </button>
+                <button t-att-class="state.activeTab === 'almacen' ? 'mat-tab active' : 'mat-tab'"
+                        t-on-click="() => this.setTab('almacen')">
+                    Almacén
+                    <span class="mat-count"><t t-esc="this.state.almacen"/></span>
+                </button>
+                <button t-att-class="state.activeTab === 'revision' ? 'mat-tab active' : 'mat-tab'"
+                        t-on-click="() => this.setTab('revision')">
+                    Revisión
+                    <span class="mat-count"><t t-esc="this.state.revision"/></span>
+                </button>
+                <button t-att-class="state.activeTab === 'pendiente' ? 'mat-tab active' : 'mat-tab'"
+                        t-on-click="() => this.setTab('pendiente')">
+                    Pendiente
+                    <span class="mat-count"><t t-esc="this.state.pendiente"/></span>
+                </button>
+            </div>
+
+            <!-- ── BODY ── -->
+            <div class="mat-body">
+
+                <!-- Column filters — el filtrado lo maneja el componente OWL en JS,
+                     estos inputs actualizan state.filtros.* vía t-on-input -->
+                <div class="mat-col-filters">
+                    <input class="cf-codigo"  type="text"
+                           placeholder="Código…"/>
+                    <input class="cf-nombre"  type="text"
+                           placeholder="Material…"/>
+                    <input class="cf-prov"    type="text"
+                           placeholder="Proveedor…"/>
+                    <input class="cf-cant"    type="number" min="0"
+                           placeholder="Cant."/>
+                    <input class="cf-pt"      type="text"
+                           placeholder="P. Total"/>
+                    <select class="cf-status">
+                        <option value="">Todos</option>
+                        <option>Almacén</option>
+                        <option>Cotización</option>
+                        <option>Comprado</option>
+                        <option>Recibido</option>
+                        <option>Pendiente</option>
+                        <option>Revisión</option>
+                    </select>
+                </div>
+
+                <!-- Tabla Total-->
+               
+                <div class="mat-tbl-wrap">
+                    <table class="mat-tbl" t-att-class="state.showTabla === 'todos' ? 'visible' : 'hidden'">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Material</th>
+                                <th>Proveedor</th>
+                                <th class="num">Cantidad</th>
+                                <th class="num">Inventario</th>
+                                <th class="num">Requerido</th>
+                                <th class="num">P. Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!--
+                                materialesFiltrados es un getter del componente OWL
+                                que aplica state.activeTab y state.filtros sobre props.materiales.
+                                Ver implementación JS de referencia al final del archivo.
+                            -->
+                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat.id">
+                                <tr>
+                                    <td class="mat-td-code"><t t-esc="mat.id"/></td>
+                                    <td class="mat-td-name"><t t-esc="mat.name"/></td>
+                                    <td><t t-esc="mat.proveedor"/></td>
+                                    <td class="num"><t t-esc="mat.cantidad"/></td>
+                                    <td class="num"><t t-esc="mat.inventario"/></td>
+                                    <td class="num"><t t-esc="mat.requerido"/></td>
+                                    <td class="num"><t t-esc="mat.total"/></td>
+                                    <td>
+                                        <!-- t-att-class aplica la clase de color según el status -->
+                                        <span t-att-class="{
+                                            'mat-status': true,
+                                            'st-cotizacion': mat.status == 'cotizacion',
+                                            'st-comprado': mat.status == 'comprado',
+                                            'st-recibido': mat.status == 'recibido',
+                                            'st-pendiente': mat.status == 'pendiente',
+                                            'st-revision': mat.status == 'revision',
+                                            'st-almacen': mat.status == 'almacen',
+                                        }">
+                                            <t t-esc="{
+                                                'cotizacion': 'Cotización',
+                                                'comprado': 'Comprado',
+                                                'recibido': 'Recibido',
+                                                'pendiente': 'Pendiente',
+                                                'revision': 'Revisión',
+                                                'almacen': 'Almacén',
+                                            }[mat.status]"/>
+                                        </span>                                       
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <!-- Cotización -->
+                    <table class="mat-tbl" t-att-class="state.showTabla === 'cotizacion' ? 'visible' : 'hidden'">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Material</th>
+                                <th>Proveedor</th>
+                                <th class="num">Cantidad</th>
+                                <th class="num">Inventario</th>
+                                <th class="num">Requerido</th>
+                                <th class="num">P. Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!--
+                                materialesFiltrados es un getter del componente OWL
+                                que aplica state.activeTab y state.filtros sobre props.materiales.
+                                Ver implementación JS de referencia al final del archivo.
+                            -->
+                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat.id">
+                                <tr t-att-title="mat.cotizaciones_id">
+                                    <td class="mat-td-code"><t t-esc="mat.id"/></td>
+                                    <t t-if="mat.cotizaciones_id">
+                                        <td class="mat-td-name mat-cotizacion" t-on-click="()=>this.openPorAprobar(mat.id,mat.name)"><t t-esc="mat.name"/></td>
+                                    </t>
+                                    <t t-else="">
+                                        <td class="mat-td-name"> <t t-esc="mat.name"/></td>
+                                    </t>
+                                    <td><t t-esc="mat.proveedor"/></td>
+                                    <td class="num"><t t-esc="mat.cantidad"/></td>
+                                    <td class="num"><t t-esc="mat.inventario"/></td>
+                                    <td class="num"><t t-esc="mat.requerido"/></td>
+                                    <td class="num"><t t-esc="mat.total"/></td>
+                                    <td>
+                                        <div class="mat-actions">
+                                            <button class="mat-btn-ico mat-btn-confirm" t-att-class="mat.total > 0 &amp;&amp; mat.proveedor != '---------'  ? 'visible' : 'hidden'" t-on-click="()=>this.confirmarMaterial(mat.id)" title="Confirmar">
+                                                <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                                            </button>
+                                            <!-- <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.rechazarMaterial(mat.id)" title="Rechazar">
+                                                <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+                                            </button> -->
+                                        </div>                       
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- Excepto cotizacion -->
+                    <table class="mat-tbl" t-att-class="state.showTabla === 'excepto_cotizacion' ? 'visible' : 'hidden'">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Material</th>
+                                <th>Proveedor</th>
+                                <th class="num">Cantidad</th>
+                                <th class="num">Inventario</th>
+                                <th class="num">Requerido</th>
+                                <th class="num">P. Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!--
+                                materialesFiltrados es un getter del componente OWL
+                                que aplica state.activeTab y state.filtros sobre props.materiales.
+                                Ver implementación JS de referencia al final del archivo.
+                            -->
+                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat.id">
+                                <tr>
+                                    <td class="mat-td-code"><t t-esc="mat.id"/></td>
+                                    <td class="mat-td-name"><t t-esc="mat.name"/></td>
+                                    <td><t t-esc="mat.proveedor"/></td>
+                                    <td class="num"><t t-esc="mat.cantidad"/></td>
+                                    <td class="num"><t t-esc="mat.inventario"/></td>
+                                    <td class="num"><t t-esc="mat.requerido"/></td>
+                                    <td class="num"><t t-esc="mat.total"/></td>                                  
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- Empty state: visible cuando no hay filas tras filtrar -->
+                    <div class="mat-empty"
+                        t-if="this.state.filtroSize === 0">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="#7b8299" stroke-width="1.5">
+                            <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7"/>
+                            <path d="M2 13h20M9 21l3-3 3 3"/>
+                        </svg>
+                        <p>Sin materiales para este filtro</p>
+                    </div>
+                </div>
+                
+               
+
+            </div><!-- /mat-body -->
+
+            <!-- ── FOOTER ── -->
+            <div class="mat-foot">
+                <div class="mat-foot-stats">
+                    <div class="mat-stat">
+                        Filas visibles
+                        <strong><t t-esc="this.state.filtroSize"/></strong>
+                    </div>
+                    <div class="mat-stat-sep"/>
+                    <div class="mat-stat">
+                        Total 
+                        <strong><t t-esc="this.state.todos"/></strong>
+                    </div>
+                    <div class="mat-stat-sep"/>
+                    <div class="mat-stat">
+                        Disponible
+                        <strong><t t-esc="this.state.almacen + this.state.recibido"/></strong>
+                    </div>
+                    <div class="mat-stat-sep"/>
+                    <div class="mat-stat">
+                        Faltante
+                        <strong><t t-esc="this.state.todos - (this.state.almacen + this.state.recibido)"/></strong>
+                    </div>
+                </div>
+                <div class="mat-foot-actions">
+                    <button class="mat-btn mat-btn-ghost"
+                            t-on-click="props.cerrar">Cerrar</button>                    
+                </div>
+            </div>
+
+        </div><!-- /mat-dialog -->
+    </div><!-- /mat-overlay -->
+
+   
+</t>
+</templates>
