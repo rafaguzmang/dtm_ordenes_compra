@@ -1,3 +1,4 @@
+from datetime import datetime
 from traceback import print_tb
 
 from docutils.nodes import revision
@@ -77,7 +78,7 @@ class WebSiteDirectios(http.Controller):
                 numero_ordenes = len(data.materials_ids)
                 materiales_estado = data.materials_ids.mapped('materials_required')
                 existencia = len([x for x in materiales_estado if x==0])
-                porciento_material = (existencia * 100)/numero_ordenes
+                porciento_material = (existencia * 100)/numero_ordenes if numero_ordenes > 0 else 0
                 get_compras = request.env['dtm.compras.realizado'].sudo().search([("orden_trabajo","=",data.ot_number),('comprado','in',['Recibido','Parcial'])])
                 get_status = request.env['dtm.proceso'].sudo().search([('ot_number', '=', data.ot_number)],limit=1)
                 status_value = get_status._fields['status'].selection
@@ -179,22 +180,34 @@ class WebSiteDirectios(http.Controller):
         id = data.get("id")
         orden = data.get("orden")
         user = request.env.user.name
+        material = data.get("material")
 
-        get_requerido = request.env['dtm.compras.requerido'].search([("orden_trabajo","=",orden),("codigo","=",id)],limit=1)
         get_realizado = request.env['dtm.compras.realizado'].search([("orden_trabajo","=",orden),("codigo","=",id)],limit=1)
+        get_cotizaciones = request.env['dtm.compras.material'].search([("nombre","=",material),("codigo","=",id)],limit=1)
+        get_requerido = request.env['dtm.compras.requerido'].search([("orden_trabajo","=",orden),("codigo","=",id)])
 
-        create = {
-            "orden_trabajo":orden,            
-            "tipo_orden":get_requerido.tipo_orden,
-            "revision_ot":get_requerido.revision_ot,
-            "codigo":id,
-            "nombre":get_requerido.nombre,
-            "cantidad":get_requerido.cantidad,
-            "autoriza":user
-        }
-
-        get_realizado.create(create)
-        get_requerido.unlink()
+        for material in get_requerido:
+            create = {
+                "orden_trabajo":orden,            
+                "tipo_orden":material.tipo_orden,
+                "revision_ot":material.revision_ot,
+                "solicitado":material.create_date,
+                "proveedor":get_cotizaciones.proveedor_id.nombre,
+                "codigo":id,
+                "nombre":material.nombre,
+                "cantidad":material.cantidad,
+                "orden_compra":get_cotizaciones.orden_compra,
+                "mostrador":get_cotizaciones.mostrador,
+                "mayoreo":get_cotizaciones.mayoreo,
+                "unitario":get_cotizaciones.unitario,
+                "costo":get_cotizaciones.unitario * material.cantidad,
+                "fecha_compra":datetime.now(),
+                "autoriza":user,
+            }
+            get_realizado.write(create) if get_realizado else get_realizado.create(create)
+            material.unlink()
+        get_cotizaciones.unlink()
+        return True
 
     @http.route('/dtm_get_all_materiales', type='json', auth='public')
     def getAllMateriales(self):

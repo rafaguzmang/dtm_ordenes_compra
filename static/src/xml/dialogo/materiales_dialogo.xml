@@ -200,7 +200,7 @@
                                     <td class="num"><t t-esc="mat.total"/></td>
                                     <td>
                                         <div class="mat-actions">
-                                            <button class="mat-btn-ico mat-btn-confirm" t-att-class="mat.total > 0 &amp;&amp; mat.proveedor != '---------'  ? 'visible' : 'hidden'" t-on-click="()=>this.confirmarMaterial(mat.id)" title="Confirmar">
+                                            <button class="mat-btn-ico mat-btn-confirm" t-att-class="mat.total > 0 &amp;&amp; mat.proveedor != '---------'  ? 'visible' : 'hidden'" t-on-click="()=>this.confirmarMaterial(mat.id,mat.name)" title="Confirmar">
                                                 <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
                                             </button>
                                             <!-- <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.rechazarMaterial(mat.id)" title="Rechazar">

@@ -54,7 +54,7 @@ export class MaterialesDialogo extends Component {
         this.state.name_pa = name;
     }
 
-    async confirmarMaterial(id) {
+    async confirmarMaterial(id, material) {
         try {
             const response = await fetch("/dtm_autorizar_material", {
                 method: "POST",
@@ -64,6 +64,7 @@ export class MaterialesDialogo extends Component {
                 body: JSON.stringify({
                     orden: this.props.orden,
                     id: id,
+                    material: material,
                 })
             })
             const indice = this.state.materialesFiltrados.findIndex(item => item.id === id);
