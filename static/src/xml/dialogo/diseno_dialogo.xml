@@ -8,6 +8,62 @@
                   <button type="button" class="btn-close" aria-label="Close" t-on-click="props.cerrar"></button>
                 </div>
                 <div class="nc-modal-body">
+
+
+                  <!-- Tarjeta de información del diseño -->
+                  <div class="nc-info-card">
+                    <div class="nc-info-fields">
+                      <div class="nc-info-field">
+                        <span class="nc-info-label">Revisión</span>
+                        <span class="nc-info-value"><t t-esc="state.revision"/></span>
+                      </div>
+                      <div class="nc-info-field">
+                        <span class="nc-info-label">Cantidad</span>
+                        <span class="nc-info-value"><t t-esc="state.cantidad"/></span>
+                      </div>
+                      <div class="nc-info-field">
+                        <span class="nc-info-label">Color</span>
+                        <span class="nc-info-value"><t t-esc="state.color"/></span>
+                      </div>
+                    </div>
+                    <div class="nc-info-field nc-info-resumen">
+                      <span class="nc-info-label">Resumen</span>
+                      <div class="nc-info-textarea"><t t-esc="state.resumen"/></div>
+                    </div>
+                    <div class="nc-info-actions">
+                      <button type="button" class="btn btn-secondary btn-sm" t-on-click="abrirPlanos">
+                        <i class="fa fa-file"/> Planos
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Tabla de retrabajo (visible solo si hay retrabajo) -->
+                  <t t-if="state.retrabajo and state.retrabajo.length > 0">
+                    <div class="nc-retrabajo-wrapper">
+                      <div class="nc-retrabajo-header">
+                        <i class="fa fa-exclamation-triangle"/> Retrabajo
+                      </div>
+                      <table class="nc-table">
+                        <thead>
+                          <tr>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Costo</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <t t-foreach="state.retrabajo" t-as="item" t-key="item.index">
+                            <tr>
+                              <td><t t-esc="item.descripcion"/></td>
+                              <td class="nc-td-cantidad"><t t-esc="item.cantidad"/></td>
+                              <td><span class="nc-td-retrabajo"><t t-esc="item.costo"/></span></td>
+                            </tr>
+                          </t>
+                        </tbody>
+                      </table>
+                    </div>
+                  </t>                  
+                  <!-- Tabla con materiales -->
                   <div class="nc-section">
                     <h4 class="nc-section-title"><t t-esc="state.materiales_len"/> - Materiales</h4>
                     <div class="nc-table-wrapper">
@@ -25,27 +81,30 @@
                             <tr>
                             <td class="nc-td-material"><t t-esc="material.material"/></td>
                             <td class="nc-td-cantidad"><t t-esc="material.cantidad"/></td>
-                            <td class="nc-td-tiempo"><t t-esc="material.precio_unitario"/></td>
-                            <td><span class="nc-td-cortadora"><t t-esc="material.total"/></span></td>
+                            <td class="nc-td-tiempo">$<t t-esc="material.precio_unitario"/></td>
+                            <td><span class="nc-td-cortadora">$<t t-esc="material.total"/></span></td>
                             </tr>
                         </t>
                         </tbody>
                     </table>
 
-                    <div class="dtm-ordenes-compra-aprobar">
-                        <button type="button" class="btn btn-primary" t-on-click="()=>aprovar(props.orden)">Aprovar</button>
-                    </div>
-
-
-
-
+                    <t t-if="!state.firma_ventas">
+                        <div class="dtm-ordenes-compra-aprobar">
+                            <button type="button" class="btn btn-primary" t-on-click="()=>aprovar(props.orden)">Aprovar</button>
+                        </div>
+                    </t>
 
                     </div>
                   </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" t-on-click="props.cerrar">Cerrar</button> 
-                </div>
+
+                  <t t-if="state.abrirPlanos">
+                    <PlanosDialogo cerrar="cerrarPlanos" planos="state.planos" />
+                  </t>
+
+                </div>                
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" t-on-click="props.cerrar">Cerrar</button> 
+                  </div>
               </div>
             </div>
         </div>

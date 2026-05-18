@@ -127,7 +127,7 @@
                             <t t-foreach="this.state.cotizaciones" t-as="cotizacion" t-key="cotizacion.cotizacion">
                                 <tr class="dtm-dr"
                                     t-attf-style="background-color: #{cotizacion.terminado ? '#d4f7e0ff' : '#e9fdedff'}"
-                                    t-on-click="() => this.ordenesTrabajo(cotizacion.cotizacion, cotizacion.precio)">
+                                    t-on-click="() => this.ordenesTrabajo(cotizacion.cotizacion, cotizacion.precio, cotizacion.cliente)">
                                     <td>
                                         <span class="dtm-cot-link" t-att-class="cotizacion.atencion_material ? 'dtm-cot-material' : ''">
                                             <t t-esc="cotizacion.cotizacion"/>
@@ -171,7 +171,8 @@
             <t t-if="this.state.ordenes_dialogo">
                 <OrdenesTrabajo cerrar="cerrarOrdenesTrabajo"
                                 cotizacion="this.state.cotizacion"
-                                po_costo="this.state.po_costo"/>
+                                po_costo="this.state.po_costo"
+                                cliente="this.state.cliente"/>
             </t>
         </div>
         <!-- Abre el archivo PDF -->

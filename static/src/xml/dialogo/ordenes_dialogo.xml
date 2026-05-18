@@ -13,6 +13,11 @@
                                 Órdenes Asociadas · <t t-esc="props.cotizacion"/>
                             </div>
                         </div>
+                        <div>                            
+                            <div class="dtm-mh-title">
+                               <t t-esc="props.cliente"/>
+                            </div>
+                        </div>
                         <div class="dtm-mh-right">
                             <div class="dtm-po-box">
                                 <div class="dtm-po-lbl">Costo P.O.</div>
@@ -54,7 +59,12 @@
                                         <tr>
                                             <td><span class="dtm-od"><t t-esc="orden.od"/></span></td>
                                             <td><span class="dtm-ot-n"><t t-esc="orden.ot"/></span></td>
-                                            <td class="dtm-nombre dtm-na-material" t-on-click="() => abrirDiseno(orden.ot)"><t t-esc="orden.nombre"/></td>
+                                            <t t-if="orden.material_diseno">
+                                                <td class="dtm-nombre dtm-na-material"  t-on-click="() => abrirDiseno(orden.ot)"><t t-esc="orden.nombre"/></td>
+                                            </t>
+                                            <t t-if="!orden.material_diseno">
+                                                <td class="dtm-nombre" style="color: #c8c8c8 !important;"><t t-esc="orden.nombre"/></td>
+                                            </t>
                                             <td><span class="dtm-cant"><t t-esc="orden.cantidad"/></span></td>
                                             <td class="dtm-designer"><t t-esc="orden.disenador"/></td>
                                             <td>
@@ -62,8 +72,22 @@
                                                     <t t-esc="orden.nesteo"/>
                                                 </span>
                                             </td>
-                                            <td class="dtm-na dtm-na-material" t-on-click="() => abrirMateriales(orden.ot)"><t t-esc="orden.material"/></td>
-                                            <td class="dtm-na dtm-na-material" t-on-click="() => abrirCorte(orden.ot, orden.V)"><t t-esc="orden.corte"/></td>
+                                            <t t-if="orden.material != 'N/A'" >
+                                                <td class="dtm-na dtm-na-material" 
+                                                    t-on-click="() => abrirMateriales(orden.ot)" 
+                                                    t-att-style="orden.en_cotizacion ? 'color: #ef7c18 !important;' : ''">
+                                                    <t t-esc="orden.material"/>%
+                                                </td>
+                                            </t>
+                                            <t t-if="orden.material =='N/A'">
+                                                <td class="dtm-na"><t t-esc="orden.material"/>%</td>
+                                            </t>
+                                            <t t-if="orden.corte != 'N/A'">
+                                                <td class="dtm-na dtm-na-material" t-on-click="() => abrirCorte(orden.ot, orden.V)"><t t-esc="orden.corte"/></td>
+                                            </t>
+                                            <t t-if="orden.corte == 'N/A'">
+                                                <td class="dtm-na"><t t-esc="orden.corte"/></td>
+                                            </t>
                                             <td class="dtm-na"><t t-esc="orden.maquinados"/></td>
                                             <td class="dtm-na"><t t-esc="orden.compras"/></td>
                                             <td class="dtm-na"><t t-esc="orden.status"/></td>

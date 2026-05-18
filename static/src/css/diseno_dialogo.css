@@ -1,0 +1,77 @@
+.nc-info-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.nc-info-fields {
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
+    gap: 2rem;
+}
+
+.nc-info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 80px;
+}
+
+.nc-info-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #6c757d;
+}
+
+.nc-info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #212529;
+}
+
+.nc-info-resumen {
+    flex: 1;
+}
+
+.nc-info-textarea {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 8px 10px;
+    min-height: 60px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6c757d;
+}
+
+.nc-retrabajo-wrapper {
+    border: 1px solid #f0997b;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.nc-retrabajo-header {
+    background: #faece7;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #993c1d;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 1px solid #f0997b;
+}
+
+.nc-td-retrabajo {
+    background: #faece7;
+    color: #993c1d;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+}

@@ -7,7 +7,7 @@ import { CorteDialogo } from "./corte_dialogo";
 import { DisenoDialogo } from "./diseno_dialogo";
 
 export class OrdenesTrabajo extends Component {
-    static props = ["cerrar", "cotizacion", "po_costo"]
+    static props = ["cerrar", "cotizacion", "po_costo", "cliente"]
     static components = { MaterialesDialogo, CorteDialogo, DisenoDialogo };
 
     setup() {
@@ -23,6 +23,7 @@ export class OrdenesTrabajo extends Component {
             showCorteModal: false,
             version: 0,
             showDisenoModal: false,
+            cliente: "",
         })
         this.rpc = useService("rpc")
 
@@ -87,6 +88,8 @@ export class OrdenesTrabajo extends Component {
         });
         const data = await response.json();
         this.state.ordenes = data.result;
+        console.log(data.result);
+        console.log(this.state.ordenes);
         this.state.costo_diseno = data.result.map(costo => costo.costo_diseno).reduce((a, b) => a + b, 0);
         this.state.costo_ingenieria = data.result.map(costo => costo.costo_ingenieria).reduce((a, b) => a + b, 0);
         this.state.costo_compras = data.result.map(costo => costo.compras).reduce((a, b) => a + b, 0);

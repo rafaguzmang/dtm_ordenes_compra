@@ -72,10 +72,11 @@ export class Cotizaciones extends Component {
 
 
 
-    ordenesTrabajo(cotizacion, po_costo) {
+    ordenesTrabajo(cotizacion, po_costo, cliente) {
         this.state.ordenes_dialogo = true;
         this.state.cotizacion = cotizacion;
         this.state.po_costo = po_costo;
+        this.state.cliente = cliente;
     }
 
     cerrarOrdenesTrabajo = () => {

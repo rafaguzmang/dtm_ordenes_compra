@@ -86,6 +86,8 @@ class WebSiteDirectios(http.Controller):
             get_corte_orden = request.env['dtm.materiales.laser'].sudo().search([('orden_trabajo','=',data.ot_number)])
             get_corte_orden_realizado = request.env['dtm.laser.realizados'].sudo().search([('orden_trabajo','=',data.ot_number)])
 
+            get_cotizacion = request.env['dtm.compras.requerido'].sudo().search([('orden_trabajo','=',str(data.ot_number))])
+
             corte_porcentaje = 0
             if get_corte_orden_realizado:
                 corte_porcentaje = 100
@@ -109,8 +111,12 @@ class WebSiteDirectios(http.Controller):
                 "material":round(porciento_material,2) if data.ot_number else 'N/A',
                 "maquinados":'N/A',
                 "corte":f"{corte_porcentaje}%" if data.ot_number else 'N/A',
+                "material_diseno":True if data.ot_number else False,
+                "firma_ventas":data.firma_ventas,
+                "en_cotizacion":True if get_cotizacion else False,
             }
             result.append(vals)
+            print(vals)
 
 
         return result
@@ -232,4 +238,27 @@ class WebSiteDirectios(http.Controller):
                 'precio_unitario':round(material.unitario,2),
                 'total':round(material.precio,2),
             })
+        return result
+
+    @http.route('/dtm_ot_data', type='json', auth='public')
+    def dtmOtData(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        orden = data.get("orden")
+        get_orden = request.env['dtm.odt'].sudo().search([('ot_number','=',orden)],limit=1)
+        get_planos = get_orden.anexos_id
+        planos = []
+        for plano in get_planos:
+            planos.append({
+                'nombre':plano.name,
+                'data':plano.datas,
+            })
+        result = {
+            'revision':get_orden.version_ot,
+            'cantidad':get_orden.cuantity,
+            'color':get_orden.color,
+            'resumen':get_orden.description,
+            'firma_ventas':get_orden.firma_ventas,
+            'planos':planos,
+        }
         return result

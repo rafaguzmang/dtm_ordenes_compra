@@ -1,0 +1,87 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.planos_dialogo" owl="1">
+        
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Material de Diseño <t t-esc="props.orden"/></h5>
+                  <button type="button" class="btn-close" aria-label="Close" t-on-click="props.cerrar"></button>
+                </div>
+                <div class="nc-modal-body">                
+                  
+                  <div class="nc-section">
+                    <!-- <h4 class="nc-section-title"><t t-esc="state.materiales_len"/> - Materiales</h4> -->
+                    <div class="nc-table-wrapper">
+                        
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                            <t t-foreach="props.planos" t-as="plano" t-key="plano.index">
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm" 
+                                        style="cursor: pointer;"
+                                        t-att-title="plano.nombre"
+                                        t-on-click="() => openPDF(plano.data)">
+                                        
+                                        <!-- Preview del PDF -->
+                                        <div class="card-img-top d-flex align-items-center justify-content-center bg-light"
+                                            style="height: 180px; overflow: hidden;">
+                                            <iframe
+                                                t-att-src="'data:application/pdf;base64,' + plano.data"
+                                                style="width: 100%; height: 100%; border: none; pointer-events: none;"
+                                                scrolling="no">
+                                            </iframe>
+                                        </div>
+
+                                        <!-- Nombre del archivo -->
+                                        <div class="card-body p-2">
+                                            <p class="card-text small text-truncate mb-0 fw-semibold"
+                                            t-esc="plano.nombre"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                  </div>
+
+                    <!-- Abre el archivo PDF -->
+                    <t t-if="state.showPDF">
+                        <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">PO</h5>
+                                    <button type="button" class="btn-close" aria-label="Close" t-on-click="closePDF"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <t t-if="state.pdf">
+                                        <iframe 
+                                            t-att-src="'data:application/pdf;base64,' + state.pdf"
+                                            class="pdf-iframe"
+                                            type="application/pdf">
+                                        </iframe>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="alert alert-warning">No se encontró el PDF</div>
+                                    </t>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" t-on-click="closePDF">Cerrar</button> 
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                </div>                
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" t-on-click="props.cerrar">Cerrar</button> 
+                  </div>
+              </div>
+            </div>
+        </div>
+
+
+        
+    </t>
+</template>
