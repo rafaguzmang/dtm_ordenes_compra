@@ -172,7 +172,8 @@
                 <OrdenesTrabajo cerrar="cerrarOrdenesTrabajo"
                                 cotizacion="this.state.cotizacion"
                                 po_costo="this.state.po_costo"
-                                cliente="this.state.cliente"/>
+                                cliente="this.state.cliente"
+                                fcotizaciones="this.fetchCotizaciones"/>
             </t>
         </div>
         <!-- Abre el archivo PDF -->

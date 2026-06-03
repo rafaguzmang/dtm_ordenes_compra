@@ -1,6 +1,4 @@
 from datetime import datetime
-from traceback import print_tb
-
 from docutils.nodes import revision
 from odoo import http
 from odoo.http import request, Response
@@ -160,8 +158,8 @@ class WebSiteDirectios(http.Controller):
                 'cantidad': material.materials_cuantity,
                 'inventario': material.materials_availabe,
                 'requerido':material.materials_required,
-                'precio': get_old_compras.costo if get_old_compras else 0,
-                'total': round(get_old_compras.costo * material.materials_cuantity,2) if get_old_compras else 0,
+                'precio': get_old_compras.unitario if get_old_compras else 0,
+                'total': round(get_old_compras.unitario * material.materials_cuantity,2) if get_old_compras else 0,
                 'status':'recibido' if get_compras_requerido.comprado == "Recibido" else 
                         "comprado" if get_compras_requerido else
                         "cotizacion" if get_compras else

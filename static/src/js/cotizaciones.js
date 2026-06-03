@@ -31,6 +31,9 @@ export class Cotizaciones extends Component {
     }
 
     materialALiberar() {
+        if (this.state.material_a_liberar) {
+            this.fetchCotizaciones();
+        }
         this.state.material_a_liberar = !this.state.material_a_liberar;
         this.state.cotizaciones = this.state.material_a_liberar ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.atencion_material) : this.state.cotizaciones_filtradas;
     }

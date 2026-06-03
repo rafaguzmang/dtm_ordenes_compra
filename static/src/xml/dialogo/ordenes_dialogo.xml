@@ -147,16 +147,12 @@
 
             <div t-if="this.state.showCorteModal">
                 <CorteDialogo cerrar="cerrarCorte" orden="this.state.orden" version="this.state.version"/>
-            </div>  
+            </div>
 
             <div t-if="this.state.showDisenoModal">
                 <DisenoDialogo cerrar="cerrarDiseno" orden="this.state.orden"/>
             </div>
             
         </div>
-
-       
-        
-
     </t>
 </template>
