@@ -21,27 +21,26 @@ export class PorAprobarDialogo extends Component {
         });
     }
 
-    // async confirmar() {
-    //     for (const item of this.state.materiales) {
-    //         fetch("/dtm_autorizar_material", {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify({
-    //                 id: this.props.id,
-    //                 orden: item.orden
-    //             })
-
-    //         })
-    //     }
-    //     await this.getAllMateriales();
-    // }
-
-    confirmar() {
-        const thisorden = this.state.materiales.find(item => item.orden === this.props.thisorden.toString());
-        this.props.padre(thisorden ? true : false);
+    async confirmar() {
+        for (const item of this.state.materiales) {
+            fetch("/dtm_autorizar_material", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: this.props.id,
+                    orden: item.orden
+                })
+            })
+        }
+        await this.getAllMateriales();
     }
+
+    // confirmar() {
+    //     const thisorden = this.state.materiales.find(item => item.orden === this.props.thisorden.toString());
+    //     this.props.padre(thisorden ? true : false);
+    // }
 
 
 

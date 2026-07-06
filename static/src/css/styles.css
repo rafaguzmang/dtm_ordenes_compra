@@ -10,6 +10,15 @@
     margin-top: 20px;
 }
 
+/* Pantalla de diálogo para compra extraordinaria */
+.rmc-input-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
 /* Sobrescribe cualquier media query de pantallas grandes que lo coloque en fila */
 @media (min-width: 768px) {
     .o_form_sheet_bg {

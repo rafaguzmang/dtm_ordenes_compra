@@ -7,7 +7,7 @@ import { CorteDialogo } from "./corte_dialogo";
 import { DisenoDialogo } from "./diseno_dialogo";
 
 export class OrdenesTrabajo extends Component {
-    static props = ["cerrar", "cotizacion", "po_costo", "cliente", "fcotizaciones"]
+    static props = ["cerrar", "cotizacion", "po_costo", "cliente", "fcotizaciones", "facturado", "numero_factura"]
     static components = { MaterialesDialogo, CorteDialogo, DisenoDialogo };
 
     setup() {

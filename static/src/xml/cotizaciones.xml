@@ -63,12 +63,17 @@
                         <div class="dtm-tc-title">Registro de Cotizaciones</div>
                         <div class="dtm-tc-count"><t t-esc="state.cotizaciones.length"/> registros</div>
                     </div>                   
-                    <div class="dtm-tc-usd-card">
-                        <span class="dtm-tc-usd-label">USD/MXN</span>
-                        <span style="color: #ccc;">·</span>
-                        <span class="dtm-tc-usd-price">$<t t-esc="state.precio_dollar"/></span>
-                        
-                    </div>            
+                    <div class="dtm-proceso-div">
+                            <div class="dtm-tc-usd-card">
+                                <span class="dtm-tc-usd-label">USD/MXN</span>
+                                <span style="color: #ccc;">·</span>
+                                <span class="dtm-tc-usd-price">$<t t-esc="state.precio_dollar"/></span>
+                            </div>
+                            <div class="dtm-proceso">
+                                <span>Proceso</span>
+                                <span style="color: #ccc;">·</span>                                
+                            </div>    
+                    </div>        
                 </div>
 
                 <div style="overflow-x:auto">
@@ -113,12 +118,34 @@
                                 <td>
                                     <select name="terminado_filtro" t-on-change="(ev) => this.terminadoFiltro(ev)">
                                         <option value="0">Todos</option>
-                                        <option value="1">Terminado</option>
-                                        <option value="2">Calidad</option>
-                                        <option value="3">Proceso</option>
-                                        <option value="4">OT</option>
-                                        <option value="5">OD</option>
-                                        <option value="6">N/A</option>
+                                        <option value="1">Calidad</option>
+                                        <option value="2">Proceso</option>
+                                        <option value="3">OT</option>
+                                        <option value="4">OD</option>
+                                        <option value="5">PO</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <!-- Filtro por ot y por procesos -->
+                             <tr class="dtm-filter-row">
+                                <td><input type="number" min="0" placeholder="OT" t-on-input="(ev) => this.ordenTrabajoFiltro(ev)"/></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <select name="proceso_filtro" t-on-change="(ev) => this.ordenTrabajoStatusFiltro(ev)">
+                                        <option value="0">Todos</option>
+                                        <option value="1">Nesteo</option>
+                                        <option value="2">Corte</option>
+                                        <option value="3">Soldadura</option>
+                                        <option value="4">Maquinado</option>
+                                        <option value="5">Pintura</option>
+                                        <option value="6">Ensamble</option>
+                                        <option value="7">Servicio Externo</option>
                                     </select>
                                 </td>
                             </tr>
@@ -126,15 +153,15 @@
                             <!-- Datos -->
                             <t t-foreach="this.state.cotizaciones" t-as="cotizacion" t-key="cotizacion.cotizacion">
                                 <tr class="dtm-dr"
-                                    t-attf-style="background-color: #{cotizacion.terminado ? '#d4f7e0ff' : '#e9fdedff'}"
-                                    t-on-click="() => this.ordenesTrabajo(cotizacion.cotizacion, cotizacion.precio, cotizacion.cliente)">
+                                    t-attf-style="background-color: #{cotizacion.facturado ? '#d4f7e0ff' : '#e9fdedff'}"
+                                    t-on-click="() => this.ordenesTrabajo(cotizacion.cotizacion, cotizacion.precio, cotizacion.cliente, cotizacion.facturado, cotizacion.numero_factura)">
                                     <td>
                                         <span class="dtm-cot-link" t-att-class="cotizacion.atencion_material ? 'dtm-cot-material' : ''">
                                             <t t-esc="cotizacion.cotizacion"/>
                                         </span>
                                     </td>
                                     <td><span class="dtm-po-code"
-                                        t-att-class="cotizacion.terminado ? 'bg-amarillo' : ''"
+                                        t-att-class="cotizacion.facturado ? 'bg-amarillo' : ''"
                                         t-on-click="(ev) => { ev.stopPropagation(); this.openPDF(cotizacion.pdf); }"><t t-esc="cotizacion.po"/></span></td>
                                     <td class="dtm-date-cell"><t t-esc="cotizacion.po_date"/></td>
                                     <td class="dtm-date-cell"><t t-esc="cotizacion.fecha_salida"/></td>
@@ -173,7 +200,9 @@
                                 cotizacion="this.state.cotizacion"
                                 po_costo="this.state.po_costo"
                                 cliente="this.state.cliente"
-                                fcotizaciones="this.fetchCotizaciones"/>
+                                fcotizaciones="this.fetchCotizaciones"
+                                facturado="this.state.facturado"
+                                numero_factura="this.state.numero_factura"/>
             </t>
         </div>
         <!-- Abre el archivo PDF -->

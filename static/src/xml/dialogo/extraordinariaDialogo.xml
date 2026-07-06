@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates>
+    <t t-name="dtm_ordenes_compra.extraordinariaDialogo" owl="1">
+       <div class="rmc-overlay">
+            <div class="rmc-dialog">
+                <div class="rmc-icon-wrap">
+                    <i class="ti ti-circle-check" style="font-size: 28px; color: #1D9E75;" aria-hidden="true"></i>
+                </div>
+                <h3>¿Lista completa?</h3>
+                <p>Todos los materiales han sido revisados.<br>¿Deseas marcar la OT <strong style="color:#fff;">1240</strong> como lista?</p>
+                <div class="rmc-btn-row">
+                    <button class="rmc-btn-cancel" t-on-click="props.cerrar">Cancelar</button>
+                    <button class="rmc-btn-confirm" t-on-click="() => this.mandarComprar()">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

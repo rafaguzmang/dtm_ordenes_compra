@@ -33,6 +33,7 @@
             'dtm_ordenes_compra/static/src/js/dialogo/corte_dialogo.js',
             'dtm_ordenes_compra/static/src/js/dialogo/diseno_dialogo.js',
             'dtm_ordenes_compra/static/src/js/dialogo/planos_dialogo.js',
+            'dtm_ordenes_compra/static/src/js/dialogo/extraordinariaDialogo.js',
             # XML
             'dtm_ordenes_compra/static/src/xml/seguimiento.xml',
             'dtm_ordenes_compra/static/src/xml/cotizaciones.xml',
@@ -42,6 +43,7 @@
             'dtm_ordenes_compra/static/src/xml/dialogo/corte_dialogo.xml',
             'dtm_ordenes_compra/static/src/xml/dialogo/diseno_dialogo.xml',
             'dtm_ordenes_compra/static/src/xml/dialogo/planos_dialogo.xml',
+            'dtm_ordenes_compra/static/src/xml/dialogo/extraordinariaDialogo.xml',
         ],
     },
 }

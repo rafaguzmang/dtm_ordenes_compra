@@ -203,9 +203,9 @@
                                             <button class="mat-btn-ico mat-btn-confirm" t-att-class="mat.total > 0 &amp;&amp; mat.proveedor != '---------'  ? 'visible' : 'hidden'" t-on-click="()=>this.confirmarMaterial(mat.id,mat.name)" title="Confirmar">
                                                 <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
                                             </button>
-                                            <!-- <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.rechazarMaterial(mat.id)" title="Rechazar">
-                                                <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
-                                            </button> -->
+                                            <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.compraExtraordinaria(mat.id)" title="Rechazar">
+                                                <i class="fa fa-credit-card" aria-hidden="true"></i>
+                                            </button>
                                         </div>                       
                                     </td>
                                 </tr>
@@ -289,11 +289,16 @@
                     <button class="mat-btn mat-btn-ghost"
                             t-on-click="props.cerrar">Cerrar</button>                    
                 </div>
+
+                <!-- Extraordinaria Dialog -->
+                <div t-if="state.showExtraordinaria">
+                    <ExtraordinariaDialogo cerrar="cerrarExtraordinaria"/>                  
+                </div>
             </div>
 
         </div><!-- /mat-dialog -->
     </div><!-- /mat-overlay -->
 
-   
+    
 </t>
 </templates>

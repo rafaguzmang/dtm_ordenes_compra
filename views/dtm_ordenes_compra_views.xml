@@ -60,7 +60,8 @@
             <form string="">
                  <header>
                     <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
-                    <button name="action_facturado" type="object" string="Facturar" class="btn btn-primary" attrs="{'invisible': ['|','|', ('usuario','!=',True), ('no_factura','=',False),('cantidad_pagada','=',0)]}"/>
+                    <!-- <button name="action_facturado" type="object" string="Facturar" class="btn btn-primary" attrs="{'invisible': ['|','|', ('usuario','!=',True), ('no_factura','=',False),('cantidad_pagada','=',0)]}"/> -->
+                    <button name="action_facturado" type="object" string="Facturar" class="btn btn-primary"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -127,7 +128,8 @@
                             <div class="col-3">
                                 <group>
                                     <field name="usuario_factura" invisible="1"/>
-                                    <field name="no_factura" attrs="{'readonly': [('usuario_factura','!=',True)],'invisible': [('tiene_factura_pdf','!=',True)]}"/>
+                                    <!-- <field name="no_factura" attrs="{'readonly': [('usuario_factura','!=',True)],'invisible': [('tiene_factura_pdf','!=',True)]}"/> -->
+                                    <field name="no_factura" />
                                     <field name="cantidad_pagada" attrs="{'invisible': ['|', ('usuario','!=',True), ('no_factura','=',False)],'readonly': [('tiene_factura_pdf','!=',True)]}"/>
                                     <field name="cantidad_pagada_date" attrs="{'invisible': ['|', ('usuario','!=',True), ('no_factura','=',False)],'readonly': [('tiene_factura_pdf','!=',True)]}"/>
                                     <field name="comentarios" />
@@ -166,8 +168,10 @@
                                 </page>
                                 <page string="Factura">
                                     <div class="col-9">
-                                        <field name="factura_pdf"  widget="many2many_binary" attrs="{'readonly': [('usuario_factura','!=',True)]}" />
+                                        <!-- <field name="factura_pdf"  widget="many2many_binary" attrs="{'readonly': [('usuario_factura','!=',True)]}" /> -->
+                                        <field name="factura_pdf"  widget="many2many_binary"/>
             <!--                            <field name="nombre_archivo" invisible="1"/>-->
+                                        <field name="pago_pdf"  widget="many2many_binary" />
                                     </div>
                                 </page>
                                 <page string="Notas">

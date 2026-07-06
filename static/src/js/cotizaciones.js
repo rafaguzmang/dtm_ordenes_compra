@@ -21,6 +21,9 @@ export class Cotizaciones extends Component {
             showPDF: false,
             material_a_liberar: false,
             material_a_liberar_count: 0,
+            facturado: false,
+            factura_pdf: "",
+            numero_factura: "",
         });
         this.rpc = useService("rpc");
 
@@ -39,7 +42,6 @@ export class Cotizaciones extends Component {
     }
 
     openPDF(pdf) {
-        console.log("PDF", pdf)
         this.state.pdf = pdf;
         this.state.showPDF = true;
     }
@@ -51,15 +53,14 @@ export class Cotizaciones extends Component {
     async fetchCotizaciones() {
         const response = await fetch('/dtm_cotizaciones');
         const data = await response.json();
-        this.state.cotizaciones = data.sort((a, b) => b.terminado - a.terminado);
-        this.state.cotizaciones_filtradas = data.sort((a, b) => b.terminado - a.terminado);
+        this.state.cotizaciones = data.sort((a, b) => b.facturado - a.facturado);
+        this.state.cotizaciones_filtradas = data.sort((a, b) => b.facturado - a.facturado);
         this.state.clientes = [...new Set(data.map(cotizacion => cotizacion.cliente))];
         this.state.cotizaciones_totales = data.length;
         const precios = data.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
         this.state.acumulado = Math.round(precios.reduce((acc, precio) => acc + precio) * 100) / 100;
-        this.state.terminadas = data.filter(cotizacion => cotizacion.terminado).length;
+        this.state.terminadas = data.filter(cotizacion => cotizacion.facturado).length;
         this.state.material_a_liberar_count = data.filter(cotizacion => cotizacion.atencion_material).length;
-
     }
 
     async fetchPrecioDollar() {
@@ -73,13 +74,13 @@ export class Cotizaciones extends Component {
         }
     }
 
-
-
-    ordenesTrabajo(cotizacion, po_costo, cliente) {
+    ordenesTrabajo(cotizacion, po_costo, cliente, facturado, numero_factura) {
         this.state.ordenes_dialogo = true;
         this.state.cotizacion = cotizacion;
         this.state.po_costo = po_costo;
         this.state.cliente = cliente;
+        this.state.facturado = facturado;
+        this.state.numero_factura = numero_factura;
     }
 
     cerrarOrdenesTrabajo = () => {
@@ -87,6 +88,52 @@ export class Cotizaciones extends Component {
     };
 
     //    Filtros
+    // Filtro para busqueda de orden por status en procesos
+    async ordenTrabajoStatusFiltro(event) {
+        const select = event.target;
+        const texto = select.options[select.selectedIndex].text;
+
+        const data = await fetch("/ordenes_status_filtro",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: texto,
+                }),
+            }
+        )
+        const response = await data.json();
+        const orden_trabajo = response.result.lista;
+        const filtrado = this.state.cotizaciones_filtradas.filter(record => orden_trabajo.includes(record.cotizacion));
+        this.state.cotizaciones = filtrado.length == 0 ? this.state.cotizaciones_filtradas : filtrado;
+
+    }
+
+    // Filtro por orden de trabajo
+    async ordenTrabajoFiltro(event) {
+        const ot = event.target.value;
+        if (ot) {
+            const data = await fetch("/ordenes_trabajo_filtro",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        ot: ot,
+                    }),
+                }
+            )
+            const response = await data.json();
+            const orden_trabajo = response.result.cotizacion;
+            this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.cotizacion == orden_trabajo);
+        }
+        else {
+            this.state.cotizaciones = this.state.cotizaciones_filtradas;
+        }
+    }
     // Filtro de busqueda por po
     poFiltro = (event) => {
         const po = event.target.value;

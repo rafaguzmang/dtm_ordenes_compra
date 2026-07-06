@@ -59,10 +59,10 @@
                                         <tr>
                                             <td><span class="dtm-od"><t t-esc="orden.od"/></span></td>
                                             <td><span class="dtm-ot-n"><t t-esc="orden.ot"/></span></td>
-                                            <t t-if="orden.material_diseno">
-                                                <td class="dtm-nombre dtm-na-material"  t-on-click="() => abrirDiseno(orden.ot)"><t t-esc="orden.nombre"/></td>
+                                            <t t-if="orden.material_diseno &amp;&amp; !props.facturado">
+                                                <td class="dtm-nombre dtm-na-material" t-on-click="() => abrirDiseno(orden.ot)"><t t-esc="orden.nombre"/></td>
                                             </t>
-                                            <t t-if="!orden.material_diseno">
+                                            <t t-if="!orden.material_diseno || props.facturado">
                                                 <td class="dtm-nombre" style="color: #c8c8c8 !important;"><t t-esc="orden.nombre"/></td>
                                             </t>
                                             <td><span class="dtm-cant"><t t-esc="orden.cantidad"/></span></td>
@@ -72,20 +72,20 @@
                                                     <t t-esc="orden.nesteo"/>
                                                 </span>
                                             </td>
-                                            <t t-if="orden.material != 'N/A'" >
+                                            <t t-if="orden.material != 'N/A' &amp;&amp; !props.facturado" >
                                                 <td class="dtm-na dtm-na-material" 
                                                     t-on-click="() => abrirMateriales(orden.ot)" 
                                                     t-att-style="orden.en_cotizacion ? 'color: #ef7c18 !important;' : ''">
                                                     <t t-esc="orden.material"/>%
                                                 </td>
                                             </t>
-                                            <t t-if="orden.material =='N/A'">
+                                            <t t-if="orden.material =='N/A' || props.facturado">
                                                 <td class="dtm-na"><t t-esc="orden.material"/>%</td>
                                             </t>
-                                            <t t-if="orden.corte != 'N/A'">
+                                            <t t-if="orden.corte != 'N/A' &amp;&amp; !props.facturado">
                                                 <td class="dtm-na dtm-na-material" t-on-click="() => abrirCorte(orden.ot, orden.V)"><t t-esc="orden.corte"/></td>
                                             </t>
-                                            <t t-if="orden.corte == 'N/A'">
+                                            <t t-if="orden.corte == 'N/A' || props.facturado">
                                                 <td class="dtm-na"><t t-esc="orden.corte"/></td>
                                             </t>
                                             <td class="dtm-na"><t t-esc="orden.maquinados"/></td>
@@ -131,7 +131,7 @@
                                 <div class="dtm-tcol-title">Facturación</div>
                                 <div class="dtm-trow">
                                     <span class="dtm-tkey">No. Factura</span>
-                                    <span class="dtm-tval">1552454dsf</span>
+                                    <span class="dtm-tval"><t t-esc="this.props.numero_factura"/></span>
                                 </div>                            
                             </div>
                         </div>

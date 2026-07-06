@@ -28,6 +28,8 @@ class OrdenesCompra(models.Model):
         selection=[('dtm', 'DTM'), ('mtd', 'MTD')])
     archivos_id = fields.Many2many("ir.attachment","archivos_id",string="P.O.",required=True)
     factura_pdf = fields.Many2many("ir.attachment","factura_pdf",string="Factura")
+    pago_pdf = fields.Many2many("ir.attachment", "pago_pdf", string="Recibo Electrónico de Pago")
+
     anexos_id = fields.Many2many("ir.attachment")
     currency = fields.Selection(string="Moneda",default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
 
@@ -111,144 +113,51 @@ class OrdenesCompra(models.Model):
             self.env.cr.execute("UPDATE dtm_compras_items SET parcial='"+parcial+"' WHERE id="+str(par._origin.id))
 
     def action_facturado(self): # Pasa los trabajos con orden o ordenes de compra al modelo de facturados
-        if self.no_factura and self.cantidad_pagada > 0 and self.cantidad_pagada_date:
-            ordenes_lts = []
-            for orden in self.descripcion_id:
-                if orden.tipo_servicio != 'fabricacion':
-                    ordenes_lts.append('terminado')
-                elif self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) == 1:#Vamos a revisar si todas las ordenes ya están terminadas
-                    ordenes_lts.append(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]).status)
-
-                elif self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]) and len(self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))])) > 1:
-                    for version in self.env['dtm.proceso'].search([('ot_number','=',str(orden.orden_trabajo))]):
-                        ordenes_lts.append(version.status)
-                elif self.env['dtm.facturado.odt'].search([('ot_number','=',orden.orden_trabajo)]):
-
-                    ordenes_lts.append('terminado')
-            self.facturar(ordenes_lts) # Función para pasar la cotización al modulo de facturados
-            return self.env.ref('dtm_ordenes_compra.dtm_ordenes_compra_accion').read()[0]
-        else:
-            raise ValidationError("No se puede facturar la cotización porque no se ha completado la información requerida \n No. Factura \n Cantidad Pagada \n Fecha de Pago")
-
-
-    def facturar(self, ordenes_lts):
-        if len(list(set(ordenes_lts))) == 1 and list(set(ordenes_lts))[0] == 'terminado':
-            vals = {
-                'no_cotizacion': self.no_cotizacion,
-                'cliente_prov': self.cliente_prov,
+        vals = {
+            'no_cotizacion': self.no_cotizacion,
+            'cliente_prov': self.cliente_prov,
+            'orden_compra': self.orden_compra,
+            'fecha_factura': datetime.datetime.today(),
+            'precio_total': self.precio_total,
+            'proveedor': self.proveedor,
+            'currency': self.currency,
+            'factura': " ".join(self.factura_pdf.mapped('name')),
+            'notas': self.notas,
+            'cantidad_pagada': self.cantidad_pagada,         
+            'cantidad_pagada_date': self.cantidad_pagada_date,
+            'factura_pdf': [(6, 0, self.factura_pdf.ids)],
+            'pago_pdf': [(6, 0, self.pago_pdf.ids)],
+        }
+        # Crea la cotización en facturaro        
+        get_id = self.env['dtm.ordenes.compra.facturado'].create(vals)
+        for item in self.descripcion_id:
+            vals_item = {
+                'item': item.item,
+                'cantidad': item.cantidad,
+                'precio_unitario': item.precio_unitario,
+                'precio_total': item.precio_total,
+                'orden_trabajo': item.orden_trabajo,
+                'no_factura': self.no_factura,
                 'orden_compra': self.orden_compra,
-                'fecha_factura': datetime.datetime.today(),
-                'precio_total': self.precio_total,
-                'proveedor': self.proveedor,
-                'currency': self.currency,
-                'factura': self.no_factura,
-                'notas': self.notas,
-                'cantidad_pagada': self.cantidad_pagada,
-                'factura_pdf': self.factura_pdf.datas,
-                'factura_pdf_name': self.factura_pdf.name,
-                'cantidad_pagada_date': self.cantidad_pagada_date,
+                'orden_diseno': item.orden_diseno,
+                'disenador': "Andrés Orozco" if item.firma_diseno == "orozco" else "Bryan Banda" if item.firma_diseno == "bryan" else "N/A",
+                'model_id': get_id.id,  # <-- vincula directo, ya no depende de coincidencia de texto
             }
-            # Crea la cotización en facturaro
-            self.env['dtm.ordenes.compra.facturado'].create(vals)  # Crea el objeto en el modelo de facturado
-            get_id = self.env['dtm.ordenes.compra.facturado'].search(
-                [('factura', '=', self.no_factura)])  # Apunto al nuevo objeto para manipulación
-            # Inserta los items asociados a las ordenes de trabajo tabla one2many
-            for item in self.descripcion_id:
-                vals = {
-                    'item': item.item,
-                    'cantidad': item.cantidad,
-                    'precio_unitario': item.precio_unitario,
-                    'precio_total': item.precio_total,
-                    'orden_trabajo': item.orden_trabajo,
-                    'no_factura': self.no_factura,
-                    'orden_compra': self.orden_compra,
-                    'orden_diseno': item.orden_diseno,
-                    'disenador': "Andrés Orozco" if item.firma_diseno == "orozco" else "Luis Donaldo García Rayos" if item.firma_diseno == "garcia" else "Bryan Banda" if item.firma_diseno == "bryan" else "N/A"
-                }
-                self.env['dtm.compra.facturado.item'].create(vals)
-            for archivo in self.archivos_id:  # Inserta los archivos anexos jalandolos de ir_attachment y pasandolos al modelo de dtm.compras.facturado.archivos
-                attachment = self.env['ir.attachment'].browse(archivo.id)
-                vals = {
-                    'archivo': attachment.datas,
-                    'nombre': attachment.name,
-                    'model_id': get_id.id,
-                }
-                self.env['dtm.compras.facturado.archivos'].create(vals)
-
-            # Pasa la información del modulo de proceso a facturado
-            unlinkList = []
-            for orden in self.descripcion_id:
-                get_proceso = self.env['dtm.proceso'].search([('ot_number', '=', str(orden.orden_trabajo))])  # Vamos a recabar la información
-                for version in get_proceso:
-                    if version:
-                        vals = {
-                            "status": self.env['dtm.ordenes.compra.facturado'].search(
-                                [("orden_compra", "=", version.po_number)],
-                                limit=1).factura if version.po_number else 'Sin P.O.',
-                            "ot_number": version.ot_number,
-                            "tipe_order": version.tipe_order,
-                            "revision_ot":version.revision_ot,
-                            "name_client": version.name_client,
-                            "product_name": version.product_name,
-                            "date_in": version.date_in,
-                            "po_number": version.po_number,
-                            "date_rel": version.date_rel,
-                            "version_ot": version.version_ot,
-                            "color": version.color,
-                            "cuantity": version.cuantity,
-                            "planos": version.planos,
-                            "nesteos": version.nesteos,
-                            "rechazo_id": version.rechazo_id,
-                            "anexos_id": version.anexos_id,
-                            "cortadora_id": version.cortadora_id,
-                            "primera_pieza_id": version.primera_pieza_id,
-                            "tubos_id": version.tubos_id,
-                            "firma": version.firma,
-                            "firma_diseno": version.disenador,
-                            "description": version.description,
-                            "firma_calidad": version.firma_calidad,
-                            "calidad_liberacion": version.calidad_liberacion,
-                            "date_terminado": version.date_terminado,
-                            "date_inicio": version.create_date
-                        }
-                    get_facturado = self.env['dtm.facturado.odt'].search([("ot_number", "=", version.ot_number),("revision_ot","=",version.revision_ot)])
-                    get_facturado.write(vals) if get_facturado else get_facturado.create(vals)# Crea la orden en facturados
-                    get_facturado = self.env['dtm.facturado.odt'].search([("ot_number", "=", version.ot_number),("revision_ot","=",version.revision_ot)])
-                    get_facturado.write({'materieales_id': [(5, 0, {})]})
-                    lines = []
-                    for item in version.materials_ids:  # Se agrega o se actualiza material de la tabla dtm.facturado.materiales y se obtienen los id para casarlos con la orden correspondiente
-                        valmat = {
-                            "material": f"{item.nombre} {item.medida}",
-                            "cantidad": item.materials_cuantity,
-                        }
-                        # print(valmat)
-                        get_facturado_material = self.env['dtm.facturado.materiales'].search(
-                            [("material", "=", f"{item.nombre} {item.medida}"),
-                             ("cantidad", "=", item.materials_cuantity)])
-                        get_facturado_material.write(
-                            valmat) if get_facturado_material else get_facturado_material.create(valmat)
-                        get_facturado_material = self.env['dtm.facturado.materiales'].search(
-                            [("material", "=", f"{item.nombre} {item.medida}"),
-                             ("cantidad", "=", item.materials_cuantity)])
-                        lines.append(get_facturado_material.id)
-                    get_facturado.write({'materieales_id': [(6, 0, lines)]})
-
-                    # -------------------------------------------------------------------------------------------------------------------------------
-                    if get_facturado:
-                        unlinkList.append(self.env['dtm.odt'].search([('ot_number', '=', int(version.ot_number)),("revision_ot","=",version.revision_ot)]))
-                        unlinkList.append(self.env['dtm.proceso'].search([('ot_number', '=', str(version.ot_number)),("revision_ot","=",version.revision_ot)]))
-                        unlinkList.append(self.env['dtm.compras.realizado'].search([('orden_trabajo', '=', int(version.ot_number)),("revision_ot","=",version.revision_ot)]))
-
-            for orm in unlinkList:
-                orm.unlink()
-            # Borra la orden de compra de este modelo principal
-            get_items = self.env['dtm.compras.items'].search([("model_id", "=", self.id)])
-            get_items.unlink()
-            get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
-            get_unlink.unlink()
-            # ----------
-        else:
-            raise ValidationError("Todas las ordenes deben de estar en \"Estatus de Terminado\"!!")
+            self.env['dtm.compra.facturado.item'].create(vals_item)
+        for archivo in self.archivos_id:  # Inserta los archivos anexos jalandolos de ir_attachment y pasandolos al modelo de dtm.compras.facturado.archivos
+            attachment = self.env['ir.attachment'].browse(archivo.id)
+            vals = {
+                'archivo': attachment.datas,
+                'nombre': attachment.name,
+                'model_id': get_id.id,
+            }
+            self.env['dtm.compras.facturado.archivos'].create(vals)
+        # Borra la orden de compra de este modelo principal
+        get_items = self.env['dtm.compras.items'].search([("model_id", "=", self.id)])
+        get_items.unlink()
+        get_unlink = self.env["dtm.ordenes.compra"].browse(self.id)
+        get_unlink.unlink()
+        return self.env.ref('dtm_ordenes_compra.dtm_ordenes_compra_accion').read()[0]
 
 
     @api.onchange("nombre_archivo")

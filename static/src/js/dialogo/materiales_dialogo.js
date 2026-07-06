@@ -2,10 +2,11 @@
 
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { PorAprobarDialogo } from "./poraprobar_dialogo";
+import { ExtraordinariaDialogo } from "./extraordinariaDialogo";
 
 export class MaterialesDialogo extends Component {
     static props = ["cerrar", "orden"]
-    static components = { PorAprobarDialogo };
+    static components = { PorAprobarDialogo, ExtraordinariaDialogo };
     setup() {
         this.state = useState({
             materiales: [],
@@ -24,6 +25,7 @@ export class MaterialesDialogo extends Component {
             showTabla: 'todos',
             activeTab: 'todos',
             showPorAprobarModal: false,
+            showExtraordinaria: false,
             // Modal
             id_pa: 0,
             name_pa: "",
@@ -33,6 +35,15 @@ export class MaterialesDialogo extends Component {
         onWillStart(async () => {
             await this.getMateriales();
         });
+    }
+
+    compraExtraordinaria = (id) => {
+        console.log('compraExtraordinaria', id);
+        this.state.showExtraordinaria = true;
+    }
+
+    cerrarExtraordinaria = () => {
+        this.state.showExtraordinaria = false;
     }
 
     borrarHijo(respuesta) {

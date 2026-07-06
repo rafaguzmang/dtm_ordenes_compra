@@ -102,8 +102,9 @@
                             </page>
                             <page string="Factura">
                                <div class="row">
-                                     <field name="factura_pdf" filename="factura_pdf_name" widget="pdf_viewer"></field>
-                                     <field name="factura_pdf_name" invisible="1"></field>
+                                     <field name="factura_pdf" widget="many2many_binary"></field>
+                                     <field name="pago_pdf"  widget="many2many_binary"></field>
+                                    
                                </div>
                             </page>
                             <page string="Notas">

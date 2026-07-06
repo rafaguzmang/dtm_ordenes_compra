@@ -14,31 +14,32 @@ class WebSiteDirectios(http.Controller):
         for orden in get_po:
 
             get_ordenes = orden.descripcion_id
-            terminado = False
             if len(get_ordenes) == 1:
                 status = request.env['dtm.proceso'].sudo().search([('ot_number','=',get_ordenes.orden_trabajo)],limit=1).status
                 get_status = 'Terminado' if status == 'terminado' else 'Calidad' if status == 'calidad' else 'Proceso' if status else 'OT' if get_ordenes.orden_trabajo else 'OD'
-                terminado = True if get_status == 'Terminado' else False
+                get_facturado = request.env['dtm.facturado.odt'].sudo().search([('ot_number','=',get_ordenes.orden_trabajo)],limit=1) if get_ordenes else False
+                facturado = True if get_facturado else False
+            
             elif len(get_ordenes) > 1:
                 get_procesos = [request.env['dtm.proceso'].sudo().search([('ot_number','=',ot)],limit=1).status for ot in get_ordenes.mapped('orden_trabajo')]
                 od_list = list(set(orden.descripcion_id.mapped('orden_diseno')))
                 ot_list = list(set(orden.descripcion_id.mapped('orden_trabajo')))
                 get_status = f"Terminado {len(list(filter(lambda x: x == 'terminado', get_procesos)))}/{len(get_ordenes)}"if 'terminado' in get_procesos else f"Calidad {len(list(filter(lambda x: x == 'calidad', get_procesos)))}/{len(get_ordenes)}" if 'calidad' in get_procesos else f"Proceso {len(get_procesos)}/{len(get_ordenes)}" if True in get_procesos else  f"OT {len(list(filter(lambda x: x != 0,ot_list)))}/{len(get_ordenes)}" if len(ot_list) > 1 else f"OD {len(list(filter(lambda x: x != 0,od_list)))}/{len(get_ordenes)}" if len(od_list) > 1 else f"N/A {len(get_ordenes)}/{len(get_ordenes)}"
-                terminado = True if (len(list(filter(lambda x: x == 'terminado', get_procesos)))/len(get_ordenes)) == 1 else False
+                # print('get_procesos',get_ordenes.mapped('orden_trabajo'))
+                get_facturado = request.env['dtm.facturado.odt'].sudo().search([('ot_number','in',get_ordenes.mapped('orden_trabajo'))])
+                facturado = True if get_facturado else False   
+
             else:
                 get_status = 'N/A'
 
             atencion_material = False
             for ot in orden.descripcion_id:
                 if ot.orden_trabajo:
-                    get_compras = request.env['dtm.compras.requerido'].sudo().search([('orden_trabajo','=',ot.orden_trabajo)],limit=1)
+                    get_compras = request.env['dtm.compras.requerido'].sudo().search([('orden_trabajo','=',ot.orden_trabajo),('tipo_orden','in',['OT','NPI'])],limit=1)
                     if get_compras:
                         atencion_material = True
                         break
-
             # atencion_material = True if get_ordenes.filtered(lambda x: x.status == 'atencion') else False
-
-
             result.append({
                 'cotizacion': orden.no_cotizacion,
                 'proveedor': 'DTM' if orden.proveedor == 'dtm' else 'MTD',
@@ -48,19 +49,20 @@ class WebSiteDirectios(http.Controller):
                 'precio': f"{round(orden.precio_total, 2)} {'mx' if request.env['dtm.cotizaciones'].sudo().search([('no_cotizacion','=',orden.no_cotizacion)],limit=1).curency == 'mx' else 'dlls'}",
                 'fecha_entrada': orden.fecha_entrada.strftime("%x") if orden.fecha_entrada else '---',
                 'fecha_salida': orden.fecha_salida.strftime("%x") if orden.fecha_salida else '---',
-                'status': get_status,
-                'terminado': terminado,
+                'status':  'Facturado' if facturado else get_status,
+                'facturado': facturado, 
+                'numero_factura':','.join(orden.mapped('factura_pdf.name')) if facturado else '---',
                 'atencion_material': atencion_material,
                 'po_date': orden.fecha_po.strftime("%x") if orden.fecha_po else '---',
             })
 
         return request.make_response(
-            json.dumps(result),
-            headers={
-                'Content-Type':'application/json',
-                'Access-Control-Allow-Origin':'*'
-            }
-        )
+                json.dumps(result),
+                headers={
+                    'Content-Type':'application/json',
+                    'Access-Control-Allow-Origin':'*'
+                }
+            )
 
     @http.route('/dtm_ordenes_cotizacion', type='json', auth='public')
     def ordenesTrabajo(self):
@@ -115,7 +117,6 @@ class WebSiteDirectios(http.Controller):
                 "en_cotizacion":True if get_cotizacion else False,
             }
             result.append(vals)
-            print(vals)
 
 
         return result
@@ -158,8 +159,8 @@ class WebSiteDirectios(http.Controller):
                 'cantidad': material.materials_cuantity,
                 'inventario': material.materials_availabe,
                 'requerido':material.materials_required,
-                'precio': get_old_compras.unitario if get_old_compras else 0,
-                'total': round(get_old_compras.unitario * material.materials_cuantity,2) if get_old_compras else 0,
+                'precio': get_old_compras.unitario if get_old_compras else get_compras_requerido.unitario if get_compras_requerido else 0,
+                'total': round(get_old_compras.unitario * material.materials_cuantity,2) if get_old_compras else round(get_compras_requerido.unitario * material.materials_cuantity,2) if get_compras_requerido else 0,
                 'status':'recibido' if get_compras_requerido.comprado == "Recibido" else 
                         "comprado" if get_compras_requerido else
                         "cotizacion" if get_compras else
@@ -273,3 +274,39 @@ class WebSiteDirectios(http.Controller):
             'planos':planos,
         }
         return result
+
+
+    @http.route('/ordenes_trabajo_filtro', type='json', auth='public')
+    def dtmOrdenesTrabajoFiltro(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        ot = data.get("ot")
+        get_orden = request.env['dtm.compras.items'].sudo().search([('orden_trabajo','=',int(ot))],limit=1)
+        get_materiales = get_orden.model_id        
+        return {'cotizacion':get_materiales.no_cotizacion}
+   
+    @http.route('/ordenes_status_filtro', type='json', auth='public')
+    def dtmOrdenesStatusFiltro(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        status = data.get("status")
+        status_dict = {        
+            "aprobacion":"Nesteo",
+            "corte":"Corte",
+            "revision":"Revisión FAI",
+            "doblado":"Doblado",
+            "soldadura":"Soldadura",
+            "maquinado":"Maquinado",
+            "pintura":"Pintura",
+            "ensamble":"Ensamble",
+            "externo":"Servicio Externo",
+            "calidad":"Calidad",
+            "instalacion":"Instalación",
+            "terminado":"Terminado"
+        }
+        clave = [k for k,v in status_dict.items() if v == status]
+        get_orden = request.env['dtm.proceso'].sudo().search([('status','in',clave)])  
+        lista_ordenes = get_orden.mapped('ot_number')               
+        get_ordenes_compra = request.env['dtm.compras.items'].sudo().search([('orden_trabajo','in',lista_ordenes)])
+        lista = get_ordenes_compra.mapped('model_id.no_cotizacion')
+        return {'lista':lista}

@@ -11,7 +11,7 @@ class Facturado(models.Model):
     cliente_prov = fields.Char(string="Cliente", readonly=True)
     orden_compra = fields.Char(string="Orden de Compra",readonly=True)
     fecha_factura = fields.Date(string="Fecha de Facturación",readonly=True)
-    descripcion_id = fields.Many2many("dtm.compra.facturado.item",compute="_compute_descripcion_id", readonly=True)
+    descripcion_id = fields.One2many("dtm.compra.facturado.item", "model_id", string="Items", readonly=True)
     precio_total = fields.Float(string="Precio total",readonly=True)
     proveedor = fields.Selection(string='Proveedor',readonly=True,
         selection=[('dtm', 'DISEÑO Y TRANSFORMACIONES METALICAS S DE RL DE CV'), ('mtd', 'METAL TRANSFORMATION & DESIGN')])
@@ -22,25 +22,30 @@ class Facturado(models.Model):
     res_id = fields.Integer()
     cantidad_pagada = fields.Float(string="Cantidad pagada", readonly=True)
     cantidad_pagada_date = fields.Date(string="Fecha de pago", readonly=True)
-    factura_pdf = fields.Binary(string="Factura PDF", readonly=True)
-    factura_pdf_name = fields.Char( readonly=True)
+    # En dtm.ordenes.compra.facturado
+    factura_pdf = fields.Many2many("ir.attachment", "dtm_orden_facturado_factura_pdf_rel", string="Factura")
+    pago_pdf = fields.Many2many("ir.attachment", "dtm_orden_facturado_pago_pdf_rel", string="Recibo Electrónico de Pago")
 
-    def _compute_descripcion_id(self):
-        for result in self:
-            # print("descripcion_id",result.descripcion_id)
-            get_cot = self.env['dtm.compra.facturado.item'].search([("no_factura", "=", result.factura)])
-            lines = []
-            line = (5, 0, {})
-            lines.append(line)
-            for cot in get_cot:
-                # print(cot.id)
-                line = (4, cot.id, {})
-                lines.append(line)
-            result.descripcion_id = lines
+    # def get_view(self, view_id=None, view_type='form', **options):
+    #     res = super(Facturado, self).get_view(view_id, view_type, **options)
+
+    #     # Migración: rellena model_id en items viejos que quedaron huérfanos del compute anterior
+    #     facturados = self.env['dtm.ordenes.compra.facturado'].search([])
+    #     for fact in facturados:
+    #         items_viejos = self.env['dtm.compra.facturado.item'].search([
+    #             ('no_factura', '=', fact.factura),
+    #             ('model_id', '=', False),  # solo los que aún no tienen padre asignado
+    #         ])
+    #         if items_viejos:
+    #             items_viejos.write({'model_id': fact.id})
+
+    #     return res
+    
 
 class ItemFactura(models.Model):
     _name = "dtm.compra.facturado.item"
     _description = "Guarda los servicios de las cotizaciones ya facturadas"
+    model_id = fields.Many2one("dtm.ordenes.compra.facturado", string="Orden Facturada")
     item = fields.Char(string="Artículo")
     cantidad = fields.Char(string="Cantidad")
     precio_unitario = fields.Float(string="Precio Unitario")
