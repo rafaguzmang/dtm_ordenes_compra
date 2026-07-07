@@ -212,6 +212,7 @@ export class Cotizaciones extends Component {
 
     filtroGeneral(proveedor, cliente, fentrega, status) {
         let tabla = this.state.cotizaciones_filtradas;
+        console.log(tabla)
         if (proveedor) {
             tabla = tabla.filter(cotizacion => {
                 return (cotizacion.proveedor || '').includes(proveedor.toUpperCase());
@@ -233,7 +234,7 @@ export class Cotizaciones extends Component {
                     tabla = tabla;
                     break;
                 case '1':
-                    tabla = tabla.filter(record => record.terminado);
+                    tabla = tabla.filter(record => (record.status || '').includes('Terminado'));
                     break;
                 case '2':
                     tabla = tabla.filter(record => (record.status || '').includes('Calidad'));

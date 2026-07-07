@@ -118,11 +118,12 @@
                                 <td>
                                     <select name="terminado_filtro" t-on-change="(ev) => this.terminadoFiltro(ev)">
                                         <option value="0">Todos</option>
-                                        <option value="1">Calidad</option>
-                                        <option value="2">Proceso</option>
-                                        <option value="3">OT</option>
-                                        <option value="4">OD</option>
-                                        <option value="5">PO</option>
+                                        <option value="1">Terminado</option>
+                                        <option value="2">Calidad</option>
+                                        <option value="3">Proceso</option>
+                                        <option value="4">OT</option>
+                                        <option value="5">OD</option>
+                                        <option value="6">PO</option>
                                     </select>
                                 </td>
                             </tr>

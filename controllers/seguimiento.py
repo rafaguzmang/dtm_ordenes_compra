@@ -30,7 +30,7 @@ class WebSiteDirectios(http.Controller):
                 facturado = True if get_facturado else False   
 
             else:
-                get_status = 'N/A'
+                get_status = 'PO'
 
             atencion_material = False
             for ot in orden.descripcion_id:
