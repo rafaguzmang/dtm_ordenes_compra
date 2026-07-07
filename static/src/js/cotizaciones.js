@@ -214,17 +214,17 @@ export class Cotizaciones extends Component {
         let tabla = this.state.cotizaciones_filtradas;
         if (proveedor) {
             tabla = tabla.filter(cotizacion => {
-                return cotizacion.proveedor.includes(proveedor.toUpperCase());
+                return (cotizacion.proveedor || '').includes(proveedor.toUpperCase());
             });
         }
         if (cliente) {
             tabla = tabla.filter(cotizacion => {
-                return cotizacion.cliente.includes(cliente);
+                return (cotizacion.cliente || '').includes(cliente);
             });
         }
         if (fentrega) {
             tabla = tabla.filter(cotizacion => {
-                return cotizacion.fecha_salida.includes(fentrega);
+                return (cotizacion.fecha_salida || '').includes(fentrega);
             });
         }
         if (status) {
@@ -236,19 +236,19 @@ export class Cotizaciones extends Component {
                     tabla = tabla.filter(record => record.terminado);
                     break;
                 case '2':
-                    tabla = tabla.filter(record => record.status.includes('Calidad'));
+                    tabla = tabla.filter(record => (record.status || '').includes('Calidad'));
                     break;
                 case '3':
-                    tabla = tabla.filter(record => record.status.includes('Proceso'));
+                    tabla = tabla.filter(record => (record.status || '').includes('Proceso'));
                     break;
                 case '4':
-                    tabla = tabla.filter(record => record.status.includes('OT'));
+                    tabla = tabla.filter(record => (record.status || '').includes('OT'));
                     break;
                 case '5':
-                    tabla = tabla.filter(record => record.status.includes('OD'));
+                    tabla = tabla.filter(record => (record.status || '').includes('OD'));
                     break;
                 case '6':
-                    tabla = tabla.filter(record => record.status.includes('N/A'));
+                    tabla = tabla.filter(record => (record.status || '').includes('N/A'));
                     break;
             }
         }
@@ -257,8 +257,6 @@ export class Cotizaciones extends Component {
         if (!proveedor && !cliente && !fentrega && !status) {
             this.state.cotizaciones = this.state.cotizaciones_filtradas;
         }
-
-
     }
 
 
