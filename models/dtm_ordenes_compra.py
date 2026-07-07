@@ -27,8 +27,8 @@ class OrdenesCompra(models.Model):
     proveedor = fields.Selection(string='Proveedor',default='dtm',
         selection=[('dtm', 'DTM'), ('mtd', 'MTD')])
     archivos_id = fields.Many2many("ir.attachment","archivos_id",string="P.O.",required=True)
-    factura_pdf = fields.Many2many("ir.attachment","factura_pdf",string="Factura")
-    pago_pdf = fields.Many2many("ir.attachment", "pago_pdf", string="Recibo Electrónico de Pago")
+    factura_pdf = fields.Many2many("ir.attachment","dtm_orden_compra_factura_pdf_rel",string="Factura")
+    pago_pdf = fields.Many2many("ir.attachment", "dtm_orden_compra_pago_pdf_rel", string="Recibo Electrónico de Pago")
 
     anexos_id = fields.Many2many("ir.attachment")
     currency = fields.Selection(string="Moneda",default="mx", selection=[('mx','MXN'),('us','USD')], readonly = True)
@@ -130,6 +130,13 @@ class OrdenesCompra(models.Model):
         }
         # Crea la cotización en facturaro        
         get_id = self.env['dtm.ordenes.compra.facturado'].create(vals)
+
+        attachments = self.factura_pdf | self.pago_pdf
+        if attachments:
+            attachments.sudo().write({
+                'res_model': 'dtm.ordenes.compra.facturado',
+                'res_id': get_id.id,
+            })
         for item in self.descripcion_id:
             vals_item = {
                 'item': item.item,

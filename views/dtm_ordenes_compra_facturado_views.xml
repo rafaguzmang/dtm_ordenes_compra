@@ -101,7 +101,7 @@
                                </div>
                             </page>
                             <page string="Factura">
-                               <div class="row">
+                               <div class="col-9">
                                      <field name="factura_pdf" widget="many2many_binary"></field>
                                      <field name="pago_pdf"  widget="many2many_binary"></field>
                                     
