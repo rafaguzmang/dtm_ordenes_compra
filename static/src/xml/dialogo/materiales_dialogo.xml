@@ -203,7 +203,7 @@
                                             <button class="mat-btn-ico mat-btn-confirm" t-att-class="mat.total > 0 &amp;&amp; mat.proveedor != '---------'  ? 'visible' : 'hidden'" t-on-click="()=>this.confirmarMaterial(mat.id,mat.name)" title="Confirmar">
                                                 <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
                                             </button>
-                                            <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.compraExtraordinaria(mat.id)" title="Rechazar">
+                                            <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.compraExtraordinaria(mat.id,mat.name,mat.cantidad)" title="No pasa por compras">
                                                 <i class="fa fa-credit-card" aria-hidden="true"></i>
                                             </button>
                                         </div>                       
@@ -292,7 +292,7 @@
 
                 <!-- Extraordinaria Dialog -->
                 <div t-if="state.showExtraordinaria">
-                    <ExtraordinariaDialogo cerrar="cerrarExtraordinaria"/>                  
+                    <ExtraordinariaDialogo cerrar="cerrarExtraordinaria" orden_id="this.props.orden" material="this.state.name_pa" codigo="this.state.id_pa" cantidad="this.state.cantidad" refresh="()=>this.getMaterialesHijo()"/>                  
                 </div>
             </div>
 

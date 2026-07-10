@@ -1,0 +1,57 @@
+ .rmc-dialog {
+     position: relative;
+     overflow: visible;
+ }
+
+ .rmc-icon-wrap {
+     position: absolute;
+     top: -22px;
+     left: -22px;
+     width: 48px;
+     height: 48px;
+     border-radius: 50%;
+     background: #16342c;
+     border: 2px solid #1D9E75;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+ }
+
+ .rmc-form {
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+     margin: 16px 0;
+     text-align: left;
+ }
+
+ .rmc-field label {
+     display: block;
+     font-size: 12px;
+     color: #9aa4b2;
+     margin-bottom: 4px;
+ }
+
+ .rmc-input,
+ .rmc-select {
+     width: 100%;
+     background: #1b2230;
+     border: 1px solid #2c3648;
+     border-radius: 6px;
+     color: #fff;
+     padding: 8px 10px;
+     font-size: 14px;
+     box-sizing: border-box;
+ }
+
+ .rmc-input:focus,
+ .rmc-select:focus {
+     outline: none;
+     border-color: #1D9E75;
+ }
+
+ .rmc-select {
+     appearance: none;
+     cursor: pointer;
+ }

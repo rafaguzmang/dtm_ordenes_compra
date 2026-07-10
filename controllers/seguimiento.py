@@ -310,3 +310,42 @@ class WebSiteDirectios(http.Controller):
         get_ordenes_compra = request.env['dtm.compras.items'].sudo().search([('orden_trabajo','in',lista_ordenes)])
         lista = get_ordenes_compra.mapped('model_id.no_cotizacion')
         return {'lista':lista}
+
+
+    @http.route('/comprar_extraordinaria', type='json', auth='public')
+    def comprarExtraordinaria(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        orden = data.get("orden_id")
+        material = data.get("material")
+        codigo = data.get("codigo")
+        proveedor = data.get("proveedor")
+        precio = data.get("precio")
+        cantidad = data.get("cantidad")
+        orden_compra = data.get("orden_compra")       
+        user = request.env.user.name
+        get_orden = request.env['dtm.odt'].sudo().search([('ot_number','=',int(orden))],limit=1)
+
+        get_realizado = request.env['dtm.compras.realizado'].sudo().search([('codigo','=',int(codigo)),('orden_trabajo','like',orden),('nombre','=',material)],limit=1)
+        vals = {
+            'orden_trabajo':orden,
+            'tipo_orden':get_orden.tipe_order,
+            'revision_ot':get_orden.revision_ot,
+            'proveedor':proveedor,
+            'codigo':int(codigo),
+            'nombre':material,
+            'cantidad':int(cantidad),
+            'unitario':float(precio),
+            'costo':float(precio) * int(cantidad),
+            'orden_compra':orden_compra,
+            'fecha_compra':datetime.now(),
+            'mostrador':float(precio),
+            'mayoreo':float(precio),
+            'autoriza':user,
+            'listo_btn':True,
+        }
+        get_realizado.write(vals) if get_realizado else get_realizado.create(vals)
+        get_requerido_old = request.env['dtm.compras.requerido'].sudo().search([('codigo','=',int(codigo)),('orden_trabajo','like',orden),('nombre','=',material)],limit=1)
+        get_requerido_old.unlink()
+        return {'success':True}
+        

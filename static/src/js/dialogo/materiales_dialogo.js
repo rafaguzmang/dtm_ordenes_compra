@@ -30,6 +30,7 @@ export class MaterialesDialogo extends Component {
             id_pa: 0,
             name_pa: "",
             orden: 0,
+            cantidad: 0,
         });
 
         onWillStart(async () => {
@@ -37,9 +38,11 @@ export class MaterialesDialogo extends Component {
         });
     }
 
-    compraExtraordinaria = (id) => {
-        console.log('compraExtraordinaria', id);
+    compraExtraordinaria = (id, name, cantidad) => {
         this.state.showExtraordinaria = true;
+        this.state.id_pa = id;
+        this.state.name_pa = name;
+        this.state.cantidad = cantidad;
     }
 
     cerrarExtraordinaria = () => {
@@ -140,6 +143,12 @@ export class MaterialesDialogo extends Component {
             this.state.showTabla = 'excepto_cotizacion';
             this.state.activeTab = 'pendiente';
         }
+    }
+
+    getMaterialesHijo() {
+        const indice = this.state.materialesFiltrados.findIndex(item => item.id === this.state.id_pa);
+        this.state.materialesFiltrados.splice(indice, 1);
+        this.setTab("cotizacion");
     }
 
     async getMateriales() {

@@ -160,7 +160,8 @@
                                         </tree>
                                     </field>
                                 </page>
-                                <page string="Ordenes de Compra">
+                                <page string="Ordenes de Compra" attrs="{'invisible':[('requiere_po','!=',True)]}">
+                                    <field name="requiere_po" invisible="1" />
                                     <div class="col-9">
                                         <field name="archivos_id"  widget="many2many_binary" />
             <!--                            <field name="nombre_archivo" invisible="1"/>-->

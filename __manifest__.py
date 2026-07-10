@@ -24,6 +24,7 @@
             'dtm_ordenes_compra/static/src/css/materiales_dialogo.css',
             'dtm_ordenes_compra/static/src/css/poraprobar_dialogo.css',
             'dtm_ordenes_compra/static/src/css/diseno_dialogo.css',
+            'dtm_ordenes_compra/static/src/css/extraordinariaDialog.css',
             # JS
             'dtm_ordenes_compra/static/src/js/seguimiento.js',
             'dtm_ordenes_compra/static/src/js/cotizaciones.js',

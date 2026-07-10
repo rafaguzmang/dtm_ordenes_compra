@@ -1,3 +1,4 @@
+from pkg_resources import require
 from odoo import api,fields,models
 import datetime
 from odoo.exceptions import ValidationError, AccessError, MissingError,Warning
@@ -51,6 +52,7 @@ class OrdenesCompra(models.Model):
     cantidad_pagada_date = fields.Date(string="Fecha de pago")
 
     tiene_factura_pdf = fields.Boolean(string="Tiene Factura PDF", compute="_compute_tiene_factura_pdf")
+    requiere_po = fields.Boolean(default=True)
 
     @api.depends("factura_pdf")
     def _compute_tiene_factura_pdf(self):
@@ -226,6 +228,7 @@ class OrdenesCompra(models.Model):
         get_compras.write({"descripcion_id":[(6,0,lines)]})
         self.precio_total = sum
         self.env['dtm.cotizaciones'].search([("no_cotizacion", "=", self.no_cotizacion)]).write({"po_number": self.orden_compra})
+        self.requiere_po = self.env['dtm.client.needs'].search([("no_cotizacion", "=", self.no_cotizacion)],limit=1).po_necesaria
 
     def get_view(self, view_id=None, view_type='form', **options):# Llena la tabla dtm.ordenes.compra.precotizaciones con las cotizaciones(NO PRECOTIZACIONES) pendientes
         res = super(OrdenesCompra,self).get_view(view_id, view_type,**options)
@@ -297,7 +300,7 @@ class ItemsCompras(models.Model):
     nombre_archivo = fields.Char(string="Nombre")
     status = fields.Char(string="Notas")
     parcial = fields.Boolean(default=False)
-    date_disign_finish = fields.Date(string="Diseño")
+    date_disign_finish = fields.Date(string="Diseño",require=True)
     # prediseno = fields.Selection(string="Prediseño",selection=[("no","No"),("si","Si")], default="no")
     tipo_servicio = fields.Selection(string="Tipo", selection=[("fabricacion","Fabricación"),("servicio","Servicio"),
                                          ("compra","Compra"),("retrabajo","Retrabajo"),('concentrado','Concentrado')],default="fabricacion")
@@ -314,52 +317,56 @@ class ItemsCompras(models.Model):
         self.precio_total = float(self.precio_unitario) * float(self.cantidad)
 
     def acction_generar(self):# Genera orden de diseño si existe la actualiza
-        if self.model_id.archivos_id:
-            # Busca la cotización en necesidades del cliente
-            necesidades = self.env['dtm.client.needs'].search([('no_cotizacion','=',self.model_id.no_cotizacion)]).list_materials_ids.filtered_domain([('name','=',self.item)])
-            # Obtine el nombre del diseñador asignado
-            # disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "Luis García" if self.firma_diseno == "garcia" else "Bryan Banda" if self.firma_diseno == "bryan" else "N/A"
-            desinador_dict = dict(self._fields['firma_diseno'].selection)
-            disenador = desinador_dict.get(self.firma_diseno)
-            # print(disenador)
-            # Busca el ultimo registro de la orden de diseño y le suma uno
-            if not self.orden_diseno:
-                get_diseno_odt = self.env['dtm.odt'].search([('od_number', '!=', False)], order='od_number desc', limit=1)
-                get_diseno_fact = self.env['dtm.compra.facturado.item'].search([('orden_diseno', '!=', False)],order='orden_diseno desc', limit=1)
-                self.orden_diseno = max(get_diseno_odt.od_number, get_diseno_fact.orden_diseno) + 1
-            vals = {
-                    "od_number": self.orden_diseno,
-                    "cuantity":self.cantidad,
-                    "product_name":self.item,
-                    "po_number": self.model_id.orden_compra,
-                    "date_rel":self.model_id.fecha_salida,
-                    "name_client":self.model_id.cliente_prov,
-                    "no_cotizacion":self.model_id.no_cotizacion,
-                    "disenador":disenador,
-                    "po_fecha_creacion":self.model_id.fecha_captura_po,
-                    "tipe_order": "RT" if self.tipo_servicio == "retrabajo" else "COT" if self.tipo_servicio == 'concentrado' else "OT", #Se obtine el último valor de la orden correspondiente,
-                    "po_fecha":self.model_id.fecha_po,
-                    "description":necesidades.descripcion,
-                    "color": necesidades.color,
-                    "anexos_ventas_id":self.model_id.anexos_id,
-                    "orden_compra_pdf":self.model_id.archivos_id,
-                    "ot_number":self.orden_trabajo if self.orden_trabajo else 0,
-                    "od_number":self.orden_diseno,
-                    "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
-                    "date_disign_finish":self.date_disign_finish,
-                    "intervencion_calidad":self.intervencion_calidad
-             }
-            # Busca si existe la orden de diseño o de trabajo siempre que od_number > 0 si la encuentra actualiza y si no la crea
-            dtm_odt = self.env['dtm.odt'].search([('ot_number', '=', self.orden_trabajo),('od_number', '=', self.orden_diseno)],limit=1)
-            # print(vals)
-            # print(dtm_odt)
-            if dtm_odt:
-                dtm_odt.write(vals)
-            else:
-                dtm_odt.create(vals)
-
+        get_necesidades = self.env['dtm.client.needs'].search([('no_cotizacion','=',self.model_id.no_cotizacion)],limit=1).po_necesaria
+        if get_necesidades and not self.model_id.archivos_id:
+             raise ValidationError("No se ha subido el archivo de la orden de compra")
+        if not self.date_disign_finish:
+             raise ValidationError("Se requiere fecha estimada de finalización de Diseño")
+        # Busca la cotización en necesidades del cliente
+        necesidades = self.env['dtm.client.needs'].search([('no_cotizacion','=',self.model_id.no_cotizacion)]).list_materials_ids.filtered_domain([('name','=',self.item)])
+        # Obtine el nombre del diseñador asignado
+        # disenador = "Andrés Orozco" if self.firma_diseno == "orozco" else "Luis García" if self.firma_diseno == "garcia" else "Bryan Banda" if self.firma_diseno == "bryan" else "N/A"
+        desinador_dict = dict(self._fields['firma_diseno'].selection)
+        disenador = desinador_dict.get(self.firma_diseno)
+        # print(disenador)
+        # Busca el ultimo registro de la orden de diseño y le suma uno
+        if not self.orden_diseno:
+            get_diseno_odt = self.env['dtm.odt'].search([('od_number', '!=', False)], order='od_number desc', limit=1)
+            get_diseno_fact = self.env['dtm.compra.facturado.item'].search([('orden_diseno', '!=', False)],order='orden_diseno desc', limit=1)
+            self.orden_diseno = max(get_diseno_odt.od_number, get_diseno_fact.orden_diseno) + 1
+        vals = {
+                "od_number": self.orden_diseno,
+                "cuantity":self.cantidad,
+                "product_name":self.item,
+                "po_number": self.model_id.orden_compra,
+                "date_rel":self.model_id.fecha_salida,
+                "name_client":self.model_id.cliente_prov,
+                "no_cotizacion":self.model_id.no_cotizacion,
+                "disenador":disenador,
+                "po_fecha_creacion":self.model_id.fecha_captura_po,
+                "tipe_order": "RT" if self.tipo_servicio == "retrabajo" else "COT" if self.tipo_servicio == 'concentrado' else "OT", #Se obtine el último valor de la orden correspondiente,
+                "po_fecha":self.model_id.fecha_po,
+                "description":necesidades.descripcion,
+                "color": necesidades.color,
+                "anexos_ventas_id":self.model_id.anexos_id,
+                "orden_compra_pdf":self.model_id.archivos_id,
+                "ot_number":self.orden_trabajo if self.orden_trabajo else 0,
+                "od_number":self.orden_diseno,
+                "archivos_id":[(6,0,self.env['dtm.cotizacion.requerimientos'].search([('id','=',self.id_item)]).mapped('attachment_ids').mapped('id'))],
+                "date_disign_finish":self.date_disign_finish,
+                "intervencion_calidad":self.intervencion_calidad
+            }
+        # Busca si existe la orden de diseño o de trabajo siempre que od_number > 0 si la encuentra actualiza y si no la crea
+        dtm_odt = self.env['dtm.odt'].search([('ot_number', '=', self.orden_trabajo),('od_number', '=', self.orden_diseno)],limit=1)
+        # print(vals)
+        # print(dtm_odt)
+        if dtm_odt:
+            dtm_odt.write(vals)
         else:
-            raise ValidationError("No se ha subido el archivo de la orden de compra")
+            dtm_odt.create(vals)
+
+        
+           
 
          
             
