@@ -138,7 +138,7 @@ class WebSiteDirectios(http.Controller):
                 "nombre":data.product_name,
                 "cantidad":data.cuantity,
                 "disenador":data.disenador,
-                "nesteo":'No' if data.nesteo_chk else 'Si',
+                "nesteo":'Si' if data.firma_ingenieria else 'No',
                 "costo_diseno": round(sum(data.lista_material_id.mapped('precio')),2) if data.ot_number else 'N/A',
                 "costo_ingenieria": round(sum(data.materials_ids.mapped('costo')),2) if data.ot_number else 'N/A',
                 "compras":round(sum(get_compras.mapped('costo')),2) if data.ot_number else 'N/A',

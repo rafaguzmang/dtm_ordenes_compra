@@ -7,12 +7,14 @@
     "depends":["base","dtm_cotizaciones","dtm_procesos","dtm_odt","mail"],
     # "depends":["base","dtm_cotizaciones","mail"],
     "data":[
-        'security/ir.model.access.csv',
+        "security/dtm_ordenes_compra_groups.xml",
+        "security/ir.model.access.csv",
         #Views
-        'views/dtm_ordenes_compra_views.xml',
-        'views/dtm_ordenes_compra_facturado_views.xml',
-        'views/dtm_ordenes_minutas_views.xml',
-        'views/dtm_seguimiento_view.xml',
+        "views/dtm_ordenes_compra_views.xml",
+        "views/dtm_ordenes_compra_facturado_views.xml",
+        "views/dtm_ordenes_minutas_views.xml",
+        "views/dtm_seguimiento_view.xml",
+        "views/dtm_ordenes_compra_audit_log_views.xml",
     ],
     'license': 'LGPL-3',
     'assets': {

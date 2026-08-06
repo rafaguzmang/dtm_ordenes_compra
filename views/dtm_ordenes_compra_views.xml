@@ -35,7 +35,7 @@
             <field name="name">dtm_ordenes_compra_tree</field>
             <field name="model">dtm.ordenes.compra</field>
             <field name="arch" type="xml">
-                <tree delete="false">
+                <tree >
                     <field name="no_cotizacion"/>
                     <field name="proveedor"/>
                     <field name="cliente_prov"/>
@@ -61,7 +61,7 @@
                  <header>
                     <button name="action_fill" type="object" string="Autocompletar" class="btn btn-primary" />
                     <!-- <button name="action_facturado" type="object" string="Facturar" class="btn btn-primary" attrs="{'invisible': ['|','|', ('usuario','!=',True), ('no_factura','=',False),('cantidad_pagada','=',0)]}"/> -->
-                    <button name="action_facturado" type="object" string="Facturar" class="btn btn-primary"/>
+                    <button name="action_facturado" type="object" string="Facturar" class="btn btn-primary" groups="dtm_ordenes_compra.group_dtm_facturador"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">

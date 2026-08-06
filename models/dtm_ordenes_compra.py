@@ -54,6 +54,23 @@ class OrdenesCompra(models.Model):
     tiene_factura_pdf = fields.Boolean(string="Tiene Factura PDF", compute="_compute_tiene_factura_pdf")
     requiere_po = fields.Boolean(default=True)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._log_audit('alta', origen='create() estándar')
+        return records
+
+    def _log_audit(self, accion, origen="desconocido"):
+        for rec in self:
+            self.env['dtm.ordenes.compra.audit.log'].create({
+                'accion': accion,
+                'usuario_id': self.env.user.id,
+                'orden_id_original': rec.id,
+                'no_cotizacion': rec.no_cotizacion_id.precotizacion,
+                'orden_compra': rec.orden_compra,
+                'origen': origen,
+            })    
+
     @api.depends("factura_pdf")
     def _compute_tiene_factura_pdf(self):
         for rec in self:
@@ -161,6 +178,10 @@ class OrdenesCompra(models.Model):
                 'model_id': get_id.id,
             }
             self.env['dtm.compras.facturado.archivos'].create(vals)
+        
+        # --- Log de auditoría antes del borrado ---
+        self._log_audit('borrado', origen='action_facturado')
+        
         # Borra la orden de compra de este modelo principal
         get_items = self.env['dtm.compras.items'].search([("model_id", "=", self.id)])
         get_items.unlink()

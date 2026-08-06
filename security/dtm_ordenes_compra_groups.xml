@@ -1,0 +1,22 @@
+<odoo>
+    <record id="module_category_dtm_ordenes_compra" model="ir.module.category">
+       <field name="name">Ventas Ordenes de Compra</field>
+       <field name="description">Permisos para el módulo de Órdenes de Compra</field>
+       <field name="sequence">10</field>
+   </record>
+
+    <record id="group_dtm_facturador" model="res.groups">
+        <field name="name">DTM - Autorizado para Facturar</field>
+        <field name="category_id" ref="module_category_dtm_ordenes_compra"/>
+    </record>
+
+    <record id="group_dtm_admin_ordenes_compra" model="res.groups">
+        <field name="name">DTM - Admin Ordenes de Compra</field>
+        <field name="category_id" ref="module_category_dtm_ordenes_compra"/>
+    </record>
+   
+    <record id="group_dtm_user_ordenes_compra" model="res.groups">
+        <field name="name">DTM - Usuarios Ordenes de Compra</field>
+        <field name="category_id" ref="module_category_dtm_ordenes_compra"/>
+    </record>
+</odoo>
