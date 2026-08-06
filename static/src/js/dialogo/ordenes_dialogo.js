@@ -5,10 +5,11 @@ import { useService } from "@web/core/utils/hooks";
 import { MaterialesDialogo } from "./materiales_dialogo";
 import { CorteDialogo } from "./corte_dialogo";
 import { DisenoDialogo } from "./diseno_dialogo";
+import { HistorialDialogo } from "./tiempo_status_modal";
 
 export class OrdenesTrabajo extends Component {
     static props = ["cerrar", "cotizacion", "po_costo", "cliente", "fcotizaciones", "facturado", "numero_factura"]
-    static components = { MaterialesDialogo, CorteDialogo, DisenoDialogo };
+    static components = { MaterialesDialogo, CorteDialogo, DisenoDialogo, HistorialDialogo };
 
     setup() {
         this.state = useState({
@@ -23,7 +24,9 @@ export class OrdenesTrabajo extends Component {
             showCorteModal: false,
             version: 0,
             showDisenoModal: false,
+            showTiempoStatusModal: false,
             cliente: "",
+            orden_diseno: 0,
         })
         this.rpc = useService("rpc")
 
@@ -32,6 +35,16 @@ export class OrdenesTrabajo extends Component {
             await this.precioDollar();
         });
 
+    }
+
+    abrirTiempoStatus = (od) => {
+        console.log(od);
+        this.state.showTiempoStatusModal = true;
+        this.state.orden_diseno = od;
+    }
+
+    cerrarTiempoStatus = () => {
+        this.state.showTiempoStatusModal = false;
     }
 
     abrirDiseno = (orden) => {
@@ -88,7 +101,6 @@ export class OrdenesTrabajo extends Component {
         });
         const data = await response.json();
         this.state.ordenes = data.result;
-        console.log(data.result);
         console.log(this.state.ordenes);
         this.state.costo_diseno = data.result.map(costo => costo.costo_diseno).reduce((a, b) => a + b, 0);
         this.state.costo_ingenieria = data.result.map(costo => costo.costo_ingenieria).reduce((a, b) => a + b, 0);

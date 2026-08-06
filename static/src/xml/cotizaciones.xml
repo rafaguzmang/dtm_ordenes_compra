@@ -33,12 +33,12 @@
                     <span class="ml-name">Material por liberar</span>
                 </div>
 
-                <!-- <div class="ml-btn">
-                    <div class="ml-dot" style="background:#FAEEDA;color:#633806;">8</div>
-                    <span class="ml-name">En revisión</span>
+                <div class="ml-btn activate" t-on-click="() => this.ordenesAtoradas()">
+                    <div class="ml-dot" style="background:#FAEEDA;color:#633806;"><t t-esc="this.state.ordenes_atoradas_count"/></div>
+                    <span class="ml-name">Ordenes Detenidas</span>
                 </div>
 
-                <div class="ml-btn">
+                <!-- <div class="ml-btn">
                     <div class="ml-dot" style="background:#E1F5EE;color:#085041;">13</div>
                     <span class="ml-name">Liberado</span>
                 </div>

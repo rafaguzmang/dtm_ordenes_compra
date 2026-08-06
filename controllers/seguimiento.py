@@ -33,12 +33,45 @@ class WebSiteDirectios(http.Controller):
                 get_status = 'PO'
 
             atencion_material = False
+            atorado = False
             for ot in orden.descripcion_id:
-                if ot.orden_trabajo:
-                    get_compras = request.env['dtm.compras.requerido'].sudo().search([('orden_trabajo','=',ot.orden_trabajo),('tipo_orden','in',['OT','NPI'])],limit=1)
-                    if get_compras:
-                        atencion_material = True
-                        break
+                if not ot.orden_trabajo and not ot.orden_diseno:
+                    continue
+
+                # Caso 1: solo tiene od_number (aún no genera ot_number)
+                if not ot.orden_trabajo:
+                    get_diseno = request.env['dtm.odt'].sudo().search(
+                        [('od_number', '=', ot.orden_diseno)], limit=1
+                    )
+                    if get_diseno and get_diseno.create_date:
+                        delta = datetime.now() - get_diseno.create_date
+                        atorado = atorado or (delta.total_seconds() / 3600 > 24)
+                    continue
+
+                # Caso 2: tiene ot_number pero firma_ingenieria aún no se firma (sigue en nesteo)
+                get_odt = request.env['dtm.odt'].sudo().search(
+                    [('ot_number', '=', ot.orden_trabajo)], limit=1
+                )
+                if get_odt and not get_odt.firma_ingenieria:
+                    if get_odt.nesteo_inicio:
+                        delta = datetime.now() - get_odt.nesteo_inicio
+                        atorado = atorado or (delta.total_seconds() / 3600 > 24)
+                    continue
+
+                # Caso 3: firma_ingenieria ya firmada -> dtm.proceso ya existe, se lee lo que dice el cron
+                get_proceso = request.env['dtm.proceso'].sudo().search(
+                    [('ot_number', '=', ot.orden_trabajo)], limit=1
+                )
+                if get_proceso:
+                    atorado = atorado or get_proceso.atorado
+
+                get_compras = request.env['dtm.compras.requerido'].sudo().search(
+                    [('orden_trabajo', '=', ot.orden_trabajo), ('tipo_orden', 'in', ['OT', 'NPI'])], limit=1
+                )
+                if get_compras:
+                    atencion_material = True
+                    break
+                    
             # atencion_material = True if get_ordenes.filtered(lambda x: x.status == 'atencion') else False
             result.append({
                 'cotizacion': orden.no_cotizacion,
@@ -54,6 +87,7 @@ class WebSiteDirectios(http.Controller):
                 'numero_factura':','.join(orden.mapped('factura_pdf.name')) if facturado else '---',
                 'atencion_material': atencion_material,
                 'po_date': orden.fecha_po.strftime("%x") if orden.fecha_po else '---',
+                'atorada': True if atorado else False,
             })
 
         return request.make_response(
@@ -108,7 +142,7 @@ class WebSiteDirectios(http.Controller):
                 "costo_diseno": round(sum(data.lista_material_id.mapped('precio')),2) if data.ot_number else 'N/A',
                 "costo_ingenieria": round(sum(data.materials_ids.mapped('costo')),2) if data.ot_number else 'N/A',
                 "compras":round(sum(get_compras.mapped('costo')),2) if data.ot_number else 'N/A',
-                "status":status_value if data.ot_number else 'N/A',
+                "status":status_value if data.firma_ingenieria else 'N/A',
                 "material":round(porciento_material,2) if data.ot_number else 'N/A',
                 "maquinados":'N/A',
                 "corte":f"{corte_porcentaje}%" if data.ot_number else 'N/A',
@@ -349,3 +383,19 @@ class WebSiteDirectios(http.Controller):
         get_requerido_old.unlink()
         return {'success':True}
         
+    @http.route('/tiempo_status', type='json', auth='public')
+    def tiempoStatus(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        orden = data.get("orden_diseno")
+        get_orden = request.env['dtm.odt'].sudo().search([('od_number','=',int(orden))],limit=1)
+        get_proceso = get_orden.tiempo_status
+        result = []
+        for proceso in get_orden.tiempo_status:
+            result.append({
+                'estacion': proceso.estacion,
+                'inicial': proceso.inicial and proceso.inicial.isoformat(),
+                'final': proceso.final and proceso.final.isoformat(),
+                'total': proceso.total,
+        })
+        return result

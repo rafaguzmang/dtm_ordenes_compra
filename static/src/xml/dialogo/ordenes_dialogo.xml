@@ -90,7 +90,7 @@
                                             </t>
                                             <td class="dtm-na"><t t-esc="orden.maquinados"/></td>
                                             <td class="dtm-na"><t t-esc="orden.compras"/></td>
-                                            <td class="dtm-na"><t t-esc="orden.status"/></td>
+                                            <td class="dtm-na" t-on-click="() => abrirTiempoStatus(orden.od)"> <t t-esc="orden.status"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -151,6 +151,10 @@
 
             <div t-if="this.state.showDisenoModal">
                 <DisenoDialogo cerrar="cerrarDiseno" orden="this.state.orden"/>
+            </div>
+
+            <div t-if="this.state.showTiempoStatusModal">
+                <HistorialDialogo cerrar="cerrarTiempoStatus" orden_diseno="this.state.orden_diseno"/>
             </div>
             
         </div>

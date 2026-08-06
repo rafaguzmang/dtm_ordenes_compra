@@ -25,6 +25,8 @@
             'dtm_ordenes_compra/static/src/css/poraprobar_dialogo.css',
             'dtm_ordenes_compra/static/src/css/diseno_dialogo.css',
             'dtm_ordenes_compra/static/src/css/extraordinariaDialog.css',
+            'dtm_ordenes_compra/static/src/css/tiempo_status_modal.css',
+
             # JS
             'dtm_ordenes_compra/static/src/js/seguimiento.js',
             'dtm_ordenes_compra/static/src/js/cotizaciones.js',
@@ -35,6 +37,7 @@
             'dtm_ordenes_compra/static/src/js/dialogo/diseno_dialogo.js',
             'dtm_ordenes_compra/static/src/js/dialogo/planos_dialogo.js',
             'dtm_ordenes_compra/static/src/js/dialogo/extraordinariaDialogo.js',
+            'dtm_ordenes_compra/static/src/js/dialogo/tiempo_status_modal.js',
             # XML
             'dtm_ordenes_compra/static/src/xml/seguimiento.xml',
             'dtm_ordenes_compra/static/src/xml/cotizaciones.xml',
@@ -45,6 +48,7 @@
             'dtm_ordenes_compra/static/src/xml/dialogo/diseno_dialogo.xml',
             'dtm_ordenes_compra/static/src/xml/dialogo/planos_dialogo.xml',
             'dtm_ordenes_compra/static/src/xml/dialogo/extraordinariaDialogo.xml',
+            'dtm_ordenes_compra/static/src/xml/dialogo/tiempo_status_modal.xml',
         ],
     },
 }

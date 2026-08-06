@@ -21,6 +21,8 @@ export class Cotizaciones extends Component {
             showPDF: false,
             material_a_liberar: false,
             material_a_liberar_count: 0,
+            ordenes_atoradas: false,
+            ordenes_atoradas_count: 0,
             facturado: false,
             factura_pdf: "",
             numero_factura: "",
@@ -33,12 +35,22 @@ export class Cotizaciones extends Component {
         });
     }
 
+    // Material a liberar para compras
     materialALiberar() {
         if (this.state.material_a_liberar) {
             this.fetchCotizaciones();
         }
         this.state.material_a_liberar = !this.state.material_a_liberar;
         this.state.cotizaciones = this.state.material_a_liberar ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.atencion_material) : this.state.cotizaciones_filtradas;
+    }
+
+    // Ordenes con mas de 24 horas sin cambio de estatus
+    ordenesAtoradas() {
+        if (this.state.ordenes_atoradas) {
+            this.fetchCotizaciones();
+        }
+        this.state.ordenes_atoradas = !this.state.ordenes_atoradas;
+        this.state.cotizaciones = this.state.ordenes_atoradas ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.atorada) : this.state.cotizaciones_filtradas;
     }
 
     openPDF(pdf) {
@@ -51,16 +63,21 @@ export class Cotizaciones extends Component {
     }
 
     async fetchCotizaciones() {
-        const response = await fetch('/dtm_cotizaciones');
-        const data = await response.json();
-        this.state.cotizaciones = data.sort((a, b) => b.facturado - a.facturado);
-        this.state.cotizaciones_filtradas = data.sort((a, b) => b.facturado - a.facturado);
-        this.state.clientes = [...new Set(data.map(cotizacion => cotizacion.cliente))];
-        this.state.cotizaciones_totales = data.length;
-        const precios = data.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
-        this.state.acumulado = Math.round(precios.reduce((acc, precio) => acc + precio) * 100) / 100;
-        this.state.terminadas = data.filter(cotizacion => cotizacion.facturado).length;
-        this.state.material_a_liberar_count = data.filter(cotizacion => cotizacion.atencion_material).length;
+        try {
+            const response = await fetch('/dtm_cotizaciones');
+            const data = await response.json();
+            this.state.cotizaciones = data.sort((a, b) => b.facturado - a.facturado);
+            this.state.cotizaciones_filtradas = data.sort((a, b) => b.facturado - a.facturado);
+            this.state.clientes = [...new Set(data.map(cotizacion => cotizacion.cliente))];
+            this.state.cotizaciones_totales = data.length;
+            const precios = data.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
+            this.state.acumulado = Math.round(precios.reduce((acc, precio) => acc + precio) * 100) / 100;
+            this.state.terminadas = data.filter(cotizacion => cotizacion.facturado).length;
+            this.state.material_a_liberar_count = data.filter(cotizacion => cotizacion.atencion_material).length;
+            this.state.ordenes_atoradas_count = data.filter(cotizacion => cotizacion.atorada).length;
+        } catch (error) {
+            console.error("Error al obtener las cotizaciones:", error);
+        }
     }
 
     async fetchPrecioDollar() {

@@ -8,7 +8,7 @@
                     <i class="fa fa-credit-card" style="font-size: 28px; color: rgba(214, 225, 84, 0.7);" aria-hidden="true"></i>
                 </div>
                 <h3>Compra Extraordinaría</h3>
-                <p>Esta compra pasa directamente a Transito<strong style="color:#fff;">1240</strong> como lista?</p>
+                <p>Esta compra pasa directamente a Transito</p>
 
                 <div class="rmc-form" t-ref="formRef">
                     <div class="rmc-field">

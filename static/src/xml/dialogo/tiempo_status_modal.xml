@@ -1,0 +1,68 @@
+<template xml:space="preserve">
+    <t t-name="dtm_procesos.historial_dialogo" owl="1">
+
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <!-- Header -->
+                    <div class="ts-mh">
+                        <div>
+                            <div class="ts-mh-eyebrow">Historial de proceso</div>
+                            <div class="ts-mh-title">Tiempos por estación</div>
+                        </div>
+                        <button class="ts-close" t-on-click="props.cerrar">
+                            <svg width="11" height="11" viewBox="0 0 14 14" fill="none"
+                                 stroke="white" stroke-width="2" stroke-linecap="round">
+                                <path d="M1 1L13 13M13 1L1 13"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body">
+
+                        <!-- Gráfica de barras -->
+                        <div class="ts-chart">
+                            <t t-foreach="barras" t-as="b" t-key="b.estacion + '_' + b_index">
+                                <div class="ts-chart-row">
+                                    <span class="ts-chart-label"><t t-esc="b.estacion"/></span>
+                                    <div class="ts-chart-track">
+                                        <div class="ts-chart-bar" t-attf-style="width: #{b.pct}%;">
+                                            <span class="ts-chart-val"><t t-esc="b.totalLabel"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Tabla -->
+                        <div class="ts-tbl-outer">
+                            <table class="ts-tbl">
+                                <thead>
+                                    <tr>
+                                        <th>Estación</th>
+                                        <th>Inicial</th>
+                                        <th>Final</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="this.state.historial" t-as="h" t-key="h_index">
+                                        <tr>
+                                            <td class="ts-estacion"><t t-esc="h.estacion"/></td>
+                                            <td><t t-esc="h.inicial"/></td>
+                                            <td><t t-esc="h.final"/></td>
+                                            <td class="ts-total"><t t-esc="h.totalLabel"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
