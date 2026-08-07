@@ -326,7 +326,7 @@ class ItemsCompras(models.Model):
     tipo_servicio = fields.Selection(string="Tipo", selection=[("fabricacion","Fabricación"),("servicio","Servicio"),
                                          ("compra","Compra"),("retrabajo","Retrabajo"),('concentrado','Concentrado')],default="fabricacion")
     firma = fields.Char(string="Firmado")
-    firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"), ("bryan","Bryan Banda"),("na","N/A")],required=True,default="na")
+    firma_diseno = fields.Selection(string="Diseñador", selection=[("orozco","Andrés Orozco"), ("bryan","Bryan Banda"), ("oscar","Oscar Estrada"),("na","N/A")],required=True,default="na")
     intervencion_calidad = fields.Boolean(string='Calidad',default=False)
 
     @api.onchange("cantidad")
