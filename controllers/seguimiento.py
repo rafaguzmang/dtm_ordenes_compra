@@ -262,10 +262,6 @@ class WebSiteDirectios(http.Controller):
                 'cantidad':material.cantidad,
                 'nesteo':material.nesteo,
             })
-
-
-
-        print(get_materiales)
         return result
 
     @http.route('/dtm_diseno_materiales', type='json', auth='public')
