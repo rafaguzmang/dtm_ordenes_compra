@@ -217,7 +217,7 @@ class WebSiteDirectios(http.Controller):
 
         get_realizado = request.env['dtm.compras.realizado'].search([("orden_trabajo","=",orden),("codigo","=",id)],limit=1)
         get_cotizaciones = request.env['dtm.compras.material'].search([("nombre","=",material),("codigo","=",id)],limit=1)
-        get_requerido = request.env['dtm.compras.requerido'].search([("orden_trabajo","=",orden),("codigo","=",id)])
+        get_requerido = request.env['dtm.compras.requerido'].search([("orden_trabajo","=",orden),("codigo","=",id)],limit=1)
 
         for material in get_requerido:
             create = {
@@ -239,7 +239,6 @@ class WebSiteDirectios(http.Controller):
             }
             get_realizado.write(create) if get_realizado else get_realizado.create(create)
             material.unlink()
-        get_cotizaciones.unlink()
         return True
 
     @http.route('/dtm_get_all_materiales', type='json', auth='public')

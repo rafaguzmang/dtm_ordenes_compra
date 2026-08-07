@@ -22,19 +22,25 @@ export class PorAprobarDialogo extends Component {
     }
 
     async confirmar() {
+        debugger;
         for (const item of this.state.materiales) {
-            fetch("/dtm_autorizar_material", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: this.props.id,
-                    orden: item.orden
+            try {
+                const response = await fetch("/dtm_autorizar_material", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: this.props.id,
+                        orden: item.orden
+                    })
                 })
-            })
+            } catch (e) {
+                console.error('Error al autorizar material', e)
+            }
+
         }
-        await this.getAllMateriales();
+        this.props.padre(true);
     }
 
     // confirmar() {

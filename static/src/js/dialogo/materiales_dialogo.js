@@ -51,6 +51,7 @@ export class MaterialesDialogo extends Component {
 
     borrarHijo(respuesta) {
         if (respuesta) {
+            debugger;
             const indice = this.state.materialesFiltrados.findIndex(item => item.id === this.state.id_pa);
             this.state.materialesFiltrados.splice(indice, 1);
             this.setTab("cotizacion");

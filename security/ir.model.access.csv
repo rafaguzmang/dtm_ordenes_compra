@@ -9,5 +9,5 @@ access_dtm_compras_facturado_archivos,access.dtm.compras.facturado.archivos,mode
 access_dtm_ordenes_minutas,access.dtm.ordenes.minutas,model_dtm_ordenes_minutas,group_dtm_user_ordenes_compra,1,1,1,1
 access_dtm_ordenes_asistentes,access.dtm.ordenes.asistentes,model_dtm_ordenes_asistentes,group_dtm_user_ordenes_compra,1,1,1,1
 access_dtm_ordenes_nombres,access.dtm.ordenes.nombres,model_dtm_ordenes_nombres,group_dtm_user_ordenes_compra,1,1,1,1
-access_dtm_ordenes_compra_audit_log,access.dtm.ordenes.compra.audit.log,model_dtm_ordenes_compra_audit_log,group_dtm_user_ordenes_compra,1,0,0,0
+access_dtm_ordenes_compra_audit_log,access.dtm.ordenes.compra.audit.log,model_dtm_ordenes_compra_audit_log,group_dtm_user_ordenes_compra,1,1,1,0
 access_dtm_ordenes_compra_audit_log_facturador,access.dtm.ordenes.compra.audit.log.facturador,model_dtm_ordenes_compra_audit_log,dtm_ordenes_compra.group_dtm_facturador,1,0,1,0

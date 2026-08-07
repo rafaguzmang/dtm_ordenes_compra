@@ -187,7 +187,7 @@
                             <t t-foreach="this.state.materiales" t-as="mat" t-key="mat.id">
                                 <tr t-att-title="mat.cotizaciones_id">
                                     <td class="mat-td-code"><t t-esc="mat.id"/></td>
-                                    <t t-if="mat.cotizaciones_id">
+                                    <t t-if="mat.cotizaciones_id &amp;&amp; mat.proveedor != '---------' &amp;&amp; mat.total != 0">
                                         <td class="mat-td-name mat-cotizacion" t-on-click="()=>this.openPorAprobar(mat.id,mat.name)"><t t-esc="mat.name"/></td>
                                     </t>
                                     <t t-else="">
