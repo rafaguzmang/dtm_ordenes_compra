@@ -12,7 +12,7 @@ class WebSiteDirectios(http.Controller):
         get_po = request.env['dtm.ordenes.compra'].sudo().search([])
         result = []
         for orden in get_po:
-
+            # Se obtiene si está facturado
             get_ordenes = orden.descripcion_id
             if len(get_ordenes) == 1:
                 status = request.env['dtm.proceso'].sudo().search([('ot_number','=',get_ordenes.orden_trabajo)],limit=1).status
@@ -31,10 +31,11 @@ class WebSiteDirectios(http.Controller):
 
             else:
                 get_status = 'PO'
-
-            atencion_material = False
-            atorado = False
-            for ot in orden.descripcion_id:
+            # Variables para ayudar a filtrar en los botones ml-btn de cotizaciones
+            atencion_material = False # Filtrado por material a liberar de cotizaciones
+            atorado = False # Filtra las ordenes que tienen mas de dos días con el mismo status
+            por_aprobar = False # Filtra por la ordenes con firma de ingeniería y sin firma de ventas
+            for ot in orden.descripcion_id: # Se itera por las ordenes de trabajo de la PO no de dtm_odt
                 if not ot.orden_trabajo and not ot.orden_diseno:
                     continue
 
@@ -52,6 +53,9 @@ class WebSiteDirectios(http.Controller):
                 get_odt = request.env['dtm.odt'].sudo().search(
                     [('ot_number', '=', ot.orden_trabajo)], limit=1
                 )
+                if get_odt and get_odt.firma and not get_odt.firma_ventas:
+                    por_aprobar = True
+                    
                 if get_odt and not get_odt.firma_ingenieria:
                     if get_odt.nesteo_inicio:
                         delta = datetime.now() - get_odt.nesteo_inicio
@@ -86,6 +90,7 @@ class WebSiteDirectios(http.Controller):
                 'facturado': facturado, 
                 'numero_factura':','.join(orden.mapped('factura_pdf.name')) if facturado else '---',
                 'atencion_material': atencion_material,
+                'por_aprobar':por_aprobar,
                 'po_date': orden.fecha_po.strftime("%x") if orden.fecha_po else '---',
                 'atorada': True if atorado else False,
             })
@@ -149,6 +154,7 @@ class WebSiteDirectios(http.Controller):
                 "material_diseno":True if data.ot_number else False,
                 "firma_ventas":data.firma_ventas,
                 "en_cotizacion":True if get_cotizacion else False,
+                "por_aprobar":True if data.firma and not data.firma_ventas else False
             }
             result.append(vals)
 
@@ -173,10 +179,10 @@ class WebSiteDirectios(http.Controller):
         get_materiales = get_orden.materials_ids
         lista = []
         for material in get_materiales:
-            get_compras = request.env['dtm.compras.requerido'].sudo().search([('orden_trabajo','=',orden),('tipo_orden','in',['OT','NPI']),('codigo','=',material.materials_list.id)],limit=1)           
+            get_compras = request.env['dtm.compras.requerido'].sudo().search([('orden_trabajo','=',orden),('tipo_orden','in',['OT','NPI']),('codigo','=',material.materials_list.id),('extra_materials','=',material.extra_materials)],limit=1)           
             get_old_compras = request.env['dtm.compras.material'].sudo().search([('codigo','=',material.materials_list.id),('nombre','=',get_compras.nombre)],limit=1) if get_compras else None
-            get_compras_requerido = request.env['dtm.compras.realizado'].sudo().search([('orden_trabajo','=',orden),('tipo_orden','in',['OT','NPI']),('codigo','=',material.materials_list.id)],limit=1)
-            get_cotizaciones_id = request.env['dtm.compras.requerido'].sudo().search([('nombre','=',get_compras.nombre)]) if get_compras else None
+            get_compras_requerido = request.env['dtm.compras.realizado'].sudo().search([('orden_trabajo','=',orden),('tipo_orden','in',['OT','NPI']),('codigo','=',material.materials_list.id),('extra_materials','=',material.extra_materials)],limit=1)
+            get_cotizaciones_id = request.env['dtm.compras.requerido'].sudo().search([('nombre','=',get_compras.nombre),('extra_materials','=',material.extra_materials)]) if get_compras else None
             cotizaciones_material_orden = get_cotizaciones_id.mapped('orden_trabajo') if get_cotizaciones_id else None           
             cotizaciones_ordenes = []
             if cotizaciones_material_orden:
@@ -202,6 +208,8 @@ class WebSiteDirectios(http.Controller):
                         "revision" if not material.almacen else 
                         "pendiente",
                 'cotizaciones_id':cotizaciones_ordenes if cotizaciones_ordenes else None,
+                'notas':material.notas if material.notas else '',
+                'extra_material':material.extra_materials
             })
         return lista
 
@@ -214,10 +222,11 @@ class WebSiteDirectios(http.Controller):
         orden = data.get("orden")
         user = request.env.user.name
         material = data.get("material")
+        extra_material = data.get("extra_material")
 
-        get_realizado = request.env['dtm.compras.realizado'].search([("orden_trabajo","=",orden),("codigo","=",id)],limit=1)
+        get_realizado = request.env['dtm.compras.realizado'].search([("orden_trabajo","=",orden),("codigo","=",id),("extra_materials","=",extra_material)],limit=1)
         get_cotizaciones = request.env['dtm.compras.material'].search([("nombre","=",material),("codigo","=",id)],limit=1)
-        get_requerido = request.env['dtm.compras.requerido'].search([("orden_trabajo","=",orden),("codigo","=",id)],limit=1)
+        get_requerido = request.env['dtm.compras.requerido'].search([("orden_trabajo","=",orden),("codigo","=",id),("extra_materials","=",extra_material)])
 
         for material in get_requerido:
             create = {
@@ -229,15 +238,15 @@ class WebSiteDirectios(http.Controller):
                 "codigo":id,
                 "nombre":material.nombre,
                 "cantidad":material.cantidad,
-                "orden_compra":get_cotizaciones.orden_compra,
                 "mostrador":get_cotizaciones.mostrador,
                 "mayoreo":get_cotizaciones.mayoreo,
                 "unitario":get_cotizaciones.unitario,
                 "costo":get_cotizaciones.unitario * material.cantidad,
                 "fecha_compra":datetime.now(),
                 "autoriza":user,
+                "extra_materials":extra_material
             }
-            get_realizado.write(create) if get_realizado else get_realizado.create(create)
+            get_realizado.create(create)
             material.unlink()
         return True
 
@@ -271,6 +280,7 @@ class WebSiteDirectios(http.Controller):
         orden = data.get("orden")
         get_orden = request.env['dtm.odt'].sudo().search([('ot_number','=',orden)],limit=1)
         get_materiales = get_orden.lista_material_id
+        aprobado = True if get_orden.firma_ventas else False
         result = []
         for material in get_materiales:
             result.append({
@@ -278,6 +288,7 @@ class WebSiteDirectios(http.Controller):
                 'cantidad':material.cantidad,
                 'precio_unitario':round(material.unitario,2),
                 'total':round(material.precio,2),
+                'aprobado':aprobado,
             })
         return result
 
@@ -394,3 +405,14 @@ class WebSiteDirectios(http.Controller):
                 'total': proceso.total,
         })
         return result
+
+    @http.route('/diseno_firma', type='json', auth='public')
+    def firmaDiseno(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        orden = data.get("orden")
+        user = request.env.user.name
+        get_orden = request.env['dtm.odt'].sudo().search([('ot_number','=',int(orden))],limit=1)
+        
+        if get_orden:
+            get_orden.write({'firma_ventas':user})

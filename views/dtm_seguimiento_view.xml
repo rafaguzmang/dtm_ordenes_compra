@@ -4,5 +4,5 @@
         <field name="name">Seguimiento</field>
         <field name="tag">dtm_ordenes_compra.seguimiento</field>
     </record>
-    <menuitem id="dtm_ordenes_compra_seguimiento_menu" action="dtm_ordenes_compra.dtm_ventas_seguimiento_action"/>
+    <!-- <menuitem id="dtm_ordenes_compra_seguimiento_menu" action="dtm_ordenes_compra.dtm_ventas_seguimiento_action"/> -->
 </odoo>

@@ -17,15 +17,32 @@ export class DisenoDialogo extends Component {
             firma_ventas: '',
             planos: [],
             abrirPlanos: false,
+            aprobado: false,
         })
         onWillStart(async () => {
-            await this.getOrden();
             await this.getMateriales();
         });
     }
 
-    aprovar() {
-        console.log('aprovar');
+    aprovarFirma = async () => {
+        console.log(this.props.orden)
+        try {
+            const data = await fetch('/diseno_firma', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                    {
+                        'orden': this.props.orden,
+                    }
+                )
+            })
+        } catch (error) {
+            console.log(error)
+        }
+        debugger;
+        await this.getMateriales();
     }
 
     abrirPlanos = () => {
@@ -58,6 +75,7 @@ export class DisenoDialogo extends Component {
     }
 
     async getMateriales() {
+        debugger;
         const response = await fetch('/dtm_diseno_materiales', {
             method: 'POST',
             headers: {
@@ -72,6 +90,9 @@ export class DisenoDialogo extends Component {
         const data2 = data.result.map((item) => { return { 'index': id++, ...item } })
         this.state.materiales = data2;
         this.state.materiales_len = data2.length;
+        this.state.aprobado = data2[0] ? data2[0].aprobado : false;
+        console.log(this.state.materiales);
+        console.log(this.state.aprobado);
     }
 }
 

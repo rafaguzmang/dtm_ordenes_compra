@@ -88,9 +88,9 @@
                         </tbody>
                     </table>
 
-                    <t t-if="!state.firma_ventas">
+                    <t t-if="!state.aprobado">
                         <div class="dtm-ordenes-compra-aprobar">
-                            <button type="button" class="btn btn-primary" t-on-click="()=>aprovar(props.orden)">Aprovar</button>
+                            <button type="button" class="btn btn-primary" t-on-click="()=>aprovarFirma()">Aprobar</button>
                         </div>
                     </t>
 

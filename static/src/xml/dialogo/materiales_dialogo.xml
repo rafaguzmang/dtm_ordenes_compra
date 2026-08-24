@@ -116,6 +116,7 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Material</th>
+                                <th>Notas</th>
                                 <th>Proveedor</th>
                                 <th class="num">Cantidad</th>
                                 <th class="num">Inventario</th>
@@ -130,10 +131,11 @@
                                 que aplica state.activeTab y state.filtros sobre props.materiales.
                                 Ver implementación JS de referencia al final del archivo.
                             -->
-                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat.id">
+                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat_index">
                                 <tr>
                                     <td class="mat-td-code"><t t-esc="mat.id"/></td>
                                     <td class="mat-td-name"><t t-esc="mat.name"/></td>
+                                    <td style="color:#fbbf24;"><t t-esc="mat.notas"/></td>
                                     <td><t t-esc="mat.proveedor"/></td>
                                     <td class="num"><t t-esc="mat.cantidad"/></td>
                                     <td class="num"><t t-esc="mat.inventario"/></td>
@@ -184,7 +186,7 @@
                                 que aplica state.activeTab y state.filtros sobre props.materiales.
                                 Ver implementación JS de referencia al final del archivo.
                             -->
-                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat.id">
+                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat_index">
                                 <tr t-att-title="mat.cotizaciones_id">
                                     <td class="mat-td-code"><t t-esc="mat.id"/></td>
                                     <t t-if="mat.cotizaciones_id &amp;&amp; mat.proveedor != '---------' &amp;&amp; mat.total != 0">
@@ -193,6 +195,7 @@
                                     <t t-else="">
                                         <td class="mat-td-name"> <t t-esc="mat.name"/></td>
                                     </t>
+                                    <td style="color:#fbbf24;"><t t-esc="mat.notas"/></td>
                                     <td><t t-esc="mat.proveedor"/></td>
                                     <td class="num"><t t-esc="mat.cantidad"/></td>
                                     <td class="num"><t t-esc="mat.inventario"/></td>
@@ -200,7 +203,7 @@
                                     <td class="num"><t t-esc="mat.total"/></td>
                                     <td>
                                         <div class="mat-actions">
-                                            <button class="mat-btn-ico mat-btn-confirm" t-att-class="mat.total > 0 &amp;&amp; mat.proveedor != '---------'  ? 'visible' : 'hidden'" t-on-click="()=>this.confirmarMaterial(mat.id,mat.name)" title="Confirmar">
+                                            <button class="mat-btn-ico mat-btn-confirm" t-att-class="mat.total > 0 &amp;&amp; mat.proveedor != '---------'  ? 'visible' : 'hidden'" t-on-click="()=>this.confirmarMaterial(mat.id,mat.name,mat.extra_material)" title="Confirmar">
                                                 <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
                                             </button>
                                             <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.compraExtraordinaria(mat.id,mat.name,mat.cantidad)" title="No pasa por compras">
@@ -232,10 +235,11 @@
                                 que aplica state.activeTab y state.filtros sobre props.materiales.
                                 Ver implementación JS de referencia al final del archivo.
                             -->
-                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat.id">
+                            <t t-foreach="this.state.materiales" t-as="mat" t-key="mat_index">
                                 <tr>
                                     <td class="mat-td-code"><t t-esc="mat.id"/></td>
                                     <td class="mat-td-name"><t t-esc="mat.name"/></td>
+                                    <td style="color:#fbbf24;"><t t-esc="mat.notas"/></td>
                                     <td><t t-esc="mat.proveedor"/></td>
                                     <td class="num"><t t-esc="mat.cantidad"/></td>
                                     <td class="num"><t t-esc="mat.inventario"/></td>

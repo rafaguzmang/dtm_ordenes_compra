@@ -69,26 +69,35 @@ export class MaterialesDialogo extends Component {
         this.state.name_pa = name;
     }
 
-    async confirmarMaterial(id, material) {
+    async confirmarMaterial(id, material, extra_material) {
+        console.log('confirmarMaterial llamado con id:', id, typeof id);
+        console.log('ids disponibles:', this.state.materialesFiltrados.map(m => ({ id: m.id, tipo: typeof m.id })));
         try {
             const response = await fetch("/dtm_autorizar_material", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     orden: this.props.orden,
                     id: id,
                     material: material,
+                    extra_material: extra_material,
                 })
-            })
-            const indice = this.state.materialesFiltrados.findIndex(item => item.id === id);
+            });
+            const result = await response.json();
+            if (!response.ok || result.error) {
+                console.error('Error al autorizar material:', result);
+                return; // no mutar el estado si falló
+            }
+            const indice = this.state.materialesFiltrados.findIndex(item => item.id === id && item.extra_material === extra_material);
+            if (indice === -1) {
+                console.warn('No se encontró el material con id', id, 'en materialesFiltrados');
+                return;
+            }
             this.state.materialesFiltrados.splice(indice, 1);
             this.setTab("cotizacion");
         } catch (error) {
-            console.log('Falló el fetch:', error);
+            console.error('Falló el fetch:', error);
         }
-
     }
 
     async rechazarMaterial(id) {
@@ -123,7 +132,6 @@ export class MaterialesDialogo extends Component {
             this.state.cotizacion = this.state.materiales.length;
             this.state.showTabla = 'cotizacion';
             this.state.activeTab = 'cotizacion';
-            console.log('Cotización', this.state.cotizacion);
 
         }
         if (tab == 'almacen') {

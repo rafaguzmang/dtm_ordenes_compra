@@ -23,6 +23,8 @@ export class Cotizaciones extends Component {
             material_a_liberar_count: 0,
             ordenes_atoradas: false,
             ordenes_atoradas_count: 0,
+            por_aprobar: false,
+            por_aprobar_count: 0,
             facturado: false,
             factura_pdf: "",
             numero_factura: "",
@@ -42,6 +44,15 @@ export class Cotizaciones extends Component {
         }
         this.state.material_a_liberar = !this.state.material_a_liberar;
         this.state.cotizaciones = this.state.material_a_liberar ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.atencion_material) : this.state.cotizaciones_filtradas;
+    }
+
+    // Filtrar por ordenes con firma de diseño pero sin firma de ventas
+    porAprobar() {
+        if (this.state.por_aprobar) {
+            this.fetchCotizaciones();
+        }
+        this.state.por_aprobar = !this.state.por_aprobar;
+        this.state.cotizaciones = this.state.por_aprobar ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.por_aprobar) : this.state.cotizaciones_filtradas;
     }
 
     // Ordenes con mas de 24 horas sin cambio de estatus
@@ -75,6 +86,7 @@ export class Cotizaciones extends Component {
             this.state.terminadas = data.filter(cotizacion => cotizacion.facturado).length;
             this.state.material_a_liberar_count = data.filter(cotizacion => cotizacion.atencion_material).length;
             this.state.ordenes_atoradas_count = data.filter(cotizacion => cotizacion.atorada).length;
+            this.state.por_aprobar_count = data.filter(cotizacion => cotizacion.por_aprobar).length;
         } catch (error) {
             console.error("Error al obtener las cotizaciones:", error);
         }

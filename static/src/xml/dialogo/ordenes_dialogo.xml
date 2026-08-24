@@ -59,12 +59,15 @@
                                         <tr>
                                             <td><span class="dtm-od"><t t-esc="orden.od"/></span></td>
                                             <td><span class="dtm-ot-n"><t t-esc="orden.ot"/></span></td>
-                                            <t t-if="orden.material_diseno &amp;&amp; !props.facturado">
+                                            <t t-if="orden.material_diseno &amp;&amp; !props.facturado &amp;&amp; !orden.por_aprobar" >
                                                 <td class="dtm-nombre dtm-na-material" t-on-click="() => abrirDiseno(orden.ot)"><t t-esc="orden.nombre"/></td>
+                                            </t>
+                                            <t t-if="orden.material_diseno &amp;&amp; !props.facturado &amp;&amp; orden.por_aprobar" >
+                                                <td class="dtm-nombre dtm-na-material" style="color: #ef7c18 !important;" t-on-click="() => abrirDiseno(orden.ot)"><t t-esc="orden.nombre"/></td>
                                             </t>
                                             <t t-if="!orden.material_diseno || props.facturado">
                                                 <td class="dtm-nombre" style="color: #c8c8c8 !important;"><t t-esc="orden.nombre"/></td>
-                                            </t>
+                                            </t>                                          
                                             <td><span class="dtm-cant"><t t-esc="orden.cantidad"/></span></td>
                                             <td class="dtm-designer"><t t-esc="orden.disenador"/></td>
                                             <td>
