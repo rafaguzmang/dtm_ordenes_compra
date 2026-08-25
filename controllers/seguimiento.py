@@ -280,7 +280,6 @@ class WebSiteDirectios(http.Controller):
         orden = data.get("orden")
         get_orden = request.env['dtm.odt'].sudo().search([('ot_number','=',orden)],limit=1)
         get_materiales = get_orden.lista_material_id
-        aprobado = True if get_orden.firma_ventas else False
         result = []
         for material in get_materiales:
             result.append({
@@ -288,7 +287,6 @@ class WebSiteDirectios(http.Controller):
                 'cantidad':material.cantidad,
                 'precio_unitario':round(material.unitario,2),
                 'total':round(material.precio,2),
-                'aprobado':aprobado,
             })
         return result
 
@@ -312,6 +310,7 @@ class WebSiteDirectios(http.Controller):
             'resumen':get_orden.description,
             'firma_ventas':get_orden.firma_ventas,
             'planos':planos,
+            'aprobado':True if get_orden.firma_ventas else False,
         }
         return result
 
@@ -407,12 +406,87 @@ class WebSiteDirectios(http.Controller):
         return result
 
     @http.route('/diseno_firma', type='json', auth='public')
-    def firmaDiseno(self):
-        raw = request.httprequest.data
-        data = json.loads(raw)
-        orden = data.get("orden")
-        user = request.env.user.name
+    def firmaDiseno(self, orden=None):
+
+        if not orden:
+            return {'success': False, 'error': 'Falta el número de orden'}
+        try:
+            orden_int = int(orden)
+        except (TypeError, ValueError):
+            return {'success': False, 'error': 'Orden inválida'}       
+       
         get_orden = request.env['dtm.odt'].sudo().search([('ot_number','=',int(orden))],limit=1)
+        if not get_orden:
+            return {'success': False, 'error': 'Orden no encontrada'}
+        user = request.env.user.name
+        get_orden.write({'firma_ventas': user})
         
-        if get_orden:
-            get_orden.write({'firma_ventas':user})
+        Line = request.env['dtm.materials.line']
+    
+        for item in get_orden.lista_material_id:
+            to_materiales = get_orden.materials_ids.search([
+                ('model_id', '=', item.model_id.id),
+                ('materials_list', '=', item.material_id.id),
+                ], limit=1)
+
+            vals = {
+                'model_id': item.model_id.id,
+                'nombre': item.material_id.nombre,
+                'medida': item.material_id.medida,
+                'materials_list': item.material_id.id,
+                'materials_cuantity': item.cantidad,
+                'usuario': item.usuario,
+            }
+            vals.update(Line._consumir_stock(item.material_id, item.cantidad, to_materiales))
+            to_materiales.write(vals) if to_materiales else Line.create(vals)
+        return {'success': True}
+
+    def _consumir_stock(self, material, cantidad, registro_existente=False):
+        """
+        Calcula materials_availabe / materials_required contra el stock real de
+        dtm.materiales, consumiendo o regresando directamente esa cantidad.
+        material: recordset dtm.materiales del material solicitado
+        cantidad: cantidad nueva solicitada
+        registro_existente: recordset dtm.materials.line ya existente (corrección)
+                             o False si es la primera vez que se pide
+        """
+        # material viene del stock dtm_materiales
+        stock_actual = material.cantidad
+        # Si es un máquinado lo manda completo para que no vaya a compras
+        if material.nombre.find('Maquinado') == 0:
+            return {'materials_availabe': cantidad, 'materials_required': 0}
+
+        if not registro_existente:
+            if stock_actual >= cantidad:
+                material.write({'cantidad': stock_actual - cantidad})
+                return {'materials_availabe': cantidad, 'materials_required': 0}
+            else:
+                #Se consume todo lo que hay en stock y la diferencia se manda a compras
+                material.write({'cantidad': 0})
+                return {'materials_availabe': stock_actual, 'materials_required': cantidad - stock_actual}
+
+        apartado_anterior = registro_existente.materials_availabe
+        cantidad_anterior = registro_existente.materials_cuantity
+
+        if cantidad == cantidad_anterior:
+            return {
+                'materials_availabe': registro_existente.materials_availabe,
+                'materials_required': registro_existente.materials_required,
+            }
+
+        if cantidad < apartado_anterior:
+            diferencia = apartado_anterior - cantidad
+            material.write({'cantidad': stock_actual + diferencia})
+            return {'materials_availabe': cantidad, 'materials_required': 0}
+        else:
+            falta = cantidad - apartado_anterior
+            if stock_actual >= falta:
+                material.write({'cantidad': stock_actual - falta})
+                return {'materials_availabe': cantidad, 'materials_required': 0}
+            else:
+                material.write({'cantidad': 0})
+                return {'materials_availabe': apartado_anterior + stock_actual, 'materials_required': falta - stock_actual}
+
+            
+       
+            

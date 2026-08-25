@@ -112,8 +112,10 @@ export class Cotizaciones extends Component {
         this.state.numero_factura = numero_factura;
     }
 
-    cerrarOrdenesTrabajo = () => {
+    cerrarOrdenesTrabajo = async () => {
         this.state.ordenes_dialogo = false;
+        await this.fetchPrecioDollar();
+        await this.fetchCotizaciones();
     };
 
     //    Filtros

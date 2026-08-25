@@ -88,7 +88,7 @@
                         </tbody>
                     </table>
 
-                    <t t-if="!state.aprobado">
+                    <t t-if="!this.state.aprobado">
                         <div class="dtm-ordenes-compra-aprobar">
                             <button type="button" class="btn btn-primary" t-on-click="()=>aprovarFirma()">Aprobar</button>
                         </div>

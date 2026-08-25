@@ -53,8 +53,10 @@ export class OrdenesTrabajo extends Component {
         this.state.orden = orden;
     }
 
-    cerrarDiseno = () => {
+    cerrarDiseno = async () => {
         this.state.showDisenoModal = false;
+        await this.ordenesTrabajo();
+        await this.precioDollar();
     }
 
     abrirCorte = (orden, version) => {

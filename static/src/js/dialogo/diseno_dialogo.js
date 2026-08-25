@@ -1,5 +1,6 @@
 /** @odoo-module **/
 import { Component, useState, onWillStart } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 import { PlanosDialogo } from "./planos_dialogo";
 
 export class DisenoDialogo extends Component {
@@ -19,7 +20,9 @@ export class DisenoDialogo extends Component {
             abrirPlanos: false,
             aprobado: false,
         })
+        this.rpc = useService("rpc");
         onWillStart(async () => {
+            await this.getOrden();
             await this.getMateriales();
         });
     }
@@ -27,21 +30,14 @@ export class DisenoDialogo extends Component {
     aprovarFirma = async () => {
         console.log(this.props.orden)
         try {
-            const data = await fetch('/diseno_firma', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(
-                    {
-                        'orden': this.props.orden,
-                    }
-                )
+            const data = await this.rpc('/diseno_firma', {
+                'orden': this.props.orden,
+
             })
         } catch (error) {
             console.log(error)
         }
-        debugger;
+        await this.getOrden();
         await this.getMateriales();
     }
 
@@ -70,12 +66,12 @@ export class DisenoDialogo extends Component {
         this.state.color = data.result.color;
         this.state.resumen = data.result.resumen;
         this.state.firma_ventas = data.result.firma_ventas;
+        this.state.aprobado = data.result.aprobado;
         let id = 0;
         this.state.planos = data.result.planos.map((item) => { return { 'index': id++, ...item } });
     }
 
     async getMateriales() {
-        debugger;
         const response = await fetch('/dtm_diseno_materiales', {
             method: 'POST',
             headers: {
@@ -90,9 +86,6 @@ export class DisenoDialogo extends Component {
         const data2 = data.result.map((item) => { return { 'index': id++, ...item } })
         this.state.materiales = data2;
         this.state.materiales_len = data2.length;
-        this.state.aprobado = data2[0] ? data2[0].aprobado : false;
-        console.log(this.state.materiales);
-        console.log(this.state.aprobado);
     }
 }
 
