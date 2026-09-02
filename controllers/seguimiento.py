@@ -249,6 +249,46 @@ class WebSiteDirectios(http.Controller):
             get_realizado.create(create)
             material.unlink()
         return True
+    # Liberar materiales ya autorizados de esta y de otras OTs
+    @http.route('/dtm_autorizar_material2', type='json', auth='public')
+    def autorizarMaterial2(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        id = data.get("id")
+        nombre = data.get("nombre")
+        orden = data.get("orden")
+        disenador = data.get("disenador")
+        cliente = data.get("cliente")
+        proveedor = data.get("proveedor")
+        proyecto = data.get("proyecto")
+        extra_material = data.get("extra_material")
+        cantidad = data.get("cantidad")
+        user = request.env.user.name
+
+        get_realizado = request.env['dtm.compras.realizado'].search([("orden_trabajo","=",orden),("codigo","=",id),("nombre","=",nombre),("extra_materials","=",extra_material)],limit=1)
+        get_cotizaciones = request.env['dtm.compras.material'].search([("nombre","=",nombre),("codigo","=",id)],limit=1)
+        get_requerido = request.env['dtm.compras.requerido'].search([("orden_trabajo","=",orden),("codigo","=",id),("nombre","=",nombre),("extra_materials","=",extra_material)])
+
+        create = {
+            "orden_trabajo":orden,            
+            "tipo_orden":get_requerido.tipo_orden,
+            "revision_ot":get_requerido.revision_ot,
+            "solicitado":get_requerido.create_date,
+            "proveedor":proveedor,
+            "codigo":id,
+            "nombre":nombre,
+            "cantidad":cantidad,
+            "mostrador":get_cotizaciones.mostrador,
+            "mayoreo":get_cotizaciones.mayoreo,
+            "unitario":get_cotizaciones.unitario,
+            "costo":get_cotizaciones.unitario * cantidad,
+            "fecha_compra":datetime.now(),
+            "autoriza":user,
+            "extra_materials":extra_material
+        }
+        get_realizado.create(create)
+        get_requerido.unlink()
+        return True
 
     @http.route('/dtm_get_all_materiales', type='json', auth='public')
     def getAllMateriales(self):
@@ -270,6 +310,8 @@ class WebSiteDirectios(http.Controller):
                 'disenador':get_orden.disenador,
                 'cantidad':material.cantidad,
                 'nesteo':material.nesteo,
+                'nombre_material':material.nombre,
+                'extra_material':material.extra_materials,
             })
         return result
 
@@ -419,7 +461,7 @@ class WebSiteDirectios(http.Controller):
         if not get_orden:
             return {'success': False, 'error': 'Orden no encontrada'}
         user = request.env.user.name
-        get_orden.write({'firma_ventas': user})
+        get_orden.write({'firma_ventas': user, 'nesteo_chk':True})
         
         Line = request.env['dtm.materials.line']
     
@@ -441,51 +483,51 @@ class WebSiteDirectios(http.Controller):
             to_materiales.write(vals) if to_materiales else Line.create(vals)
         return {'success': True}
 
-    def _consumir_stock(self, material, cantidad, registro_existente=False):
-        """
-        Calcula materials_availabe / materials_required contra el stock real de
-        dtm.materiales, consumiendo o regresando directamente esa cantidad.
-        material: recordset dtm.materiales del material solicitado
-        cantidad: cantidad nueva solicitada
-        registro_existente: recordset dtm.materials.line ya existente (corrección)
-                             o False si es la primera vez que se pide
-        """
-        # material viene del stock dtm_materiales
-        stock_actual = material.cantidad
-        # Si es un máquinado lo manda completo para que no vaya a compras
-        if material.nombre.find('Maquinado') == 0:
-            return {'materials_availabe': cantidad, 'materials_required': 0}
+    # def _consumir_stock(self, material, cantidad, registro_existente=False):
+    #     """
+    #     Calcula materials_availabe / materials_required contra el stock real de
+    #     dtm.materiales, consumiendo o regresando directamente esa cantidad.
+    #     material: recordset dtm.materiales del material solicitado
+    #     cantidad: cantidad nueva solicitada
+    #     registro_existente: recordset dtm.materials.line ya existente (corrección)
+    #                          o False si es la primera vez que se pide
+    #     """
+    #     # material viene del stock dtm_materiales
+    #     stock_actual = material.cantidad
+    #     # Si es un máquinado lo manda completo para que no vaya a compras
+    #     if material.nombre.find('Maquinado') == 0:
+    #         return {'materials_availabe': cantidad, 'materials_required': 0}
 
-        if not registro_existente:
-            if stock_actual >= cantidad:
-                material.write({'cantidad': stock_actual - cantidad})
-                return {'materials_availabe': cantidad, 'materials_required': 0}
-            else:
-                #Se consume todo lo que hay en stock y la diferencia se manda a compras
-                material.write({'cantidad': 0})
-                return {'materials_availabe': stock_actual, 'materials_required': cantidad - stock_actual}
+    #     if not registro_existente:
+    #         if stock_actual >= cantidad:
+    #             material.write({'cantidad': stock_actual - cantidad})
+    #             return {'materials_availabe': cantidad, 'materials_required': 0}
+    #         else:
+    #             #Se consume todo lo que hay en stock y la diferencia se manda a compras
+    #             material.write({'cantidad': 0})
+    #             return {'materials_availabe': stock_actual, 'materials_required': cantidad - stock_actual}
 
-        apartado_anterior = registro_existente.materials_availabe
-        cantidad_anterior = registro_existente.materials_cuantity
+    #     apartado_anterior = registro_existente.materials_availabe
+    #     cantidad_anterior = registro_existente.materials_cuantity
 
-        if cantidad == cantidad_anterior:
-            return {
-                'materials_availabe': registro_existente.materials_availabe,
-                'materials_required': registro_existente.materials_required,
-            }
+    #     if cantidad == cantidad_anterior:
+    #         return {
+    #             'materials_availabe': registro_existente.materials_availabe,
+    #             'materials_required': registro_existente.materials_required,
+    #         }
 
-        if cantidad < apartado_anterior:
-            diferencia = apartado_anterior - cantidad
-            material.write({'cantidad': stock_actual + diferencia})
-            return {'materials_availabe': cantidad, 'materials_required': 0}
-        else:
-            falta = cantidad - apartado_anterior
-            if stock_actual >= falta:
-                material.write({'cantidad': stock_actual - falta})
-                return {'materials_availabe': cantidad, 'materials_required': 0}
-            else:
-                material.write({'cantidad': 0})
-                return {'materials_availabe': apartado_anterior + stock_actual, 'materials_required': falta - stock_actual}
+    #     if cantidad < apartado_anterior:
+    #         diferencia = apartado_anterior - cantidad
+    #         material.write({'cantidad': stock_actual + diferencia})
+    #         return {'materials_availabe': cantidad, 'materials_required': 0}
+    #     else:
+    #         falta = cantidad - apartado_anterior
+    #         if stock_actual >= falta:
+    #             material.write({'cantidad': stock_actual - falta})
+    #             return {'materials_availabe': cantidad, 'materials_required': 0}
+    #         else:
+    #             material.write({'cantidad': 0})
+    #             return {'materials_availabe': apartado_anterior + stock_actual, 'materials_required': falta - stock_actual}
 
             
        

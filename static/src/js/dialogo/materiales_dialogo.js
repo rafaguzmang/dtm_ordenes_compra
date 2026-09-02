@@ -70,8 +70,6 @@ export class MaterialesDialogo extends Component {
     }
 
     async confirmarMaterial(id, material, extra_material) {
-        console.log('confirmarMaterial llamado con id:', id, typeof id);
-        console.log('ids disponibles:', this.state.materialesFiltrados.map(m => ({ id: m.id, tipo: typeof m.id })));
         try {
             const response = await fetch("/dtm_autorizar_material", {
                 method: "POST",

@@ -22,17 +22,23 @@ export class PorAprobarDialogo extends Component {
     }
 
     async confirmar() {
-        debugger;
         for (const item of this.state.materiales) {
             try {
-                const response = await fetch("/dtm_autorizar_material", {
+                const response = await fetch("/dtm_autorizar_material2", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         id: this.props.id,
-                        orden: item.orden
+                        nombre: item.nombre_material,
+                        orden: item.orden,
+                        disenador: item.disenador,
+                        cliente: item.cliente,
+                        proveedor: item.proveedor,
+                        proyecto: item.proyecto,
+                        extra_material: item.extra_material,
+                        cantidad: item.cantidad,
                     })
                 })
             } catch (e) {

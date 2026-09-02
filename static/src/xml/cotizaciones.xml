@@ -27,6 +27,8 @@
                
             </div>
 
+            <!--Entradas de activos por mes-->
+
             <div class="ml-bar">
                 <div class="ml-btn" t-on-click="() => this.materialALiberar()">
                     <div class="ml-dot" style="background:#E6F1FB;color:#0C447C;"><t t-esc="this.state.material_a_liberar_count"/></div>
