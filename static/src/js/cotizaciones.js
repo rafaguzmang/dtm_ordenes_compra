@@ -2,9 +2,11 @@
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { OrdenesTrabajo } from './dialogo/ordenes_dialogo'
+import { ActivosEntradas } from "./activosentradas"
+
 
 export class Cotizaciones extends Component {
-    static components = { OrdenesTrabajo }
+    static components = { OrdenesTrabajo, ActivosEntradas }
     setup() {
         this.state = useState({
             cotizaciones: [],

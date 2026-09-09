@@ -1,0 +1,87 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.activosentradas" owl="1">
+        <div class="ea-kpi" t-on-click="() => this.abrirEntradasActivos()">
+            <div class="ea-kpi-top">
+                <div>
+                    <div class="dtm-kpi-label">Entradas de Activos · 2026</div>
+                    <div class="ea-kpi-totals">
+                        <div class="ea-kpi-total">
+                            <span class="ea-dot ea-dot-debio"></span>
+                            <span class="ea-total-label">Debió entrar</span>
+                            <span class="ea-total-val">$1,790,000</span>
+                        </div>
+                        <div class="ea-kpi-total">
+                            <span class="ea-dot ea-dot-entro"></span>
+                            <span class="ea-total-label">Entró</span>
+                            <span class="ea-total-val">$1,580,000</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ea-kpi-pct">
+                    <div class="ea-kpi-pct-val">88%</div>
+                    <div class="ea-kpi-pct-label">cumplimiento</div>
+                </div>
+            </div>
+
+            <!-- Mini gráfica (sparkline de 8 meses, datos fijos) -->
+            <div class="ea-mini-chart">
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 50%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 40%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">Ene</span>
+                </div>
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 60%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 58.3%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">Feb</span>
+                </div>
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 70%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 53.3%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">Mar</span>
+                </div>
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 63.3%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 61.7%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">Abr</span>
+                </div>
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 83.3%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 73.3%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">May</span>
+                </div>
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 76.7%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 70%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">Jun</span>
+                </div>
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 93.3%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 80%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">Jul</span>
+                </div>
+                <div class="ea-mini-col">
+                    <div class="ea-mini-bars">
+                        <span class="ea-mini-bar ea-mini-bar-debio" style="height: 100%;"></span>
+                        <span class="ea-mini-bar ea-mini-bar-entro" style="height: 90%;"></span>
+                    </div>
+                    <span class="ea-mini-mes">Ago</span>
+                </div>
+            </div>
+</div>
+    </t>
+</template>

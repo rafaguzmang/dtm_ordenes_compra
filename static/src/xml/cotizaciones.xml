@@ -28,6 +28,9 @@
             </div>
 
             <!--Entradas de activos por mes-->
+            <div>
+                <ActivosEntradas/>
+            </div>
 
             <div class="ml-bar">
                 <div class="ml-btn" t-on-click="() => this.materialALiberar()">
