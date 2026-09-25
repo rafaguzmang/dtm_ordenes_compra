@@ -13,6 +13,7 @@ export class Cotizaciones extends Component {
             ordenes_dialogo: false,
             cotizaciones_filtradas: [],
             clientes: [],
+            cotizaciones_no_pagadas: 0,
             cotizacion: null,
             po_costo: 0,
             cotizaciones_totales: 0,
@@ -32,6 +33,7 @@ export class Cotizaciones extends Component {
             numero_factura: "",
         });
         this.rpc = useService("rpc");
+        this.ultimoFiltro = null;
 
         onWillStart(async () => {
             await this.fetchPrecioDollar();
@@ -45,7 +47,12 @@ export class Cotizaciones extends Component {
             this.fetchCotizaciones();
         }
         this.state.material_a_liberar = !this.state.material_a_liberar;
-        this.state.cotizaciones = this.state.material_a_liberar ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.atencion_material) : this.state.cotizaciones_filtradas;
+        this.ultimoFiltro = this.state.material_a_liberar ? { tipo: 'material' } : null;
+        this.state.cotizaciones = this.state.material_a_liberar
+            ? this.state.cotizaciones_filtradas.filter(c => c.atencion_material)
+            : this.state.cotizaciones_filtradas;
+        this.state.ordenes_atoradas = false;
+        this.state.por_aprobar = false;
     }
 
     // Filtrar por ordenes con firma de diseño pero sin firma de ventas
@@ -54,7 +61,12 @@ export class Cotizaciones extends Component {
             this.fetchCotizaciones();
         }
         this.state.por_aprobar = !this.state.por_aprobar;
-        this.state.cotizaciones = this.state.por_aprobar ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.por_aprobar) : this.state.cotizaciones_filtradas;
+        this.ultimoFiltro = this.state.por_aprobar ? { tipo: 'aprobar' } : null;
+        this.state.cotizaciones = this.state.por_aprobar
+            ? this.state.cotizaciones_filtradas.filter(c => c.por_aprobar)
+            : this.state.cotizaciones_filtradas;
+        this.state.material_a_liberar = false;
+        this.state.ordenes_atoradas = false;
     }
 
     // Ordenes con mas de 24 horas sin cambio de estatus
@@ -63,7 +75,12 @@ export class Cotizaciones extends Component {
             this.fetchCotizaciones();
         }
         this.state.ordenes_atoradas = !this.state.ordenes_atoradas;
-        this.state.cotizaciones = this.state.ordenes_atoradas ? this.state.cotizaciones_filtradas.filter(cotizacion => cotizacion.atorada) : this.state.cotizaciones_filtradas;
+        this.ultimoFiltro = this.state.ordenes_atoradas ? { tipo: 'atoradas' } : null;
+        this.state.cotizaciones = this.state.ordenes_atoradas
+            ? this.state.cotizaciones_filtradas.filter(c => c.atorada)
+            : this.state.cotizaciones_filtradas;
+        this.state.material_a_liberar = false;
+        this.state.por_aprobar = false;
     }
 
     openPDF(pdf) {
@@ -83,8 +100,12 @@ export class Cotizaciones extends Component {
             this.state.cotizaciones_filtradas = data.sort((a, b) => b.facturado - a.facturado);
             this.state.clientes = [...new Set(data.map(cotizacion => cotizacion.cliente))];
             this.state.cotizaciones_totales = data.length;
-            const precios = data.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
+            const ordenes_sin_terminar = data.filter(orden => orden.status !== 'Facturado');
+            const precios = ordenes_sin_terminar.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
+            const ordenes_con_factura = data.filter(orden => orden.status == 'Facturado');
+            const precios_con_factura = ordenes_con_factura.map(cotizacion => cotizacion.precio.includes(' dlls') ? parseFloat(cotizacion.precio.replace(' dlls', '')) * this.state.precio_dollar : parseFloat(cotizacion.precio.replace(' mx', '')));
             this.state.acumulado = Math.round(precios.reduce((acc, precio) => acc + precio) * 100) / 100;
+            this.state.cotizaciones_no_pagadas = Math.round(precios_con_factura.reduce((acc, precio) => acc + precio) * 100) / 100;
             this.state.terminadas = data.filter(cotizacion => cotizacion.facturado).length;
             this.state.material_a_liberar_count = data.filter(cotizacion => cotizacion.atencion_material).length;
             this.state.ordenes_atoradas_count = data.filter(cotizacion => cotizacion.atorada).length;
@@ -118,11 +139,78 @@ export class Cotizaciones extends Component {
         this.state.ordenes_dialogo = false;
         await this.fetchPrecioDollar();
         await this.fetchCotizaciones();
+        await this.aplicarUltimoFiltro();
+
     };
 
     //    Filtros
+
+    async aplicarUltimoFiltro() {
+        if (!this.ultimoFiltro) return;
+
+        switch (this.ultimoFiltro.tipo) {
+            case 'material':
+                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(c => c.atencion_material);
+                break;
+            case 'aprobar':
+                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(c => c.por_aprobar);
+                break;
+            case 'atoradas':
+                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(c => c.atorada);
+                break;
+            case 'general': {
+                const { proveedor, cliente, fentrega, status } = this.ultimoFiltro;
+                this.filtroGeneral(proveedor, cliente, fentrega, status);
+                break;
+            }
+            case 'po':
+                this.state.cotizaciones = this.ultimoFiltro.valor === ''
+                    ? this.state.cotizaciones_filtradas
+                    : this.state.cotizaciones_filtradas.filter(r => r.po == this.ultimoFiltro.valor);
+                break;
+            case 'cotizacion':
+                this.state.cotizaciones = this.ultimoFiltro.valor === ''
+                    ? this.state.cotizaciones_filtradas
+                    : this.state.cotizaciones_filtradas.filter(r => r.cotizacion == this.ultimoFiltro.valor);
+                break;
+            case 'fechaEntrada':
+                this.state.cotizaciones = this.ultimoFiltro.valor === ''
+                    ? this.state.cotizaciones_filtradas
+                    : this.state.cotizaciones_filtradas.filter(r => r.fecha_entrada == this.ultimoFiltro.valor);
+                break;
+            case 'ot': {
+                if (!this.ultimoFiltro.valor) {
+                    this.state.cotizaciones = this.state.cotizaciones_filtradas;
+                    break;
+                }
+                const data = await fetch("/ordenes_trabajo_filtro", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ot: this.ultimoFiltro.valor }),
+                });
+                const response = await data.json();
+                const orden_trabajo = response.result.cotizacion;
+                this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.cotizacion == orden_trabajo);
+                break;
+            }
+            case 'otStatus': {
+                const data = await fetch("/ordenes_status_filtro", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: this.ultimoFiltro.valor }),
+                });
+                const response = await data.json();
+                const orden_trabajo = response.result.lista;
+                const filtrado = this.state.cotizaciones_filtradas.filter(record => orden_trabajo.includes(record.cotizacion));
+                this.state.cotizaciones = filtrado.length == 0 ? this.state.cotizaciones_filtradas : filtrado;
+                break;
+            }
+        }
+    }
+
     // Filtro para busqueda de orden por status en procesos
     async ordenTrabajoStatusFiltro(event) {
+        this.ultimoFiltro = { tipo: 'otStatus', valor: texto };
         const select = event.target;
         const texto = select.options[select.selectedIndex].text;
 
@@ -146,6 +234,7 @@ export class Cotizaciones extends Component {
 
     // Filtro por orden de trabajo
     async ordenTrabajoFiltro(event) {
+        this.ultimoFiltro = { tipo: 'ot', valor: ot };
         const ot = event.target.value;
         if (ot) {
             const data = await fetch("/ordenes_trabajo_filtro",
@@ -169,6 +258,8 @@ export class Cotizaciones extends Component {
     }
     // Filtro de busqueda por po
     poFiltro = (event) => {
+        this.ultimoFiltro = { tipo: 'po', valor: event.target.value };
+        this.ultimoFiltro = { tipo: 'ot', valor: ot };
         const po = event.target.value;
         this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.po == po);
         this.state.cotizaciones = event.target.value == '' ? this.state.cotizaciones_filtradas : this.state.cotizaciones;
@@ -187,6 +278,7 @@ export class Cotizaciones extends Component {
     }
     // Filtro de busqueda por fecha de entrada
     fechaEntradaFiltro = (event) => {
+        this.ultimoFiltro = { tipo: 'fechaEntrada', valor: formattedDate };
         const fentrega = event.target.value;
         let [year, month, day] = fentrega.split('-');
         let formattedDate = '';
@@ -211,6 +303,7 @@ export class Cotizaciones extends Component {
     }
     // Filtro de busqueda por cotización
     cotizacionFiltro = (event) => {
+        this.ultimoFiltro = { tipo: 'cotizacion', valor: event.target.value };
         const cotizacion = event.target.value;
         this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.cotizacion == cotizacion);
         this.state.cotizaciones = event.target.value == '' ? this.state.cotizaciones_filtradas : this.state.cotizaciones;
@@ -244,6 +337,7 @@ export class Cotizaciones extends Component {
     }
 
     filtroGeneral(proveedor, cliente, fentrega, status) {
+        this.ultimoFiltro = { tipo: 'general', proveedor, cliente, fentrega, status };
         let tabla = this.state.cotizaciones_filtradas;
         console.log(tabla)
         if (proveedor) {

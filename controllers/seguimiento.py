@@ -483,51 +483,7 @@ class WebSiteDirectios(http.Controller):
             to_materiales.write(vals) if to_materiales else Line.create(vals)
         return {'success': True}
 
-    # def _consumir_stock(self, material, cantidad, registro_existente=False):
-    #     """
-    #     Calcula materials_availabe / materials_required contra el stock real de
-    #     dtm.materiales, consumiendo o regresando directamente esa cantidad.
-    #     material: recordset dtm.materiales del material solicitado
-    #     cantidad: cantidad nueva solicitada
-    #     registro_existente: recordset dtm.materials.line ya existente (corrección)
-    #                          o False si es la primera vez que se pide
-    #     """
-    #     # material viene del stock dtm_materiales
-    #     stock_actual = material.cantidad
-    #     # Si es un máquinado lo manda completo para que no vaya a compras
-    #     if material.nombre.find('Maquinado') == 0:
-    #         return {'materials_availabe': cantidad, 'materials_required': 0}
-
-    #     if not registro_existente:
-    #         if stock_actual >= cantidad:
-    #             material.write({'cantidad': stock_actual - cantidad})
-    #             return {'materials_availabe': cantidad, 'materials_required': 0}
-    #         else:
-    #             #Se consume todo lo que hay en stock y la diferencia se manda a compras
-    #             material.write({'cantidad': 0})
-    #             return {'materials_availabe': stock_actual, 'materials_required': cantidad - stock_actual}
-
-    #     apartado_anterior = registro_existente.materials_availabe
-    #     cantidad_anterior = registro_existente.materials_cuantity
-
-    #     if cantidad == cantidad_anterior:
-    #         return {
-    #             'materials_availabe': registro_existente.materials_availabe,
-    #             'materials_required': registro_existente.materials_required,
-    #         }
-
-    #     if cantidad < apartado_anterior:
-    #         diferencia = apartado_anterior - cantidad
-    #         material.write({'cantidad': stock_actual + diferencia})
-    #         return {'materials_availabe': cantidad, 'materials_required': 0}
-    #     else:
-    #         falta = cantidad - apartado_anterior
-    #         if stock_actual >= falta:
-    #             material.write({'cantidad': stock_actual - falta})
-    #             return {'materials_availabe': cantidad, 'materials_required': 0}
-    #         else:
-    #             material.write({'cantidad': 0})
-    #             return {'materials_availabe': apartado_anterior + stock_actual, 'materials_required': falta - stock_actual}
+    
 
             
        

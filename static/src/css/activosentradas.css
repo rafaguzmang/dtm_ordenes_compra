@@ -13,6 +13,7 @@
 :root {
     --ea-debio: var(--dtm-accent);
     --ea-entro: #10b981;
+    --ea-pagadas: #007afc;
 }
 
 /* ── KPI colapsado (dashboard) ── */
@@ -78,6 +79,10 @@
     background: var(--ea-entro);
 }
 
+.ea-dot-pagadas {
+    background: var(--ea-pagadas);
+}
+
 .ea-kpi-pct {
     text-align: right;
 }
@@ -138,6 +143,10 @@
 
 .ea-mini-bar-entro {
     background: var(--ea-entro);
+}
+
+.ea-mini-bar-pagadas {
+    background: var(--ea-pagadas);
 }
 
 .ea-mini-mes {

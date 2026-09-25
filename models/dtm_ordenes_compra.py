@@ -166,7 +166,7 @@ class OrdenesCompra(models.Model):
                 'no_factura': self.no_factura,
                 'orden_compra': self.orden_compra,
                 'orden_diseno': item.orden_diseno,
-                'disenador': "Andrés Orozco" if item.firma_diseno == "orozco" else "Bryan Banda" if item.firma_diseno == "bryan" else "N/A",
+                'disenador': "Andrés Orozco" if item.firma_diseno == "orozco" else "Bryan Banda" if item.firma_diseno == "bryan" else "Oscar Estrada" if item.firma_diseno == "oscar" else "N/A",
                 'model_id': get_id.id,  # <-- vincula directo, ya no depende de coincidencia de texto
             }
             self.env['dtm.compra.facturado.item'].create(vals_item)

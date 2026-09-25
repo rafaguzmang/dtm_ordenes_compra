@@ -1,0 +1,219 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.activos_dialogo" owl="1">
+            <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+
+                        <!-- Header (reusa .dtm-mh existente) -->
+                        <div class="dtm-mh">
+                            <div>
+                                <div class="dtm-mh-eyebrow">Dashboard financiero</div>
+                                <div class="dtm-mh-title">Entradas de activos por mes</div>
+                            </div>
+                            <button class="dtm-close" t-on-click="() => this.cerrarEntradasActivos()">
+                                <svg width="11" height="11" viewBox="0 0 14 14" fill="none"
+                                    stroke="white" stroke-width="2" stroke-linecap="round">
+                                    <path d="M1 1L13 13M13 1L1 13"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="modal-body ea-modal-body">
+
+                            <!-- Resumen (reusa .dtm-kpi-card) -->
+                            <div class="ea-resumen-grid">
+                                <div class="dtm-kpi-card c1">
+                                    <div class="dtm-kpi-label">Total debió entrar</div>
+                                    <div class="dtm-kpi-val">$1,790,000</div>
+                                </div>
+                                <div class="dtm-kpi-card c2">
+                                    <div class="dtm-kpi-label">Total entró</div>
+                                    <div class="dtm-kpi-val">$1,580,000</div>
+                                </div>
+                                <div class="dtm-kpi-card c3">
+                                    <div class="dtm-kpi-label">Diferencia</div>
+                                    <div class="dtm-kpi-val">$210,000</div>
+                                    <span class="dtm-st dtm-st-pe">88% cumplido</span>
+                                </div>
+                            </div>
+
+                            <!-- Gráfica anual -->
+                            <div class="ea-section">
+                                <div class="dtm-tc-header ea-chart-header">
+                                    <div class="dtm-tc-title">Comparativo anual</div>
+                                    <div class="ea-legend">
+                                        <span><i class="ea-dot ea-dot-debio"></i> Debió entrar</span>
+                                        <span><i class="ea-dot ea-dot-entro"></i> Entró</span>
+                                    </div>
+                                </div>
+
+                                <div class="ea-chart">
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 50%;"><span class="ea-chart-val">$150k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 40%;"><span class="ea-chart-val">$120k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">Ene</span>
+                                    </div>
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 60%;"><span class="ea-chart-val">$180k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 58.3%;"><span class="ea-chart-val">$175k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">Feb</span>
+                                    </div>
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 70%;"><span class="ea-chart-val">$210k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 53.3%;"><span class="ea-chart-val">$160k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">Mar</span>
+                                    </div>
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 63.3%;"><span class="ea-chart-val">$190k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 61.7%;"><span class="ea-chart-val">$185k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">Abr</span>
+                                    </div>
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 83.3%;"><span class="ea-chart-val">$250k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 73.3%;"><span class="ea-chart-val">$220k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">May</span>
+                                    </div>
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 76.7%;"><span class="ea-chart-val">$230k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 70%;"><span class="ea-chart-val">$210k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">Jun</span>
+                                    </div>
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 93.3%;"><span class="ea-chart-val">$280k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 80%;"><span class="ea-chart-val">$240k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">Jul</span>
+                                    </div>
+                                    <div class="ea-chart-col">
+                                        <div class="ea-chart-bars">
+                                            <div class="ea-chart-bar ea-chart-bar-debio" style="height: 100%;"><span class="ea-chart-val">$300k</span></div>
+                                            <div class="ea-chart-bar ea-chart-bar-entro" style="height: 90%;"><span class="ea-chart-val">$270k</span></div>
+                                        </div>
+                                        <span class="ea-chart-mes">Ago</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filtro por rango de fechas -->
+                            <div class="ea-filtro">
+                                <div class="ea-filtro-field">
+                                    <label class="ml-label">Desde</label>
+                                    <input type="date" name="ea_fecha_inicial"/>
+                                </div>
+                                <div class="ea-filtro-field">
+                                    <label class="ml-label">Hasta</label>
+                                    <input type="date" name="ea_fecha_final"/>
+                                </div>
+                                <button type="button" class="dtm-tb-btn primary" t-on-click="() => this.generarGraficaTemporal()">
+                                    Generar gráfica
+                                </button>
+                            </div>
+
+                            <!-- Gráfica temporal: se llena al presionar "Generar gráfica".
+                                No se persiste — al cerrar el modal o refrescar desaparece.
+                                Estructura visual únicamente; sin datos ficticios por JS. -->
+                            <div class="ea-section">
+                                <div class="dtm-tc-title">Periodo seleccionado</div>
+                               
+                                    <div class="ea-empty">
+                                        Selecciona un rango de fechas y presiona "Generar gráfica"
+                                        para ver el comparativo de ese periodo.
+                                    </div>
+                                    <div class="ea-chart">
+                                        <!-- Las columnas del periodo se generan dinámicamente
+                                            desde el estado una vez conectado al backend -->
+                                    </div>
+                            </div>
+
+                            <!-- Tabla mensual (reusa .dtm-table / .dtm-table-card) -->
+                            <div class="dtm-table-card ea-table-card">
+                                <table class="dtm-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mes / Periodo</th>
+                                            <th style="text-align:right">Debió entrar</th>
+                                            <th style="text-align:right">Entró</th>
+                                            <th style="text-align:right">Diferencia</th>
+                                            <th style="text-align:center">Cumplimiento</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="dtm-dr">
+                                            <td>Enero</td>
+                                            <td class="dtm-price">$150,000</td>
+                                            <td class="dtm-price">$120,000</td>
+                                            <td class="dtm-price">$30,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-pe">80%</span></td>
+                                        </tr>
+                                        <tr class="dtm-dr">
+                                            <td>Febrero</td>
+                                            <td class="dtm-price">$180,000</td>
+                                            <td class="dtm-price">$175,000</td>
+                                            <td class="dtm-price">$5,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-ap">97%</span></td>
+                                        </tr>
+                                        <tr class="dtm-dr">
+                                            <td>Marzo</td>
+                                            <td class="dtm-price">$210,000</td>
+                                            <td class="dtm-price">$160,000</td>
+                                            <td class="dtm-price">$50,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-re">76%</span></td>
+                                        </tr>
+                                        <tr class="dtm-dr">
+                                            <td>Abril</td>
+                                            <td class="dtm-price">$190,000</td>
+                                            <td class="dtm-price">$185,000</td>
+                                            <td class="dtm-price">$5,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-ap">97%</span></td>
+                                        </tr>
+                                        <tr class="dtm-dr">
+                                            <td>Mayo</td>
+                                            <td class="dtm-price">$250,000</td>
+                                            <td class="dtm-price">$220,000</td>
+                                            <td class="dtm-price">$30,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-pe">88%</span></td>
+                                        </tr>
+                                        <tr class="dtm-dr">
+                                            <td>Junio</td>
+                                            <td class="dtm-price">$230,000</td>
+                                            <td class="dtm-price">$210,000</td>
+                                            <td class="dtm-price">$20,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-ap">91%</span></td>
+                                        </tr>
+                                        <tr class="dtm-dr">
+                                            <td>Julio</td>
+                                            <td class="dtm-price">$280,000</td>
+                                            <td class="dtm-price">$240,000</td>
+                                            <td class="dtm-price">$40,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-pe">86%</span></td>
+                                        </tr>
+                                        <tr class="dtm-dr">
+                                            <td>Agosto</td>
+                                            <td class="dtm-price">$300,000</td>
+                                            <td class="dtm-price">$270,000</td>
+                                            <td class="dtm-price">$30,000</td>
+                                            <td style="text-align:center"><span class="dtm-st dtm-st-ap">90%</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </t>
+</template>

@@ -15,48 +15,53 @@
                     <div class="dtm-kpi-delta up">A Facturar</div>
                 </div>
                 <div class="dtm-kpi-card c3">
-                    <div class="dtm-kpi-label">Clientes</div>
-                    <div class="dtm-kpi-val" t-esc="state.clientes.length"/>
-                    <div class="dtm-kpi-delta up">Acumulado</div>
+                    <div class="dtm-kpi-label">No Pagadas</div>
+                    <div class="dtm-kpi-val">$<t t-esc="state.cotizaciones_no_pagadas"/></div>
+                    <div class="dtm-kpi-delta up">Con Facturar</div>
                 </div>
                 <div class="dtm-kpi-card c4">
-                    <div class="dtm-kpi-label">Valor Total</div>
+                    <div class="dtm-kpi-label">En Proceso</div>
                     <div class="dtm-kpi-val">$<t t-esc="state.acumulado"/></div>
                     <div class="dtm-kpi-delta up">Acumulado</div>
                 </div>
                
             </div>
 
-            <!--Entradas de activos por mes-->
+            <!--Entradas de activos por mes
             <div>
                 <ActivosEntradas/>
             </div>
+            -->
 
             <div class="ml-bar">
-                <div class="ml-btn" t-on-click="() => this.materialALiberar()">
-                    <div class="ml-dot" style="background:#E6F1FB;color:#0C447C;"><t t-esc="this.state.material_a_liberar_count"/></div>
+                <div class="ml-btn" t-on-click="() => this.materialALiberar()" t-attf-style="#{this.state.material_a_liberar ? 'border:3px solid #607D8B;' : ''}">
+                    <div class="ml-dot" 
+                        style="background:#E6F1FB;color:#0C447C;">
+                        <t t-esc="this.state.material_a_liberar_count"/>
+                    </div>
                     <span class="ml-name">Material por liberar</span>
                 </div>
 
-                <div class="ml-btn" t-on-click="() => this.ordenesAtoradas()">
+                <div class="ml-btn" t-on-click="() => this.ordenesAtoradas()" t-attf-style="#{this.state.ordenes_atoradas ? 'border:3px solid #607D8B;' : ''}">
                     <div class="ml-dot" style="background:#FAEEDA;color:#633806;"><t t-esc="this.state.ordenes_atoradas_count"/></div>
                     <span class="ml-name">Ordenes Detenidas</span>
                 </div>
 
-                <div class="ml-btn" t-on-click="() => this.porAprobar()">
+                <div class="ml-btn" t-on-click="() => this.porAprobar()" t-attf-style="#{this.state.por_aprobar ? 'border:3px solid #607D8B;' : ''}">
                     <div class="ml-dot" style="background:#E1F5EE;color:#085041;"><t t-esc="this.state.por_aprobar_count"/></div>
                     <span class="ml-name">Por Aprobar</span>
                 </div>
-
-                <!-- <div class="ml-btn">
+ <!--
+                 <div class="ml-btn">
                     <div class="ml-dot" style="background:#F1EFE8;color:#888780;">—</div>
-                    <span class="ml-name">Undefined</span>
+                    <span class="ml-name">En Tránsito</span>
                 </div>
-
+               
                 <div class="ml-btn">
                     <div class="ml-dot" style="background:#F1EFE8;color:#888780;">—</div>
                     <span class="ml-name">Undefined</span>
-                </div> -->
+                </div> 
+                -->
             </div>
 
             
