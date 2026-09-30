@@ -1,0 +1,76 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.transito_dialogo" owl="1">
+          <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+
+                    <!-- Header personalizado -->
+                    <div class="dtm-mh">
+                        <div>                            
+                            <div class="dtm-mh-title">
+                                Tránsito
+                            </div>
+                        </div>
+                        <div class="dtm-mh-right">                            
+                            <button class="dtm-close" t-on-click="props.cerrar">
+                                <svg width="11" height="11" viewBox="0 0 14 14" fill="none"
+                                     stroke="white" stroke-width="2" stroke-linecap="round">
+                                    <path d="M1 1L13 13M13 1L1 13"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Body: tabla -->
+                    <div class="modal-body">
+                        <div class="dtm-tbl-outer-transito">
+                            <table class="dtm-ot">
+                                <thead>
+                                    <tr>
+                                        <th>Proveedor</th>
+                                        <th>Orden/Requi</th>
+                                        <th>Código</th>
+                                        <th>Descripción</th>
+                                        <th>Estado</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio</th>
+                                        <th>Fecha Tentativa</th>
+                                        <th>Autorizó</th>                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                  <t t-foreach="this.state.tabla" t-as="linea" t-key="linea_index">
+                                      <tr t-att-class="linea.status != 'En Tiempo'? 'fila-retraso': ''">
+                                        <td><t t-esc="linea.proveedor"/></td>
+                                        <td><t t-esc="linea.orden"/></td>
+                                        <td><t t-esc="linea.codigo"/></td>
+                                        <td><t t-esc="linea.descripcion"/></td>
+                                        <td t-att-style="linea.status === 'En Tiempo'? 'color:#4caf50': 'color:#ff0000'">
+                                            <t t-esc="linea.status"/>
+                                        </td>
+                                        <td><t t-esc="linea.cantidad"/></td>
+                                        <td><t t-esc="linea.precio"/></td>
+                                        <td><t t-esc="linea.fecha_tentativa"/></td>
+                                        <td><t t-esc="linea.autoriza"/></td>
+                                      </tr>
+                                  </t>  
+                                  
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Footer: totales + cerrar 
+                    <div class="modal-footer">
+                        
+                        
+                    </div>-->
+
+                </div>
+            </div>
+
+           
+            
+        </div>
+    </t>
+</template>

@@ -1,0 +1,10 @@
+/* ── Tabla ── */
+.dtm-tbl-outer-transito {
+    overflow-y: auto;
+    max-height: 80vh;
+    overflow-x: auto !important;
+}
+
+.fila-retraso td {
+    color: #ff0000 !important
+}

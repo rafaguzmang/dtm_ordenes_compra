@@ -10,6 +10,7 @@ class WebSiteDirectios(http.Controller):
     @http.route('/dtm_cotizaciones', type='http', auth='public')
     def cotizaciones(self):
         get_po = request.env['dtm.ordenes.compra'].sudo().search([])
+        get_transito = request.env['dtm.compras.realizado'].sudo().search([('listo_btn','=',True),('comprado','!=','Recibido'),('proveedor','!=','DTM')])
         result = []
         for orden in get_po:
             # Se obtiene si está facturado
@@ -93,6 +94,8 @@ class WebSiteDirectios(http.Controller):
                 'por_aprobar':por_aprobar,
                 'po_date': orden.fecha_po.strftime("%x") if orden.fecha_po else '---',
                 'atorada': True if atorado else False,
+                'transito_len':len(get_transito),
+                'transito_check': bool(get_transito.filtered(lambda r: r.status in ('retraso', 'cancelado')))
             })
 
         return request.make_response(
@@ -483,7 +486,32 @@ class WebSiteDirectios(http.Controller):
             to_materiales.write(vals) if to_materiales else Line.create(vals)
         return {'success': True}
 
-    
+    @http.route('/dtm_ordenes_compra_transito', type='http', auth='public')
+    def dtm_ordenes_compra_transito(self):
+        get_transito = request.env['dtm.compras.realizado'].sudo().search([('listo_btn','=',True),('comprado','!=','Recibido'),('proveedor','!=','DTM')])
+        transito = []
+        for item in get_transito:
+            transito.append({
+                'proveedor': item.proveedor,
+                'orden': item.orden_trabajo,
+                'codigo': item.codigo,
+                'descripcion': item.nombre,
+                'status': dict(item._fields['status'].selection).get(item.status),
+                'cantidad': item.cantidad,
+                'cantidad_recibida': item.cantidad_almacen,
+                'precio': item.costo,
+                'fecha_tentativa': item.fecha_compra.strftime('%d-%m-%Y') if item.fecha_compra else '-',
+                'autoriza':item.autoriza         
+            })
+
+
+        return request.make_response(
+            json.dumps(transito),
+            headers={
+                'Content-Type':'application/json',
+                'Access-Control-Allow-Origin':'*'
+            }
+        )
 
             
        

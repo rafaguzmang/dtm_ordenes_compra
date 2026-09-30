@@ -51,11 +51,11 @@
                     <div class="ml-dot" style="background:#E1F5EE;color:#085041;"><t t-esc="this.state.por_aprobar_count"/></div>
                     <span class="ml-name">Por Aprobar</span>
                 </div>
- <!--
-                 <div class="ml-btn">
-                    <div class="ml-dot" style="background:#F1EFE8;color:#888780;">—</div>
+                 <div class="ml-btn" t-on-click="() => this.enTransito()" t-attf-style="#{this.state.en_transito_check ? 'background: #ff0000;' : ''}">
+                    <div class="ml-dot" style="background:#F1EFE8;color:#888780;"><t t-esc="this.state.en_transito_len"/></div>
                     <span class="ml-name">En Tránsito</span>
                 </div>
+ <!--
                
                 <div class="ml-btn">
                     <div class="ml-dot" style="background:#F1EFE8;color:#888780;">—</div>
@@ -243,6 +243,10 @@
                     </div>
                 </div>
             </div>
+        </t>
+        <!-- Abre el archivo PDF -->
+        <t t-if="state.transito_dialogo">
+           <TransitoDialogo cerrar="cerrarTransito"/>
         </t>
     </t>
 </template>

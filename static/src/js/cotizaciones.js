@@ -3,10 +3,10 @@ import { Component, useState, onWillStart } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { OrdenesTrabajo } from './dialogo/ordenes_dialogo'
 import { ActivosEntradas } from "./activosentradas"
-
+import { TransitoDialogo } from "./dialogo/transito_dialogo"
 
 export class Cotizaciones extends Component {
-    static components = { OrdenesTrabajo, ActivosEntradas }
+    static components = { OrdenesTrabajo, ActivosEntradas, TransitoDialogo }
     setup() {
         this.state = useState({
             cotizaciones: [],
@@ -31,6 +31,9 @@ export class Cotizaciones extends Component {
             facturado: false,
             factura_pdf: "",
             numero_factura: "",
+            transito_dialogo: false,
+            en_transito_len: 0,
+            en_transito_check: false,
         });
         this.rpc = useService("rpc");
         this.ultimoFiltro = null;
@@ -39,6 +42,13 @@ export class Cotizaciones extends Component {
             await this.fetchPrecioDollar();
             await this.fetchCotizaciones();
         });
+    }
+    // Material por recibir
+    enTransito() {
+        this.state.transito_dialogo = true;
+    }
+    cerrarTransito = () => {
+        this.state.transito_dialogo = false;
     }
 
     // Material a liberar para compras
@@ -110,6 +120,9 @@ export class Cotizaciones extends Component {
             this.state.material_a_liberar_count = data.filter(cotizacion => cotizacion.atencion_material).length;
             this.state.ordenes_atoradas_count = data.filter(cotizacion => cotizacion.atorada).length;
             this.state.por_aprobar_count = data.filter(cotizacion => cotizacion.por_aprobar).length;
+            this.state.en_transito_len = data[0].transito_len;
+            this.state.en_transito_check = data[0].transito_check;
+            console.log(data);
         } catch (error) {
             console.error("Error al obtener las cotizaciones:", error);
         }
