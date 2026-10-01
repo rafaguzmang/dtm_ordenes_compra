@@ -244,7 +244,7 @@
                 </div>
             </div>
         </t>
-        <!-- Abre el archivo PDF -->
+        <!-- Abre el modal de el material en transito -->
         <t t-if="state.transito_dialogo">
            <TransitoDialogo cerrar="cerrarTransito"/>
         </t>

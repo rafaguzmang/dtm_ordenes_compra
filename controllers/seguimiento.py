@@ -497,11 +497,12 @@ class WebSiteDirectios(http.Controller):
                 'codigo': item.codigo,
                 'descripcion': item.nombre,
                 'status': dict(item._fields['status'].selection).get(item.status),
+                'entrega':dict(item._fields['entrega'].selection).get(item.entrega),
                 'cantidad': item.cantidad,
                 'cantidad_recibida': item.cantidad_almacen,
                 'precio': item.costo,
                 'fecha_tentativa': item.fecha_compra.strftime('%d-%m-%Y') if item.fecha_compra else '-',
-                'autoriza':item.autoriza         
+                'autoriza':item.autoriza,   
             })
 
 

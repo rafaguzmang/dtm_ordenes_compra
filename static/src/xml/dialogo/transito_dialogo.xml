@@ -32,6 +32,7 @@
                                         <th>Código</th>
                                         <th>Descripción</th>
                                         <th>Estado</th>
+                                        <th>Entrega</th>
                                         <th>Cantidad</th>
                                         <th>Precio</th>
                                         <th>Fecha Tentativa</th>
@@ -48,6 +49,7 @@
                                         <td t-att-style="linea.status === 'En Tiempo'? 'color:#4caf50': 'color:#ff0000'">
                                             <t t-esc="linea.status"/>
                                         </td>
+                                        <td><t t-esc="linea.entrega"/></td>
                                         <td><t t-esc="linea.cantidad"/></td>
                                         <td><t t-esc="linea.precio"/></td>
                                         <td><t t-esc="linea.fecha_tentativa"/></td>
