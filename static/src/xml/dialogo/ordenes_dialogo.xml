@@ -52,6 +52,7 @@
                                         <th>Maquinados</th>
                                         <th>Compras</th>
                                         <th>Status</th>
+                                        <th>Prioridad</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -94,6 +95,13 @@
                                             <td class="dtm-na"><t t-esc="orden.maquinados"/></td>
                                             <td class="dtm-na"><t t-esc="orden.compras"/></td>
                                             <td class="dtm-na" t-on-click="() => abrirTiempoStatus(orden.od)"> <t t-esc="orden.status"/></td>
+                                            <td class="dtm-date-format">
+                                                <input type="date"
+                                                    t-att-value="orden.prioridad_date || ''"
+                                                    t-att-disabled="props.facturado"
+                                                    t-on-change="(ev) => this.prioridadChange(orden.od, ev.target.value)"
+                                                />
+                                            </td>
                                         </tr>
                                     </t>
                                 </tbody>

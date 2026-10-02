@@ -4,9 +4,10 @@ import { useService } from "@web/core/utils/hooks";
 import { OrdenesTrabajo } from './dialogo/ordenes_dialogo'
 import { ActivosEntradas } from "./activosentradas"
 import { TransitoDialogo } from "./dialogo/transito_dialogo"
+import { Importantes } from "@dtm_procesos/js/seguimiento/importantes"
 
 export class Cotizaciones extends Component {
-    static components = { OrdenesTrabajo, ActivosEntradas, TransitoDialogo }
+    static components = { OrdenesTrabajo, ActivosEntradas, TransitoDialogo, Importantes }
     setup() {
         this.state = useState({
             cotizaciones: [],
@@ -34,6 +35,9 @@ export class Cotizaciones extends Component {
             transito_dialogo: false,
             en_transito_len: 0,
             en_transito_check: false,
+            importantes_componente: false,
+            importantes_len: 0,
+
         });
         this.rpc = useService("rpc");
         this.ultimoFiltro = null;
@@ -43,6 +47,17 @@ export class Cotizaciones extends Component {
             await this.fetchCotizaciones();
         });
     }
+    // Materiales Importantes
+    importantes_componente() {
+        this.state.importantes_componente = true;
+    }
+
+    cerrarImportantes_componente = () => {
+        this.state.importantes_componente = false;
+    }
+
+
+
     // Material por recibir
     enTransito() {
         this.state.transito_dialogo = true;
@@ -122,7 +137,7 @@ export class Cotizaciones extends Component {
             this.state.por_aprobar_count = data.filter(cotizacion => cotizacion.por_aprobar).length;
             this.state.en_transito_len = data[0].transito_len;
             this.state.en_transito_check = data[0].transito_check;
-            console.log(data);
+            this.state.importantes_len = data[0].importantes_len;
         } catch (error) {
             console.error("Error al obtener las cotizaciones:", error);
         }
@@ -131,8 +146,6 @@ export class Cotizaciones extends Component {
     async fetchPrecioDollar() {
         try {
             const data = await this.rpc("dtm_precio_dollar", {})
-            console.log(data)
-            console.log(data.bmx.series[0].datos[0].dato)
             this.state.precio_dollar = Math.round(data.bmx.series[0].datos[0].dato * 100) / 100;
         } catch (error) {
             console.error("Error de comunicación con el banco de México:", error);
@@ -223,9 +236,9 @@ export class Cotizaciones extends Component {
 
     // Filtro para busqueda de orden por status en procesos
     async ordenTrabajoStatusFiltro(event) {
-        this.ultimoFiltro = { tipo: 'otStatus', valor: texto };
         const select = event.target;
         const texto = select.options[select.selectedIndex].text;
+        this.ultimoFiltro = { tipo: 'otStatus', valor: texto };
 
         const data = await fetch("/ordenes_status_filtro",
             {
@@ -247,8 +260,8 @@ export class Cotizaciones extends Component {
 
     // Filtro por orden de trabajo
     async ordenTrabajoFiltro(event) {
-        this.ultimoFiltro = { tipo: 'ot', valor: ot };
         const ot = event.target.value;
+        this.ultimoFiltro = { tipo: 'ot', valor: ot };
         if (ot) {
             const data = await fetch("/ordenes_trabajo_filtro",
                 {
@@ -272,7 +285,6 @@ export class Cotizaciones extends Component {
     // Filtro de busqueda por po
     poFiltro = (event) => {
         this.ultimoFiltro = { tipo: 'po', valor: event.target.value };
-        this.ultimoFiltro = { tipo: 'ot', valor: ot };
         const po = event.target.value;
         this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.po == po);
         this.state.cotizaciones = event.target.value == '' ? this.state.cotizaciones_filtradas : this.state.cotizaciones;
@@ -291,13 +303,13 @@ export class Cotizaciones extends Component {
     }
     // Filtro de busqueda por fecha de entrada
     fechaEntradaFiltro = (event) => {
-        this.ultimoFiltro = { tipo: 'fechaEntrada', valor: formattedDate };
         const fentrega = event.target.value;
         let [year, month, day] = fentrega.split('-');
         let formattedDate = '';
         if (year != '') {
             formattedDate = `${day}/${month}/${year}`;
         }
+        this.ultimoFiltro = { tipo: 'fechaEntrada', valor: formattedDate };
         this.state.cotizaciones = this.state.cotizaciones_filtradas.filter(record => record.fecha_entrada == formattedDate);
         this.state.cotizaciones = formattedDate == '' ? this.state.cotizaciones_filtradas : this.state.cotizaciones;
     }
@@ -352,7 +364,6 @@ export class Cotizaciones extends Component {
     filtroGeneral(proveedor, cliente, fentrega, status) {
         this.ultimoFiltro = { tipo: 'general', proveedor, cliente, fentrega, status };
         let tabla = this.state.cotizaciones_filtradas;
-        console.log(tabla)
         if (proveedor) {
             tabla = tabla.filter(cotizacion => {
                 return (cotizacion.proveedor || '').includes(proveedor.toUpperCase());

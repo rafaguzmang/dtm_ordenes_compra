@@ -24,7 +24,6 @@
                     <div class="dtm-kpi-val">$<t t-esc="state.acumulado"/></div>
                     <div class="dtm-kpi-delta up">Acumulado</div>
                 </div>
-               
             </div>
 
             <!--Entradas de activos por mes
@@ -55,13 +54,10 @@
                     <div class="ml-dot" style="background:#F1EFE8;color:#888780;"><t t-esc="this.state.en_transito_len"/></div>
                     <span class="ml-name">En Tránsito</span>
                 </div>
- <!--
-               
-                <div class="ml-btn">
-                    <div class="ml-dot" style="background:#F1EFE8;color:#888780;">—</div>
-                    <span class="ml-name">Undefined</span>
+                <div class="ml-btn" t-on-click="() => this.importantes_componente()">
+                    <div class="ml-dot" style="background:#F1EFE8;color:#888780;"><t t-esc="this.state.importantes_len"/></div>
+                    <span class="ml-name">Importantes</span>
                 </div> 
-                -->
             </div>
 
             
@@ -247,6 +243,26 @@
         <!-- Abre el modal de el material en transito -->
         <t t-if="state.transito_dialogo">
            <TransitoDialogo cerrar="cerrarTransito"/>
+        </t>
+        <!-- Abre el componente de importantes -->
+        <t t-if="state.importantes_componente">
+                <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Importantes</h5>
+                                <button type="button" class="btn-close" aria-label="Close" t-on-click="cerrarImportantes_componente"></button>
+                            </div>
+                            <div class="modal-body">
+                                <Importantes/>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" t-on-click="cerrarImportantes_componente">Cerrar</button> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+           
         </t>
     </t>
 </template>

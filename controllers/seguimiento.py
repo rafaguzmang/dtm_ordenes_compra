@@ -11,6 +11,7 @@ class WebSiteDirectios(http.Controller):
     def cotizaciones(self):
         get_po = request.env['dtm.ordenes.compra'].sudo().search([])
         get_transito = request.env['dtm.compras.realizado'].sudo().search([('listo_btn','=',True),('comprado','!=','Recibido'),('proveedor','!=','DTM')])
+        get_importantes = request.env['dtm.odt'].sudo().search([('prioridad_date','!=',False)])
         result = []
         for orden in get_po:
             # Se obtiene si está facturado
@@ -95,7 +96,8 @@ class WebSiteDirectios(http.Controller):
                 'po_date': orden.fecha_po.strftime("%x") if orden.fecha_po else '---',
                 'atorada': True if atorado else False,
                 'transito_len':len(get_transito),
-                'transito_check': bool(get_transito.filtered(lambda r: r.status in ('retraso', 'cancelado')))
+                'transito_check': bool(get_transito.filtered(lambda r: r.status in ('retraso', 'cancelado'))),
+                'importantes_len':len(get_importantes),
             })
 
         return request.make_response(
@@ -157,7 +159,8 @@ class WebSiteDirectios(http.Controller):
                 "material_diseno":True if data.ot_number else False,
                 "firma_ventas":data.firma_ventas,
                 "en_cotizacion":True if get_cotizacion else False,
-                "por_aprobar":True if data.firma and not data.firma_ventas else False
+                "por_aprobar":True if data.firma and not data.firma_ventas else False,
+                "prioridad_date": data.prioridad_date.strftime("%Y-%m-%d") if data.prioridad_date else ''
             }
             result.append(vals)
 
@@ -514,6 +517,14 @@ class WebSiteDirectios(http.Controller):
             }
         )
 
-            
+    @http.route('/dtm_prioridad_date', type='json', auth='public')
+    def dtm_prioridad_date(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        od = data.get("od")
+        prioridad_date = data.get("prioridad_date")
+        get_orden = request.env['dtm.odt'].sudo().search([('od_number','=',int(od))],limit=1)
+        get_orden.write({'prioridad_date':prioridad_date})
+        return {'success':True}
        
             

@@ -37,8 +37,23 @@ export class OrdenesTrabajo extends Component {
 
     }
 
+    async prioridadChange(od, value) {
+        console.log(od, value);
+        const response = await fetch('/dtm_prioridad_date', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'od': od,
+                'prioridad_date': value,
+            }),
+        });
+        const data = await response.json();
+        console.log(data);
+    }
+
     abrirTiempoStatus = (od) => {
-        console.log(od);
         this.state.showTiempoStatusModal = true;
         this.state.orden_diseno = od;
     }
@@ -48,7 +63,6 @@ export class OrdenesTrabajo extends Component {
     }
 
     abrirDiseno = (orden) => {
-        console.log(orden);
         this.state.showDisenoModal = true;
         this.state.orden = orden;
     }
@@ -103,7 +117,6 @@ export class OrdenesTrabajo extends Component {
         });
         const data = await response.json();
         this.state.ordenes = data.result;
-        console.log(this.state.ordenes);
         this.state.costo_diseno = data.result.map(costo => costo.costo_diseno).reduce((a, b) => a + b, 0);
         this.state.costo_ingenieria = data.result.map(costo => costo.costo_ingenieria).reduce((a, b) => a + b, 0);
         this.state.costo_compras = data.result.map(costo => costo.compras).reduce((a, b) => a + b, 0);
