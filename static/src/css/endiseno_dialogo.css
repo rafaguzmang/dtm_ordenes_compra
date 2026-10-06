@@ -1,0 +1,273 @@
+/* ==========================================================
+   dtm_ordenes_compra - Diálogo "Diseño" (endiseno_dialogo)
+   ========================================================== */
+
+.dc-table-section {
+    --dc-bg: #ffffff;
+    --dc-surface: #f8f9fb;
+    --dc-border: #e2e6ec;
+    --dc-text: #1f2937;
+    --dc-muted: #9aa3b2;
+    --dc-accent: #2563eb;
+    --dc-accent-soft: #e8efff;
+    --dc-ok: #15803d;
+    --dc-ok-bg: #dcfce7;
+    --dc-danger: #b91c1c;
+    --dc-danger-bg: #fee2e2;
+    --dc-radius: 8px;
+
+    color: var(--dc-text);
+    font-size: 0.9rem;
+}
+
+/* ---------- Encabezado y controles ---------- */
+
+.dc-table-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.dc-table-header__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dc-text);
+}
+
+.dc-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.dc-search,
+.dc-select {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius);
+    background: var(--dc-bg);
+    color: var(--dc-text);
+    font-size: 0.85rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.dc-search {
+    width: 220px;
+}
+
+.dc-select {
+    min-width: 170px;
+    max-width: 240px;
+    cursor: pointer;
+}
+
+.dc-search:focus,
+.dc-select:focus {
+    outline: none;
+    border-color: var(--dc-accent);
+    box-shadow: 0 0 0 3px var(--dc-accent-soft);
+}
+
+/* Quita las flechitas del input number */
+.dc-search::-webkit-outer-spin-button,
+.dc-search::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.dc-search[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* ---------- Tabla ---------- */
+
+.dc-table-wrap {
+    max-height: 60vh;
+    overflow: auto;
+    border: 1px solid var(--dc-border);
+    border-radius: var(--dc-radius);
+    background: var(--dc-bg);
+}
+
+.dc-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+.dc-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 10px 12px;
+    background: var(--dc-surface);
+    border-bottom: 1px solid var(--dc-border);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #4b5563;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+.dc-table thead th:hover {
+    background: var(--dc-accent-soft);
+    color: var(--dc-accent);
+}
+
+.dc-sort-icon {
+    margin-left: 4px;
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+.dc-table thead th:hover .dc-sort-icon {
+    opacity: 1;
+}
+
+.dc-table tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--dc-border);
+    vertical-align: middle;
+}
+
+.dc-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.dc-table tbody tr:nth-child(even) {
+    background: #fbfcfd;
+}
+
+.dc-table tbody tr:hover {
+    background: var(--dc-accent-soft);
+}
+
+/* ---------- Celdas específicas ---------- */
+
+.dc-od-badge {
+    display: inline-block;
+    min-width: 44px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--dc-accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.dc-cliente-chip {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 6px;
+    background: var(--dc-surface);
+    border: 1px solid var(--dc-border);
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.dc-td--product {
+    min-width: 200px;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dc-td--po {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* PO clickeable para abrir el PDF */
+.dc-td-popdf {
+    color: var(--dc-accent);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+}
+
+.dc-td-popdf:hover {
+    text-decoration-style: solid;
+    background: var(--dc-accent-soft);
+}
+
+.dc-td--date {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Badges de fecha ---------- */
+
+.dc-fecha-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.dc-fecha-badge--ok {
+    background: var(--dc-ok-bg);
+    color: var(--dc-ok);
+}
+
+.dc-fecha-badge--vencida {
+    background: var(--dc-danger-bg);
+    color: var(--dc-danger);
+}
+
+/* La última celda usa dc-fecha-badge directamente en el <td>:
+   evitamos que el flex rompa el layout de la tabla */
+td.dc-fecha-badge {
+    display: table-cell;
+    background: transparent;
+    color: var(--dc-text);
+    border-radius: 0;
+    padding: 9px 12px;
+}
+
+/* ---------- Modal del PDF (anidado) ---------- */
+
+/* El modal del PDF debe quedar por encima del modal principal */
+.modal.d-block .modal.d-block {
+    z-index: 1060;
+}
+
+.pdf-iframe {
+    display: block;
+    width: 100%;
+    height: 75vh;
+    border: 1px solid var(--dc-border, #e2e6ec);
+    border-radius: 6px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 768px) {
+
+    .dc-search,
+    .dc-select {
+        width: 100%;
+        max-width: none;
+    }
+
+    .dc-controls {
+        width: 100%;
+    }
+}

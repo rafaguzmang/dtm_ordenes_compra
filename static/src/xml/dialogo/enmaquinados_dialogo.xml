@@ -1,0 +1,53 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.enmaquinados_dialogo" owl="1">
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Maquinados</h5>
+                        <button type="button" class="btn-close" aria-label="Close" t-on-click="this.props.cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                         <div class="dc-table-section">  
+                            <div class="dc-table-wrap">
+                                <table class="dc-table">
+                                    <thead>                                          
+                                    <tr>
+                                        <th>OT</th>                    
+                                        <th>Tipo</th>
+                                        <th>Versión</th>
+                                        <th>Cliente</th>
+                                        <th>Proyecto</th>
+                                        <th>Diseñador</th>
+                                        <th>Status</th>                                                
+                                    </tr>
+                                    </thead>
+                                    <tbody id="dc-tbody">
+                                        <t t-foreach="state.maquinados" t-as="maquinado" t-key="maquinado_index">
+                                            <tr t-on-click="() => openMaquinado(maquinado.orden_trabajo,maquinado.version)">
+                                                <td><span class="dc-od-badge"><t t-esc="maquinado.orden_trabajo"/></span></td>
+                                                <td><span class="dc-cliente-chip"><t t-esc="maquinado.tipo"/></span></td>
+                                                <td class="dc-td--product"><t t-esc="maquinado.version"/></td>                     
+                                                <td><t t-esc="maquinado.cliente"/></td>    
+                                                <td><t t-esc="maquinado.proyecto"/></td>                     
+                                                <td><t t-esc="maquinado.disenador"/></td>                     
+                                                <td><t t-esc="maquinado.status"/>%</td>                                                        
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>                               
+                        </div>   
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" t-on-click="this.props.cerrar">Cerrar</button> 
+                        <div t-if="state.showMaquinadoDialogo">
+                            <DialogMaquinados orden="state.orden_trabajo" version="state.version" cerrar="cerrarMaquinados_dialogo"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+       
+    </t>
+</template>

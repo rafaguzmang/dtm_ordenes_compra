@@ -5,9 +5,12 @@ import { OrdenesTrabajo } from './dialogo/ordenes_dialogo'
 import { ActivosEntradas } from "./activosentradas"
 import { TransitoDialogo } from "./dialogo/transito_dialogo"
 import { Importantes } from "@dtm_procesos/js/seguimiento/importantes"
+import { EnDisenoDialogo } from "./dialogo/endiseno_dialogo"
+import { EnNesteoDialogo } from "./dialogo/ennesteo_dialogo"
+import { EnMaquinadosDialogo } from "./dialogo/enmaquinados_dialogo"
 
 export class Cotizaciones extends Component {
-    static components = { OrdenesTrabajo, ActivosEntradas, TransitoDialogo, Importantes }
+    static components = { OrdenesTrabajo, ActivosEntradas, TransitoDialogo, Importantes, EnDisenoDialogo, EnNesteoDialogo, EnMaquinadosDialogo }
     setup() {
         this.state = useState({
             cotizaciones: [],
@@ -37,6 +40,12 @@ export class Cotizaciones extends Component {
             en_transito_check: false,
             importantes_componente: false,
             importantes_len: 0,
+            endiseno_len: 0,
+            ennesteo_len: 0,
+            diseno_dialogo: false,
+            nesteo_dialogo: false,
+            maquinados_dialogo: false,
+            maquinados_len: 0,
 
         });
         this.rpc = useService("rpc");
@@ -47,6 +56,34 @@ export class Cotizaciones extends Component {
             await this.fetchCotizaciones();
         });
     }
+    // Dialogo para ver los proyectos que están en maquinados
+    maquinados_dialogo = () => {
+        this.state.maquinados_dialogo = true;
+    }
+
+    cerrarMaquinados_dialogo = () => {
+        this.state.maquinados_dialogo = false;
+    }
+
+    // Dialogo para ver los proyectos que están en diseño
+    diseno_dialogo = () => {
+        this.state.diseno_dialogo = true;
+    }
+
+    cerrarDiseno_dialogo = () => {
+        this.state.diseno_dialogo = false;
+    }
+
+    // Dialogo para ver los proyectos que están en nesteo
+    nesteo_dialogo = () => {
+        this.state.nesteo_dialogo = true;
+    }
+
+    cerrarNesteo_dialogo = () => {
+        this.state.nesteo_dialogo = false;
+    }
+
+
     // Materiales Importantes
     importantes_componente() {
         this.state.importantes_componente = true;
@@ -138,6 +175,9 @@ export class Cotizaciones extends Component {
             this.state.en_transito_len = data[0].transito_len;
             this.state.en_transito_check = data[0].transito_check;
             this.state.importantes_len = data[0].importantes_len;
+            this.state.endiseno_len = data[0].endiseno_len;
+            this.state.ennesteo_len = data[0].ennesteo_len;
+            this.state.maquinados_len = data[0].maquinados_len;
         } catch (error) {
             console.error("Error al obtener las cotizaciones:", error);
         }

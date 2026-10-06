@@ -1,0 +1,58 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.EnNesteoDialogo" owl="1">
+         <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Nesteo</h5>
+                            <button type="button" class="btn-close" aria-label="Close" t-on-click="props.cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="dc-table-section">
+
+                                <div class="dc-table-header">
+                                    <h2 class="dc-table-header__title">Registro de Órdenes en Nesteo</h2>                   
+                                </div>
+
+                                <div class="dc-table-wrap">
+                                    <table class="dc-table">
+                                        <thead>
+                                        <tr>
+                                            <th>OT<span class="dc-sort-icon">↕</span></th>                    
+                                            <th>Version<span class="dc-sort-icon">↕</span></th>
+                                            <th>Tipo<span class="dc-sort-icon">↕</span></th>
+                                            <th>Cliente<span class="dc-sort-icon">↕</span></th>
+                                            <th>Producto<span class="dc-sort-icon">↕</span></th>
+                                            <th>Cantidad<span class="dc-sort-icon">↕</span></th>
+                                            <th>Diseñador<span class="dc-sort-icon">↕</span></th>
+                                            <th>En Nesteo<span class="dc-sort-icon">↕</span></th>
+                                            
+                                        </tr>
+                                        </thead>
+                                        <tbody id="dc-tbody">
+                                            <t t-foreach="state.data" t-as="item" t-key="item.id">
+                                                <tr>
+                                                    <td><span class="dc-od-badge"><t t-esc="item.ot_number"/></span></td>
+                                                    <td><span class="dc-cliente-chip"><t t-esc="item.version_ot"/></span></td>
+                                                    <td class="dc-td--product"><t t-esc="item.tipo_orden"/></td>                     
+                                                    <td><t t-esc="item.cliente"/></td>                     
+                                                    <td class="dc-td--po"><t t-esc="item.producto"/></td>
+                                                    <td class="dc-td--po"><t t-esc="item.cantidad"/></td>
+                                                    <td class="dc-td--date"><t t-esc="item.disenador"/></td>
+                                                    <td class="dc-td--date"><t t-esc="item.fecha_llegada"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>  
+                                
+                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" t-on-click="props.cerrar">Cerrar</button> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </t>
+</template>

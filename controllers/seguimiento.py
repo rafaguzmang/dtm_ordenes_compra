@@ -12,6 +12,9 @@ class WebSiteDirectios(http.Controller):
         get_po = request.env['dtm.ordenes.compra'].sudo().search([])
         get_transito = request.env['dtm.compras.realizado'].sudo().search([('listo_btn','=',True),('comprado','!=','Recibido'),('proveedor','!=','DTM')])
         get_importantes = request.env['dtm.odt'].sudo().search([('prioridad_date','!=',False)])
+        endiseno_len = request.env['dtm.odt'].sudo().search(['|', '&', ('version_ot', '>', 1), ('firma', '=', False), ('ot_number', '=', 0)])
+        ennesteo_len = request.env['dtm.odt'].sudo().search([('firma', '!=', False), ('firma_ventas', '!=', False), ('firma_ingenieria', '=', False)])
+        get_en_maquinados = request.env['dtm.maquinados'].sudo().search([])
         result = []
         for orden in get_po:
             # Se obtiene si está facturado
@@ -98,6 +101,9 @@ class WebSiteDirectios(http.Controller):
                 'transito_len':len(get_transito),
                 'transito_check': bool(get_transito.filtered(lambda r: r.status in ('retraso', 'cancelado'))),
                 'importantes_len':len(get_importantes),
+                'endiseno_len':len(endiseno_len),
+                'ennesteo_len':len(ennesteo_len),
+                'maquinados_len':len(get_en_maquinados),
             })
 
         return request.make_response(
@@ -527,4 +533,26 @@ class WebSiteDirectios(http.Controller):
         get_orden.write({'prioridad_date':prioridad_date})
         return {'success':True}
        
+    @http.route('/dtm_ordenes_compra/en_maquinados', type='http', auth='public')
+    def dtm_ordenes_compra_en_maquinados(self):        
+        get_en_maquinados = request.env['dtm.maquinados'].sudo().search([])
+        en_maquinados = []
+        for item in get_en_maquinados:
+            get_odt = request.env['dtm.odt'].sudo().search([('ot_number','=',item.orden_trabajo),('revision_ot','=',item.revision_ot)],limit=1)
+            en_maquinados.append({
+                'orden_trabajo': item.orden_trabajo,
+                'tipo': item.tipo_orden,
+                'version': item.revision_ot,
+                'cliente': get_odt.name_client,
+                'proyecto': get_odt.product_name,
+                'disenador': item.disenador,
+                'status': round(item.status,0),
+            })
+        return request.make_response(
+            json.dumps(en_maquinados),
+            headers={
+                'Content-Type':'application/json',
+                'Access-Control-Allow-Origin':'*'
+            }
+        ) 
             

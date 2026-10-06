@@ -1,0 +1,136 @@
+<template xml:space="preserve">
+    <t t-name="dtm_ordenes_compra.endiseno_dialogo" owl="1">
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Diseño</h5>
+                        <button type="button" class="btn-close" aria-label="Close" t-on-click="this.props.cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="dc-table-section">
+
+                                    <!-- <div class="dc-table-header">
+                                        <div class="dc-controls">
+                                            <input class="dc-search" type="number" id="dc-search-input"
+                                                t-on-change="(ev) => this.searchODT(ev)"
+                                                placeholder="Buscar Órden de Diseño"/>                 
+
+                                            <select class="dc-select" id="dc-filter-client"
+                                                name="cliente_filtro" 
+                                                t-on-change="(ev) => this.clienteFiltro(ev)"  >
+                                                <option value="">Todos los clientes</option>
+                                                <t t-foreach="state.clients" t-as="cliente" t-key="cliente">
+                                                    <option t-att-value="cliente">
+                                                        <t t-esc="cliente"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                            <select class="dc-select" id="dc-filter-producto"
+                                                name="producto_filtro" 
+                                                t-on-change="(ev) => this.productoFiltro(ev)"  >
+                                                <option value="">Todos los productos</option>
+                                                <t t-foreach="state.productos" t-as="producto" t-key="producto">
+                                                    <option t-att-value="producto">
+                                                        <t t-esc="producto"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                    </div> -->
+
+                                    <div class="dc-table-wrap">
+                                        <table class="dc-table">
+                                            <thead>
+                                                <!-- <tr>
+                                                    <th t-on-click="() => this.sortColumn('orden_diseno')">OD <span class="dc-sort-icon">↕</span></th>                    
+                                                    <th t-on-click="() => this.sortColumn('cliente')">Cliente <span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('producto')">Producto <span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('cantidad')">Cantidad <span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('disenador')">Diseñador <span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('po_number')">PO<span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('precio')">Precio MXN<span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('fecha_llegada')">En Diseño<span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('fecha_termino_diseno')">Fecha Estimada <span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('fecha_entrega_cliente')">Fecha Entrega<span class="dc-sort-icon">↕</span></th>
+                                                    <th t-on-click="() => this.sortColumn('diseno_duracion')">Duración<span class="dc-sort-icon">↕</span></th>
+                                                </tr> -->
+                                                <tr>
+                                                    <th>OD</th>                    
+                                                    <th>Cliente</th>
+                                                    <th>Producto</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Diseñador</th>
+                                                    <th>PO</th>
+                                                    <th>Precio MXN</th>
+                                                    <th>En Diseño</th>
+                                                    <th>Fecha Estimada </th>
+                                                    <th>Fecha Entrega</th>
+                                                    <th>Duración</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dc-tbody">
+                                                <t t-foreach="state.ordenes" t-as="orden" t-key="orden.id">
+                                                    <tr>
+                                                        <td><span class="dc-od-badge"><t t-esc="orden.orden_diseno"/></span></td>
+                                                        <td><span class="dc-cliente-chip"><t t-esc="orden.cliente"/></span></td>
+                                                        <td class="dc-td--product"><t t-esc="orden.producto"/></td>                     
+                                                        <td><t t-esc="orden.cantidad"/></td>    
+                                                        <td><t t-esc="orden.disenador"/></td>                     
+                                                        <td class="dc-td--po dc-td-popdf " t-on-click="()=> this.openPDF(orden.po_file)"><t t-esc="orden.po_number"/></td>
+                                                        <td class="dc-td--po"><t t-esc="orden.precio"/></td>
+                                                        <td class="dc-td--date"><t t-esc="orden.fecha_llegada"/></td>
+                                                        <td class="dc-td--date">
+                                                            <t t-if="orden.fecha_termino_diseno">
+                                                                <span t-att-class="new Date(orden.fecha_termino_diseno) &lt; new Date() 
+                                                                    ? 'dc-fecha-badge dc-fecha-badge--vencida' 
+                                                                    : 'dc-fecha-badge dc-fecha-badge--ok'">
+                                                                    <t t-if="new Date(orden.fecha_termino_diseno) &lt; new Date()">⚠</t>
+                                                                    <t t-else="">✓</t>
+                                                                    <t t-esc="orden.fecha_termino_diseno"/>
+                                                                </span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span style="color: var(--dc-muted)">—</span>
+                                                            </t>
+                                                        </td>
+                                                        <td class="dc-td--date"><t t-esc="orden.fecha_entrega_cliente"/></td>
+                                                        <td class="dc-fecha-badge"><t t-esc="orden.diseno_duracion"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                <t t-if="state.showPDF">
+                                    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">PO</h5>
+                                                <button type="button" class="btn-close" aria-label="Close" t-on-click="closePDF"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <iframe 
+                                                    t-att-src="'data:application/pdf;base64,' + state.currentPDF"
+                                                    class="pdf-iframe"
+                                                    type="application/pdf">
+                                                </iframe>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" t-on-click="closePDF">Cerrar</button> 
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                        </div>                     
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" t-on-click="this.props.cerrar">Cerrar</button> 
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </t>
+</template>

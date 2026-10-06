@@ -55,8 +55,20 @@
                     <span class="ml-name">En Tránsito</span>
                 </div>
                 <div class="ml-btn" t-on-click="() => this.importantes_componente()">
-                    <div class="ml-dot" style="background:#F1EFE8;color:#888780;"><t t-esc="this.state.importantes_len"/></div>
+                    <div class="ml-dot" style="background:#91c5ed;color:#888780;"><t t-esc="this.state.importantes_len"/></div>
                     <span class="ml-name">Importantes</span>
+                </div> 
+                <div class="ml-btn" t-on-click="() => this.diseno_dialogo()">
+                    <div class="ml-dot" style="background:#afe5ec;color:#888780;"><t t-esc="this.state.endiseno_len"/></div>
+                    <span class="ml-name">Diseño</span>
+                </div> 
+                <div class="ml-btn" t-on-click="() => this.nesteo_dialogo()">
+                    <div class="ml-dot" style="background:#eff4ba;color:#888780;"><t t-esc="this.state.ennesteo_len"/></div>
+                    <span class="ml-name">Nesteo</span>
+                </div> 
+                <div class="ml-btn" t-on-click="() => this.maquinados_dialogo()">
+                    <div class="ml-dot" style="background:#eff4ba;color:#888780;"><t t-esc="this.state.maquinados_len"/></div>
+                    <span class="ml-name">Maquinados</span>
                 </div> 
             </div>
 
@@ -263,6 +275,19 @@
                     </div>
                 </div>
            
+        </t>
+        <!-- Abre el componente de en bdiseño -->
+        <t t-if="state.diseno_dialogo">
+            <EnDisenoDialogo cerrar="cerrarDiseno_dialogo"/>
+           
+        </t>
+        <!-- Abre el componente de en nesteo -->
+        <t t-if="state.nesteo_dialogo">
+           <EnNesteoDialogo cerrar="cerrarNesteo_dialogo"/>
+        </t>
+        <!-- Abre el componente de maquidados -->
+        <t t-if="state.maquinados_dialogo">
+           <EnMaquinadosDialogo cerrar="cerrarMaquinados_dialogo"/> 
         </t>
     </t>
 </template>
