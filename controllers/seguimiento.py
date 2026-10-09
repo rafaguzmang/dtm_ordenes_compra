@@ -556,3 +556,27 @@ class WebSiteDirectios(http.Controller):
             }
         ) 
             
+    @http.route('/dtm_borrar_compra', type='json', auth='public')
+    def dtm_borrar_compra(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        orden = data.get("orden")
+        id = data.get("id")
+        name = data.get("name")
+        cantidad = data.get("cantidad")
+        get_compra = request.env['dtm.odt'].sudo().search([('ot_number','=',orden)],limit=1)
+        get_materiales = request.env['dtm.materials.line'].sudo().search([('model_id','=',get_compra.id),('materials_list','=',int(id)),('materials_cuantity','=',int(cantidad))])
+        get_cortadora_primera = request.env['dtm.odt.laminas.nesteo'].sudo().search([('model_id','=',get_compra.id),('material_ids','=',get_materiales.id)])
+        get_cortadora_segunda = request.env['dtm.odt.laminas.nesteo'].sudo().search([('model_id2','=',get_compra.id),('material_ids','=',get_materiales.id)])
+        documento_nombre = ''
+        if get_cortadora_primera or get_cortadora_segunda:
+            get_compra.write({'material_no_autorizado':True,'firma_ingenieria':''})
+            documento_nombre = get_cortadora_primera.nombre if get_cortadora_primera else get_cortadora_segunda.nombre
+        get_cortadora = request.env['dtm.materiales.laser'].sudo().search([('orden_trabajo','=',int(orden))],limit=1)
+        get_cortadora.write({'material_no_autorizado':True})
+        get_documentos_cortadora = request.env['dtm.documentos.cortadora'].sudo().search([('model_id','=',get_cortadora.id),('nombre','ilike',documento_nombre)])
+        [cortadora.write({'material_no_autorizado':True}) for cortadora in get_documentos_cortadora]
+        get_corte_laser = request.env['dtm.cortadora.laser'].sudo().search([('orden_trabajo','=',int(orden)),('nombre','ilike',documento_nombre)],limit=1)
+        get_corte_laser.write({'material_no_autorizado':True}) if get_corte_laser else None
+        get_materiales.unlink()
+        return {'success':True}

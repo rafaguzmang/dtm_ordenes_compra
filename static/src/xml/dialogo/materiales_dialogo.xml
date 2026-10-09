@@ -172,6 +172,7 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Material</th>
+                                <th>Notas</th>
                                 <th>Proveedor</th>
                                 <th class="num">Cantidad</th>
                                 <th class="num">Inventario</th>
@@ -208,6 +209,9 @@
                                             </button>
                                             <button class="mat-btn-ico mat-btn-reject" t-on-click="()=>this.compraExtraordinaria(mat.id,mat.name,mat.cantidad)" title="No pasa por compras">
                                                 <i class="fa fa-credit-card" aria-hidden="true"></i>
+                                            </button>
+                                            <button class="mat-btn-ico mat-btn-trash" t-on-click="()=>this.borrarCompra(mat.id,mat.name,mat.cantidad)" title="Borrar material de la orden">
+                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
                                             </button>
                                         </div>                       
                                     </td>
@@ -297,6 +301,9 @@
                 <!-- Extraordinaria Dialog -->
                 <div t-if="state.showExtraordinaria">
                     <ExtraordinariaDialogo cerrar="cerrarExtraordinaria" orden_id="this.props.orden" material="this.state.name_pa" codigo="this.state.id_pa" cantidad="this.state.cantidad" refresh="()=>this.getMaterialesHijo()"/>                  
+                </div>
+                <div t-if="state.showEliminarCompra">
+                    <BorrarMaterialesDialogo cerrar="cerrarEliminarCompra" id="this.state.eliminarMaterial.id" name="this.state.eliminarMaterial.name" cantidad="this.state.eliminarMaterial.cantidad" orden="this.state.eliminarMaterial.orden"/>
                 </div>
             </div>
 

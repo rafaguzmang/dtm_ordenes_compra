@@ -3,10 +3,11 @@
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { PorAprobarDialogo } from "./poraprobar_dialogo";
 import { ExtraordinariaDialogo } from "./extraordinariaDialogo";
+import { BorrarMaterialesDialogo } from "./borrar_materiales_dialogo";
 
 export class MaterialesDialogo extends Component {
     static props = ["cerrar", "orden"]
-    static components = { PorAprobarDialogo, ExtraordinariaDialogo };
+    static components = { PorAprobarDialogo, ExtraordinariaDialogo, BorrarMaterialesDialogo };
     setup() {
         this.state = useState({
             materiales: [],
@@ -31,12 +32,35 @@ export class MaterialesDialogo extends Component {
             name_pa: "",
             orden: 0,
             cantidad: 0,
+            showEliminarCompra: false,
+            eliminarMaterial: {
+                id: 0,
+                name: "",
+                cantidad: 0,
+                orden: 0
+            }
         });
 
         onWillStart(async () => {
             await this.getMateriales();
         });
     }
+
+    borrarCompra(id, name, cantidad) {
+        this.state.showEliminarCompra = true;
+        this.state.eliminarMaterial.id = id;
+        this.state.eliminarMaterial.name = name;
+        this.state.eliminarMaterial.cantidad = cantidad;
+        this.state.eliminarMaterial.orden = this.props.orden;
+    }
+
+    cerrarEliminarCompra = async () => {
+        this.state.showEliminarCompra = false;
+        await this.getMateriales();
+        this.setTab("cotizacion");
+    }
+
+
 
     compraExtraordinaria = (id, name, cantidad) => {
         this.state.showExtraordinaria = true;
@@ -96,10 +120,6 @@ export class MaterialesDialogo extends Component {
         } catch (error) {
             console.error('Falló el fetch:', error);
         }
-    }
-
-    async rechazarMaterial(id) {
-        console.log('rechazarMaterial', id, orden);
     }
 
     setTab(tab) {

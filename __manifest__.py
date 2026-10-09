@@ -32,6 +32,7 @@
             'dtm_ordenes_compra/static/src/css/transito_dialogo.css',
             'dtm_ordenes_compra/static/src/css/endiseno_dialogo.css',
             # 'dtm_ordenes_compra/static/src/css/nesteo_dialogo.css',
+            'dtm_ordenes_compra/static/src/css/borrar_materiales_dialogo.css',
 
 
             # JS
@@ -51,6 +52,7 @@
             'dtm_ordenes_compra/static/src/js/dialogo/endiseno_dialogo.js',
             'dtm_ordenes_compra/static/src/js/dialogo/ennesteo_dialogo.js',
             'dtm_ordenes_compra/static/src/js/dialogo/enmaquinados_dialogo.js',
+            'dtm_ordenes_compra/static/src/js/dialogo/borrar_materiales_dialogo.js',
             # XML
             'dtm_ordenes_compra/static/src/xml/seguimiento.xml',
             'dtm_ordenes_compra/static/src/xml/cotizaciones.xml',
@@ -68,6 +70,8 @@
             'dtm_ordenes_compra/static/src/xml/dialogo/endiseno_dialogo.xml',
             'dtm_ordenes_compra/static/src/xml/dialogo/ennesteo_dialogo.xml',
             'dtm_ordenes_compra/static/src/xml/dialogo/enmaquinados_dialogo.xml',
+            'dtm_ordenes_compra/static/src/xml/dialogo/borrar_materiales_dialogo.xml',
+
         ],
     },
 }

@@ -1,0 +1,20 @@
+<template xml:space='preserve'>
+    <t t-name="dtm_ordenes_compra.borrar_materiales_dialogo" owl="1">
+        <div class="rmc-overlay-borrar">
+            <div class="rmc-dialog-borrar">
+                <h3>¿Esta seguro de eliminar el siguiente material?</h3>
+                <ul>
+                    <li>Código: <t t-esc="this.props.id"/></li>                   
+                    <li>Material: <t t-esc="this.props.name"/></li>                   
+                    <li>Cantidad: <t t-esc="this.props.cantidad"/></li>                   
+                    <li>Orden: <t t-esc="this.props.orden"/></li>                   
+                </ul>
+
+                <div class="rmc-btn-row-borrar">
+                    <button class="rmc-btn-cancel-borrar" t-on-click="props.cerrar">Cancelar</button>
+                    <button class="rmc-btn-confirm-borrar" t-on-click="() => this.borrarCompra()">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
