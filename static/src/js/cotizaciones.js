@@ -8,9 +8,11 @@ import { Importantes } from "@dtm_procesos/js/seguimiento/importantes"
 import { EnDisenoDialogo } from "./dialogo/endiseno_dialogo"
 import { EnNesteoDialogo } from "./dialogo/ennesteo_dialogo"
 import { EnMaquinadosDialogo } from "./dialogo/enmaquinados_dialogo"
+import { CalidadDialogo } from "./dialogo/calidad_dialogo"
+import { TerminadoDialogo } from "./dialogo/terminados_dialogo"
 
 export class Cotizaciones extends Component {
-    static components = { OrdenesTrabajo, ActivosEntradas, TransitoDialogo, Importantes, EnDisenoDialogo, EnNesteoDialogo, EnMaquinadosDialogo }
+    static components = { OrdenesTrabajo, ActivosEntradas, TransitoDialogo, Importantes, EnDisenoDialogo, EnNesteoDialogo, EnMaquinadosDialogo, CalidadDialogo, TerminadoDialogo }
     setup() {
         this.state = useState({
             cotizaciones: [],
@@ -46,6 +48,10 @@ export class Cotizaciones extends Component {
             nesteo_dialogo: false,
             maquinados_dialogo: false,
             maquinados_len: 0,
+            calidad_dialogo: false,
+            terminados_dialogo: false,
+            calidad_len: 0,
+            terminados_len: 0,
 
         });
         this.rpc = useService("rpc");
@@ -56,6 +62,26 @@ export class Cotizaciones extends Component {
             await this.fetchCotizaciones();
         });
     }
+
+    // Dialogo para ver los proyectos terminados
+    terminados_dialogo = () => {
+        this.state.terminados_dialogo = true;
+    }
+
+    cerrarTerminados_dialogo = () => {
+        this.state.terminados_dialogo = false;
+    }
+
+    // Dialogo para ver los proyectos que están en calidad
+    calidad_dialogo = () => {
+        this.state.calidad_dialogo = true;
+    }
+
+    cerrarCalidad_dialogo = () => {
+        this.state.calidad_dialogo = false;
+    }
+
+
     // Dialogo para ver los proyectos que están en maquinados
     maquinados_dialogo = () => {
         this.state.maquinados_dialogo = true;
@@ -178,6 +204,8 @@ export class Cotizaciones extends Component {
             this.state.endiseno_len = data[0].endiseno_len;
             this.state.ennesteo_len = data[0].ennesteo_len;
             this.state.maquinados_len = data[0].maquinados_len;
+            this.state.calidad_len = data[0].calidad_len;
+            this.state.terminados_len = data[0].terminados_len;
         } catch (error) {
             console.error("Error al obtener las cotizaciones:", error);
         }

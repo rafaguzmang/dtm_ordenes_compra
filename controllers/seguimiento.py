@@ -13,8 +13,10 @@ class WebSiteDirectios(http.Controller):
         get_transito = request.env['dtm.compras.realizado'].sudo().search([('listo_btn','=',True),('comprado','!=','Recibido'),('proveedor','!=','DTM')])
         get_importantes = request.env['dtm.odt'].sudo().search([('prioridad_date','!=',False)])
         endiseno_len = request.env['dtm.odt'].sudo().search(['|', '&', ('version_ot', '>', 1), ('firma', '=', False), ('ot_number', '=', 0)])
-        ennesteo_len = request.env['dtm.odt'].sudo().search([('firma', '!=', False), ('firma_ventas', '!=', False), ('firma_ingenieria', '=', False)])
+        ennesteo_len = request.env['dtm.odt'].sudo().search(['|', '&', ('nesteo_chk','=',True), ('manufactura','=',False), ('material_no_autorizado','=',True)])
         get_en_maquinados = request.env['dtm.maquinados'].sudo().search([])
+        get_calidad = request.env['dtm.proceso'].sudo().search([('status','=','calidad')])
+        get_terminados = request.env['dtm.proceso'].sudo().search([('status','=','terminado')])
         result = []
         for orden in get_po:
             # Se obtiene si está facturado
@@ -104,6 +106,8 @@ class WebSiteDirectios(http.Controller):
                 'endiseno_len':len(endiseno_len),
                 'ennesteo_len':len(ennesteo_len),
                 'maquinados_len':len(get_en_maquinados),
+                'calidad_len':len(get_calidad),
+                'terminados_len':len(get_terminados),
             })
 
         return request.make_response(
@@ -578,5 +582,49 @@ class WebSiteDirectios(http.Controller):
         [cortadora.write({'material_no_autorizado':True}) for cortadora in get_documentos_cortadora]
         get_corte_laser = request.env['dtm.cortadora.laser'].sudo().search([('orden_trabajo','=',int(orden)),('nombre','ilike',documento_nombre)],limit=1)
         get_corte_laser.write({'material_no_autorizado':True}) if get_corte_laser else None
+        get_cotizacion = request.env['dtm.compras.requerido'].sudo().search([('orden_trabajo','=',orden),('codigo','=',int(id)),('cantidad','=',int(cantidad))],limit=1)
+        get_cotizacion.unlink() if get_cotizacion else None
         get_materiales.unlink()
         return {'success':True}
+
+    @http.route('/dtm_contizacion_calidad', type='http', auth='public')
+    def dtm_contizacion_calidad(self):
+        get_calidad = request.env['dtm.proceso'].sudo().search([('status','=','calidad')])
+        calidad = []
+        for item in get_calidad:
+            calidad.append({
+                'ot_number': item.ot_number,
+                'tipo': item.tipe_order,
+                'version': item.revision_ot,
+                'cliente': item.name_client,
+                'proyecto': item.product_name,
+                'disenador': item.disenador,
+            })
+        return request.make_response(
+            json.dumps(calidad),
+            headers={
+                'Content-Type':'application/json',
+                'Access-Control-Allow-Origin':'*'
+            }
+        ) 
+
+    @http.route('/cotizacion_terminados', type='http', auth='public')
+    def cotizacion_terminados(self):
+        get_terminados = request.env['dtm.proceso'].sudo().search([('status','=','terminado')])
+        terminados = []
+        for item in get_terminados:
+            terminados.append({
+                'ot_number': item.ot_number,
+                'tipo': item.tipe_order,
+                'version': item.revision_ot,
+                'cliente': item.name_client,
+                'proyecto': item.product_name,
+                'disenador': item.disenador,
+            })
+        return request.make_response(
+            json.dumps(terminados),
+            headers={
+                'Content-Type':'application/json',
+                'Access-Control-Allow-Origin':'*'
+            }
+        ) 
