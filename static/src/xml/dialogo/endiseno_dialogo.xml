@@ -77,7 +77,7 @@
                                                         <td class="dc-td--product"><t t-esc="orden.producto"/></td>                     
                                                         <td><t t-esc="orden.cantidad"/></td>    
                                                         <td><t t-esc="orden.disenador"/></td>                     
-                                                        <td class="dc-td--po dc-td-popdf " t-on-click="()=> this.openPDF(orden.po_file)"><t t-esc="orden.po_number"/></td>
+                                                        <td class="dc-td--po dc-td-popdf " t-on-click="() => this.openPDF(orden.po_file)"><t t-esc="orden.po_number"/></td>
                                                         <td class="dc-td--po"><t t-esc="orden.precio"/></td>
                                                         <td class="dc-td--date"><t t-esc="orden.fecha_llegada"/></td>
                                                         <td class="dc-td--date">

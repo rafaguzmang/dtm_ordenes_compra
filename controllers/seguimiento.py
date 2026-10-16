@@ -628,3 +628,15 @@ class WebSiteDirectios(http.Controller):
                 'Access-Control-Allow-Origin':'*'
             }
         ) 
+
+    @http.route('/calidad_dtm_orden_datos', type='json', auth='public')
+    def calidad_dtm_orden_datos(self):
+        raw = request.httprequest.data
+        data = json.loads(raw)
+        ot_number = data.get('ot_number')
+        get_cotizacion = request.env['dtm.compras.items'].sudo().search([('orden_trabajo','=',int(ot_number))],limit=1)
+        
+        return {
+            'cotizacion':get_cotizacion.model_id.no_cotizacion, 
+            'po_costo':get_cotizacion.model_id.precio_total,          
+        }

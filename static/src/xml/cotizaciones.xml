@@ -266,23 +266,22 @@
         </t>
         <!-- Abre el componente de importantes -->
         <t t-if="state.importantes_componente">
-                <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Importantes</h5>
-                                <button type="button" class="btn-close" aria-label="Close" t-on-click="cerrarImportantes_componente"></button>
-                            </div>
-                            <div class="modal-body">
-                                <Importantes/>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" t-on-click="cerrarImportantes_componente">Cerrar</button> 
-                            </div>
+            <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Importantes</h5>
+                            <button type="button" class="btn-close" aria-label="Close" t-on-click="cerrarImportantes_componente"></button>
+                        </div>
+                        <div class="modal-body">
+                            <Importantes/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" t-on-click="cerrarImportantes_componente">Cerrar</button> 
                         </div>
                     </div>
                 </div>
-           
+            </div>           
         </t>
         <!-- Abre el componente de en bdiseño -->
         <t t-if="state.diseno_dialogo">

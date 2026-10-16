@@ -23,7 +23,7 @@
                                 </thead>
                                 <tbody id="dc-tbody">
                                     <t t-foreach="state.calidad" t-as="item" t-key="item_index">
-                                        <tr>
+                                        <tr t-on-click="() => showData(item.ot_number)">
                                             <td><span class="dc-od-badge"><t t-esc="item.ot_number"/></span></td>
                                             <td><span class="dc-cliente-chip"><t t-esc="item.tipo"/></span></td>
                                             <td class="dc-td--product"><t t-esc="item.version"/></td>                     
@@ -35,10 +35,10 @@
                                 </tbody>
                             </table>
                         </div>                               
-                    </div>   
-
-               
-
+                    </div>
+                    <t t-if="state.datos">
+                        <OrdenesTrabajo cerrar="closeShowData" cotizacion="state.cotizacion" po_costo="state.po_costo" cliente="state.cliente" fcotizaciones="state.fcotizaciones" facturado="state.facturado" numero_factura="state.numero_factura"/>                       
+                    </t>   
                 </div>                
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" t-on-click="props.cerrar">Cerrar</button> 

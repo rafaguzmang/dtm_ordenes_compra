@@ -32,7 +32,7 @@
                                         </thead>
                                         <tbody id="dc-tbody">
                                             <t t-foreach="state.data" t-as="item" t-key="item.id">
-                                                <tr>
+                                                <tr t-on-click="()=> this.openDialogoOrden(item.ot_number)">
                                                     <td><span class="dc-od-badge"><t t-esc="item.ot_number"/></span></td>
                                                     <td><span class="dc-cliente-chip"><t t-esc="item.version_ot"/></span></td>
                                                     <td class="dc-td--product"><t t-esc="item.tipo_orden"/></td>                     
@@ -45,6 +45,17 @@
                                             </t>
                                         </tbody>
                                     </table>
+                                    <t t-if="state.showOrden">
+                                        <OrdenesTrabajo 
+                                            cerrar="closeDialogoOrden"
+                                            cotizacion="state.cotizacion"
+                                            po_costo="state.po_costo"
+                                            cliente="state.cliente"
+                                            fcotizaciones="state.fcotizaciones"
+                                            facturado="state.facturado"
+                                            numero_factura="state.numero_factura"                                            
+                                        />                                      
+                                    </t>
                                 </div>  
                                 
                             </div>
